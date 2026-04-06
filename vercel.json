@@ -1,0 +1,15 @@
+{
+  "redirects": [
+    {
+      "source": "/:path*",
+      "has": [
+        {
+          "type": "host",
+          "value": "www.veilshield.xyz"
+        }
+      ],
+      "destination": "https://veilshield.xyz/:path*",
+      "permanent": true
+    }
+  ]
+}

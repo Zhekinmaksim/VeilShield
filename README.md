@@ -7,6 +7,9 @@ Policy terms stay encrypted on-chain, while the testnet flow still settles with 
 Built for the Fhenix Privacy-by-Design dApp Buildathon on AKINDO WaveHack:
 https://app.akindo.io/wave-hacks/Nm2qjzEBgCqJD90W?tab=overview
 
+Live app:
+https://veilshield.xyz
+
 ## Project standard
 
 AI-assisted tools are fine in this repo. What is not fine is fake depth: code or copy that looks sophisticated but falls apart under inspection.
