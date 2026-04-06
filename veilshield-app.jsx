@@ -1098,7 +1098,11 @@ function App() {
       ]);
 
       setPolicyPreview({ coverage, premium, threshold });
-      pushToast("Encryption preview ready", "Preview generated from CoFHE inputs.", "success");
+      pushToast(
+        "Encryption preview ready",
+        "Threshold is sent encrypted. Coverage and premium previews are shown for the mirrored on-chain handles.",
+        "success"
+      );
     } catch (previewError) {
       pushToast("Encryption preview failed", getErrorMessage(previewError, "Failed to generate encryption preview."), "error");
     }
@@ -1795,7 +1799,7 @@ function CreatePolicyPage({
           </div>
           <div style={css.cardBody}>
             <div style={{ fontSize: "12px", color: T.textSecondary, marginBottom: "12px" }}>
-              Threshold is encrypted client-side. Coverage and premium are mirrored on-chain from the public token amounts.
+              Threshold is encrypted client-side and sent to the contract. Coverage and premium previews are shown here too, but the contract derives those encrypted mirrors from the public token amounts.
             </div>
             {preview ? (
               <div style={{ background: T.surfaceAlt, padding: "12px 16px", borderRadius: T.radius, fontFamily: T.mono, fontSize: "12px", lineHeight: "2" }}>

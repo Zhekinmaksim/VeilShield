@@ -2,7 +2,7 @@
 
 VeilShield is a Fhenix CoFHE project for parametric insurance on Arbitrum Sepolia.
 
-Policy terms stay encrypted on-chain, while the testnet flow still settles with a plain ERC-20 token.
+The trigger path runs on encrypted state on-chain. Token settlement still uses a plain ERC-20 test asset, and the contract mirrors the token terms into encrypted handles where the privacy logic needs them.
 
 Built for the Fhenix Privacy-by-Design dApp Buildathon on AKINDO WaveHack:
 https://app.akindo.io/wave-hacks/Nm2qjzEBgCqJD90W?tab=overview
@@ -38,6 +38,14 @@ The bar here is straightforward:
 - async finalization through `FHE.decrypt`
 - ERC-20 deposit, premium, and payout flow with `vUSD`
 
+## Why this fits the buildathon
+
+- runs on a live supported testnet: `Arbitrum Sepolia`
+- keeps part of the core protocol state encrypted during computation instead of exposing it in plaintext
+- does real smart-contract evaluation with CoFHE rather than a frontend-only privacy simulation
+- documents the privacy boundary in plain terms, including what is still public
+- ships as a working demo with verified contracts, tests, and a live frontend
+
 ## Live deployment
 
 - Network: `Arbitrum Sepolia`
@@ -56,8 +64,8 @@ This repo uses a mixed model on purpose.
 Encrypted:
 
 - LP balances
-- policy coverage
-- policy premium
+- policy coverage mirror
+- policy premium mirror
 - trigger threshold
 - oracle reading
 - pending payout
@@ -130,7 +138,7 @@ npm run verify:arb-sepolia
 2. Mint `vUSD` in the pool screen.
 3. Approve `vUSD` once.
 4. Deposit liquidity.
-5. Create a policy with encrypted terms.
+5. Create a policy with an encrypted threshold and encrypted mirrors of the token terms.
 6. Submit an encrypted oracle reading from the oracle wallet.
 7. Request evaluation.
 8. Wait a few seconds.

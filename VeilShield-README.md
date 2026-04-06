@@ -15,13 +15,13 @@ For this repo, that means:
 
 ## The idea
 
-Most on-chain insurance products expose too much. If coverage, premium, and trigger thresholds are all public, anyone can read the policy terms and infer what the user is hedging.
+Most on-chain insurance products expose too much. If trigger conditions and private user views are public, anyone can read the policy and infer what the user is hedging.
 
-VeilShield uses Fhenix CoFHE so those values can stay encrypted while the contract still evaluates the trigger on-chain.
+VeilShield uses Fhenix CoFHE so the trigger path and user-scoped encrypted views stay inside encrypted contract state while the protocol still settles a visible ERC-20 demo asset on testnet.
 
 ## How the flow works
 
-1. A user creates a policy with encrypted coverage, premium, and threshold values.
+1. A user creates a policy with public token amounts plus an encrypted threshold. The contract mirrors the token terms into encrypted handles for the policy logic.
 2. The oracle submits an encrypted reading for a feed.
 3. The contract compares the encrypted reading against the encrypted threshold.
 4. The contract computes an encrypted payout with `FHE.select`.
@@ -52,8 +52,8 @@ Key pieces of public state:
 
 Key encrypted state:
 
-- coverage
-- premium
+- coverage mirror
+- premium mirror
 - threshold
 - oracle reading
 - LP balances
@@ -74,7 +74,7 @@ The contract uses the operations that actually matter for the demo:
 
 | Operation | Why it is there |
 | --- | --- |
-| `FHE.asEuint64` | turn encrypted input into a contract handle |
+| `FHE.asEuint64` | turn a threshold input or public token amount into a contract handle |
 | `FHE.asEbool` | turn a public boolean into an encrypted branch condition |
 | `FHE.add` | pool totals, deposits, premiums |
 | `FHE.sub` | withdrawals, reserve release, settlement |
@@ -89,7 +89,7 @@ The contract uses the operations that actually matter for the demo:
 
 This project is not fully opaque in every dimension.
 
-The project mirrors token amounts publicly where it has to, because ERC-20 transfers need concrete values. That is a conscious tradeoff. The policy logic still runs on encrypted values instead of a frontend-only simulation.
+Coverage amount, premium amount, expiry, beneficiary, and pool liquidity are still public because ERC-20 transfers and reserve accounting need concrete values. The contract mirrors the token terms into encrypted handles and keeps the trigger path, LP balances, oracle reading, and payout selection inside encrypted logic. That is a conscious tradeoff rather than a hidden limitation.
 
 ## Why FHE here
 
@@ -106,6 +106,7 @@ What is already in place:
 - end-to-end demo flow with `vUSD`
 - local tests for deposit, policy creation, evaluation, and settlement
 - frontend wired to the live contracts
+- privacy boundary written down instead of implied
 
 What is still rough:
 
