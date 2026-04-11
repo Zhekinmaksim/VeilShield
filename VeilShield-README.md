@@ -15,18 +15,19 @@ For this repo, that means:
 
 ## The idea
 
-Most on-chain insurance products expose too much. If trigger conditions and private user views are public, anyone can read the policy and infer what the user is hedging.
+Most on-chain insurance products expose too much. For exporters, a public delay threshold can reveal logistics tolerance, and a public coverage amount can leak shipment size or treasury posture.
 
 VeilShield uses Fhenix CoFHE so the trigger path and user-scoped encrypted views stay inside encrypted contract state while the protocol still settles a visible ERC-20 demo asset on testnet.
 
 ## How the flow works
 
-1. A user creates a policy with public token amounts plus an encrypted threshold. The contract mirrors the token terms into encrypted handles for the policy logic.
-2. The oracle submits an encrypted reading for a feed.
+1. An exporter creates a cargo delay policy with public token amounts plus an encrypted threshold.
+2. The oracle submits an encrypted reading for a shipping-related feed.
 3. The contract compares the encrypted reading against the encrypted threshold.
 4. The contract computes an encrypted payout with `FHE.select`.
 5. The trigger result is finalized asynchronously through decryption.
 6. If the policy triggered, the beneficiary receives `vUSD`.
+7. Role-specific users can unseal only their own permitted view in the browser.
 
 The contract does not need to branch on plaintext trigger values while doing the main evaluation.
 
@@ -41,6 +42,7 @@ Main responsibilities:
 - track oracle feeds
 - evaluate triggers
 - settle payouts
+- expose owner-scoped auditor disclosure handles
 
 Key pieces of public state:
 
@@ -107,12 +109,15 @@ What is already in place:
 - local tests for deposit, policy creation, evaluation, and settlement
 - frontend wired to the live contracts
 - privacy boundary written down instead of implied
+- role-based frontend workspaces
+- permit-based selective disclosure UX
+- seeded demo path for a non-empty judge-facing state
 
 What is still rough:
 
-- frontend UX is minimal
-- oracle input is manual
+- oracle input is still manual
 - payout accounting is still closer to a demo than production underwriting
+- redeploy is required any time contract-side disclosure rules change
 
 ## Roadmap
 

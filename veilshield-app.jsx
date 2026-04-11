@@ -17,32 +17,34 @@ import {
   STATUS_LABELS,
   FEEDS,
   deployment,
+  APP_TAGLINE,
+  EXPORTER_SCENARIO,
 } from "./src/config/veilshield.js";
 
 const PUBLIC_PROVIDER = new ethers.JsonRpcProvider(ARB_SEPOLIA_RPC);
 
 const T = {
-  bg: "#FAFAFA",
+  bg: "#F8F8F4",
   surface: "#FFFFFF",
-  surfaceAlt: "#F5F5F0",
-  border: "#E5E5E0",
-  borderStrong: "#D0D0CB",
-  text: "#1A1A1A",
-  textSecondary: "#6B6B6B",
-  textTertiary: "#9B9B9B",
+  surfaceAlt: "#F3F5F1",
+  border: "#E1E6E0",
+  borderStrong: "#C6D1C8",
+  text: "#1B211D",
+  textSecondary: "#59655C",
+  textTertiary: "#869186",
   accent: "#1B5E3B",
   accentLight: "#E8F5EE",
   accentMuted: "#F1F7F3",
-  accentBorder: "#D8E7DD",
-  accentDark: "#0F3D26",
-  warning: "#C4841D",
-  warningLight: "#FFF8EC",
-  danger: "#B83232",
-  dangerLight: "#FFF0F0",
+  accentBorder: "#D2E3D8",
+  accentDark: "#103A25",
+  warning: "#B47A17",
+  warningLight: "#FFF7E7",
+  danger: "#B64040",
+  dangerLight: "#FFF1F1",
   success: "#1B5E3B",
   mono: "'IBM Plex Mono', 'Menlo', monospace",
   sans: "'IBM Plex Sans', -apple-system, BlinkMacSystemFont, sans-serif",
-  radius: "3px",
+  radius: "4px",
 };
 
 const css = {
@@ -68,44 +70,51 @@ const css = {
   logo: {
     display: "flex",
     alignItems: "center",
-    gap: "10px",
+    gap: "12px",
   },
-  logoMark: {
-    width: "28px",
-    height: "28px",
-    background: T.accent,
-    borderRadius: "2px",
+  logoImage: {
+    width: "36px",
+    height: "36px",
+    display: "block",
+  },
+  logoTextWrap: {
     display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    color: "#fff",
-    fontSize: "13px",
-    fontWeight: 600,
-    fontFamily: T.mono,
+    alignItems: "baseline",
+    gap: "8px",
+    flexWrap: "wrap",
   },
   logoText: {
-    fontSize: "15px",
-    fontWeight: 600,
-    letterSpacing: "-0.01em",
+    fontSize: "17px",
+    fontWeight: 700,
+    letterSpacing: "-0.02em",
+  },
+  logoMeta: {
+    fontSize: "11px",
+    color: T.textTertiary,
+    fontFamily: T.mono,
   },
   nav: {
     display: "flex",
-    gap: "2px",
+    gap: "4px",
     flexWrap: "wrap",
   },
   navItem: (active) => ({
-    padding: "6px 14px",
-    fontSize: "13px",
-    fontWeight: active ? 600 : 400,
+    padding: "8px 14px",
+    fontSize: "12px",
+    fontWeight: active ? 600 : 500,
     color: active ? T.accent : T.textSecondary,
     background: active ? T.accentLight : "transparent",
     borderRadius: T.radius,
-    border: "none",
+    border: `1px solid ${active ? T.accentBorder : "transparent"}`,
     cursor: "pointer",
-    transition: "all 0.15s",
   }),
+  buttonRow: {
+    display: "flex",
+    gap: "8px",
+    flexWrap: "wrap",
+  },
   walletBtn: {
-    padding: "7px 16px",
+    padding: "8px 16px",
     fontSize: "12px",
     fontFamily: T.mono,
     background: T.text,
@@ -116,7 +125,7 @@ const css = {
     letterSpacing: "0.02em",
   },
   walletBtnSecondary: {
-    padding: "7px 16px",
+    padding: "8px 16px",
     fontSize: "12px",
     fontFamily: T.mono,
     background: "transparent",
@@ -127,9 +136,81 @@ const css = {
     letterSpacing: "0.02em",
   },
   main: {
-    maxWidth: "1120px",
+    maxWidth: "1160px",
     margin: "0 auto",
-    padding: "32px",
+    padding: "28px 32px 48px",
+  },
+  hero: {
+    display: "grid",
+    gridTemplateColumns: "1.4fr 1fr",
+    gap: "16px",
+    marginBottom: "20px",
+  },
+  heroPrimary: {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    padding: "24px",
+  },
+  heroEyebrow: {
+    fontSize: "11px",
+    fontWeight: 700,
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    color: T.accent,
+    marginBottom: "10px",
+  },
+  heroTitle: {
+    fontSize: "26px",
+    lineHeight: "1.15",
+    fontWeight: 700,
+    letterSpacing: "-0.03em",
+    margin: "0 0 10px",
+  },
+  heroBody: {
+    fontSize: "14px",
+    color: T.textSecondary,
+    maxWidth: "52ch",
+    margin: 0,
+  },
+  heroMeta: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(180px, 1fr))",
+    gap: "10px",
+    marginTop: "18px",
+  },
+  heroMetaCard: {
+    padding: "12px 14px",
+    borderRadius: T.radius,
+    border: `1px solid ${T.border}`,
+    background: T.surfaceAlt,
+  },
+  heroMetaLabel: {
+    fontSize: "11px",
+    letterSpacing: "0.06em",
+    textTransform: "uppercase",
+    color: T.textTertiary,
+    marginBottom: "4px",
+  },
+  heroMetaValue: {
+    fontSize: "12px",
+    color: T.textSecondary,
+    fontFamily: T.mono,
+  },
+  heroSecondary: {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    padding: "20px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+  },
+  heroList: {
+    margin: 0,
+    paddingLeft: "18px",
+    color: T.textSecondary,
+    fontSize: "13px",
   },
   card: {
     background: T.surface,
@@ -147,10 +228,10 @@ const css = {
     flexWrap: "wrap",
   },
   cardTitle: {
-    fontSize: "13px",
-    fontWeight: 600,
+    fontSize: "12px",
+    fontWeight: 700,
     textTransform: "uppercase",
-    letterSpacing: "0.06em",
+    letterSpacing: "0.08em",
     color: T.textSecondary,
   },
   cardBody: {
@@ -180,8 +261,8 @@ const css = {
     marginBottom: "4px",
   },
   statValue: {
-    fontSize: "22px",
-    fontWeight: 600,
+    fontSize: "23px",
+    fontWeight: 700,
     fontFamily: T.mono,
     letterSpacing: "-0.02em",
   },
@@ -199,6 +280,106 @@ const css = {
     borderRadius: T.radius,
     padding: "5px 8px",
   },
+  statusRail: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "10px",
+    marginBottom: "16px",
+  },
+  statusCard: (variant) => {
+    const palette = {
+      good: { bg: T.accentLight, border: T.accentBorder, color: T.accentDark },
+      warn: { bg: T.warningLight, border: "#F0DEB9", color: T.warning },
+      bad: { bg: T.dangerLight, border: "#F2CCCC", color: T.danger },
+      neutral: { bg: T.surface, border: T.border, color: T.textSecondary },
+    };
+    const selected = palette[variant] || palette.neutral;
+    return {
+      border: `1px solid ${selected.border}`,
+      background: selected.bg,
+      borderRadius: T.radius,
+      padding: "12px 14px",
+      color: selected.color,
+    };
+  },
+  statusLabel: {
+    fontSize: "10px",
+    letterSpacing: "0.08em",
+    textTransform: "uppercase",
+    fontWeight: 700,
+    marginBottom: "4px",
+  },
+  statusValue: {
+    fontSize: "12px",
+    fontFamily: T.mono,
+  },
+  deploymentBar: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "16px",
+    padding: "12px 16px",
+    marginBottom: "16px",
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    flexWrap: "wrap",
+  },
+  deploymentMeta: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    flexWrap: "wrap",
+    fontSize: "12px",
+  },
+  deploymentLabel: {
+    color: T.textTertiary,
+    textTransform: "uppercase",
+    letterSpacing: "0.06em",
+    fontSize: "11px",
+    fontWeight: 700,
+  },
+  deploymentValue: {
+    fontFamily: T.mono,
+    color: T.textSecondary,
+  },
+  deploymentPill: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    padding: "4px 8px",
+    border: `1px solid ${T.accentBorder}`,
+    background: T.accentMuted,
+    color: T.accentDark,
+    borderRadius: T.radius,
+    fontFamily: T.mono,
+    fontSize: "11px",
+  },
+  permitPanel: {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    padding: "18px 20px",
+    marginBottom: "20px",
+  },
+  permitGrid: {
+    display: "grid",
+    gridTemplateColumns: "1.2fr 1fr",
+    gap: "16px",
+    alignItems: "start",
+  },
+  permitMetaGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(150px, 1fr))",
+    gap: "10px",
+    marginTop: "12px",
+  },
+  permitMetaCard: {
+    borderRadius: T.radius,
+    border: `1px solid ${T.border}`,
+    background: T.surfaceAlt,
+    padding: "12px 14px",
+  },
   tableWrap: {
     overflowX: "auto",
   },
@@ -210,7 +391,7 @@ const css = {
     textAlign: "left",
     padding: "10px 16px",
     fontSize: "11px",
-    fontWeight: 600,
+    fontWeight: 700,
     textTransform: "uppercase",
     letterSpacing: "0.06em",
     color: T.textTertiary,
@@ -235,17 +416,18 @@ const css = {
     const colors = {
       active: { bg: T.accentLight, color: T.accent },
       pending: { bg: T.warningLight, color: T.warning },
-      triggered: { bg: T.warningLight, color: T.warning },
-      settled: { bg: "#F0F0F0", color: T.textSecondary },
-      expired: { bg: "#F0F0F0", color: T.textTertiary },
+      triggered: { bg: "#F8F1E2", color: T.warning },
+      settled: { bg: "#EDF0ED", color: T.textSecondary },
+      expired: { bg: "#EDF0ED", color: T.textTertiary },
       cancelled: { bg: T.dangerLight, color: T.danger },
+      ready: { bg: T.accentLight, color: T.accent },
     };
     const c = colors[variant] || colors.active;
     return {
       display: "inline-block",
       padding: "2px 8px",
       fontSize: "11px",
-      fontWeight: 600,
+      fontWeight: 700,
       textTransform: "uppercase",
       letterSpacing: "0.04em",
       borderRadius: "2px",
@@ -266,7 +448,7 @@ const css = {
   },
   input: {
     width: "100%",
-    padding: "8px 12px",
+    padding: "9px 12px",
     fontSize: "13px",
     fontFamily: T.mono,
     border: `1px solid ${T.border}`,
@@ -278,7 +460,7 @@ const css = {
   },
   select: {
     width: "100%",
-    padding: "8px 12px",
+    padding: "9px 12px",
     fontSize: "13px",
     fontFamily: T.mono,
     border: `1px solid ${T.border}`,
@@ -290,9 +472,9 @@ const css = {
     cursor: "pointer",
   },
   btnPrimary: {
-    padding: "10px 24px",
+    padding: "10px 18px",
     fontSize: "13px",
-    fontWeight: 600,
+    fontWeight: 700,
     background: T.accent,
     color: "#fff",
     border: "none",
@@ -301,9 +483,9 @@ const css = {
     letterSpacing: "0.01em",
   },
   btnSecondary: {
-    padding: "10px 24px",
+    padding: "10px 18px",
     fontSize: "13px",
-    fontWeight: 500,
+    fontWeight: 600,
     background: "transparent",
     color: T.text,
     border: `1px solid ${T.borderStrong}`,
@@ -313,18 +495,13 @@ const css = {
   btnGhost: {
     padding: "6px 12px",
     fontSize: "11px",
-    fontWeight: 600,
+    fontWeight: 700,
     background: "transparent",
     color: T.accent,
     border: `1px solid ${T.accentBorder}`,
     borderRadius: T.radius,
     cursor: "pointer",
     fontFamily: T.mono,
-  },
-  buttonRow: {
-    display: "flex",
-    gap: "8px",
-    flexWrap: "wrap",
   },
   cipher: {
     display: "inline-flex",
@@ -363,53 +540,29 @@ const css = {
     fontSize: "12px",
     color: T.textSecondary,
   },
-  deploymentBar: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "space-between",
-    gap: "16px",
-    padding: "12px 16px",
-    marginBottom: "24px",
-    background: T.surface,
+  disclosureCard: {
+    marginTop: "10px",
+    padding: "10px 12px",
     border: `1px solid ${T.border}`,
     borderRadius: T.radius,
-    flexWrap: "wrap",
-  },
-  deploymentMeta: {
-    display: "flex",
-    alignItems: "center",
-    gap: "10px",
-    flexWrap: "wrap",
+    background: T.surfaceAlt,
     fontSize: "12px",
-  },
-  deploymentLabel: {
-    color: T.textTertiary,
-    textTransform: "uppercase",
-    letterSpacing: "0.06em",
-    fontSize: "11px",
-    fontWeight: 600,
-  },
-  deploymentValue: {
-    fontFamily: T.mono,
     color: T.textSecondary,
   },
-  deploymentPill: {
-    display: "inline-flex",
-    alignItems: "center",
-    gap: "6px",
-    padding: "4px 8px",
-    border: `1px solid ${T.accentBorder}`,
-    background: T.accentMuted,
-    color: T.accentDark,
+  inlineStatus: {
+    marginTop: "10px",
+    padding: "8px 10px",
     borderRadius: T.radius,
-    fontFamily: T.mono,
     fontSize: "11px",
+    fontFamily: T.mono,
+    background: T.surfaceAlt,
+    color: T.textSecondary,
+    border: `1px solid ${T.border}`,
   },
-  statusStrip: {
-    padding: "10px 14px",
-    borderRadius: T.radius,
-    fontSize: "12px",
-    marginBottom: "20px",
+  link: {
+    color: T.accent,
+    textDecoration: "none",
+    fontWeight: 700,
   },
   toastViewport: {
     position: "fixed",
@@ -448,16 +601,6 @@ const css = {
     fontSize: "12px",
     lineHeight: "1.5",
   },
-  inlineStatus: {
-    marginTop: "10px",
-    padding: "8px 10px",
-    borderRadius: T.radius,
-    fontSize: "11px",
-    fontFamily: T.mono,
-    background: T.surfaceAlt,
-    color: T.textSecondary,
-    border: `1px solid ${T.border}`,
-  },
   footer: {
     padding: "24px 32px",
     borderTop: `1px solid ${T.border}`,
@@ -465,11 +608,6 @@ const css = {
     fontSize: "12px",
     color: T.textTertiary,
     background: T.surface,
-  },
-  link: {
-    color: T.accent,
-    textDecoration: "none",
-    fontWeight: 600,
   },
 };
 
@@ -580,7 +718,7 @@ function classifyDecryptError(error) {
   if (normalized.includes("permit")) {
     return {
       kind: "permit",
-      message: "Decrypt permit is missing or stale. Reconnect wallet and try again.",
+      message: "Decrypt permit is missing or stale. Issue a fresh permit and retry.",
     };
   }
 
@@ -608,15 +746,37 @@ function classifyFinalizeResult(result) {
   if (!result.ready) {
     return {
       kind: "pending",
-      message: "Policy decision is not decrypted yet. Wait a bit before finalizing.",
+      message: "Policy decision is still in threshold decryption.",
     };
   }
 
   return {
     kind: result.triggered ? "triggered" : "active",
     message: result.triggered
-      ? "Policy finalized and moved to triggered state."
-      : "Policy finalized and remains active.",
+      ? "Ready to finalize into a triggered claim."
+      : "Ready to finalize back into active state.",
+  };
+}
+
+function formatPermitExpiry(value) {
+  if (!value) {
+    return "n/a";
+  }
+  return `${new Date(Number(value) * 1000).toISOString().slice(0, 16).replace("T", " ")} UTC`;
+}
+
+function sleep(ms) {
+  return new Promise((resolve) => window.setTimeout(resolve, ms));
+}
+
+function defaultPermitState() {
+  return {
+    ready: false,
+    valid: false,
+    hash: "",
+    expiration: 0,
+    count: 0,
+    error: "Permit not issued.",
   };
 }
 
@@ -693,7 +853,46 @@ async function initializeCofhe(browserProvider, signer) {
 
   const existingPermit = cofhejs.getPermit();
   if (!existingPermit.success) {
-    unwrapResult(await cofhejs.createPermit(), "Permit creation");
+    unwrapResult(
+      await cofhejs.createPermit({
+        name: "VeilShield live access",
+        expiration: Math.floor(Date.now() / 1000) + 60 * 60 * 12,
+      }),
+      "Permit creation"
+    );
+  }
+}
+
+function readPermitState() {
+  try {
+    const activeResult = cofhejs.getPermit();
+    const allResult = cofhejs.getAllPermits ? cofhejs.getAllPermits() : { success: false };
+    const allPermits = allResult.success ? Object.values(allResult.data || {}) : [];
+
+    if (!activeResult.success) {
+      return {
+        ...defaultPermitState(),
+        count: allPermits.length,
+        error: "No active permit. Issue one to decrypt local views.",
+      };
+    }
+
+    const permit = activeResult.data;
+    const validity = permit.isValid ? permit.isValid() : { valid: false, error: "unknown" };
+    return {
+      ready: true,
+      valid: validity.valid,
+      hash: permit.getHash ? permit.getHash() : "",
+      expiration: permit.expiration || 0,
+      count: allPermits.length,
+      error: validity.valid ? "" : validity.error || "invalid",
+      exported: permit.export ? permit.export() : "",
+    };
+  } catch (error) {
+    return {
+      ...defaultPermitState(),
+      error: getErrorMessage(error, "Unable to read permit state."),
+    };
   }
 }
 
@@ -710,7 +909,7 @@ async function decryptUint64(handle) {
 }
 
 function App() {
-  const [page, setPage] = useState("dashboard");
+  const [workspace, setWorkspace] = useState("policy");
   const [provider, setProvider] = useState(PUBLIC_PROVIDER);
   const [signer, setSigner] = useState(null);
   const [account, setAccount] = useState("");
@@ -721,6 +920,8 @@ function App() {
   const [refreshTick, setRefreshTick] = useState(0);
   const [toasts, setToasts] = useState([]);
   const [txStates, setTxStates] = useState({});
+  const [permitState, setPermitState] = useState(defaultPermitState());
+  const [pendingDecisions, setPendingDecisions] = useState({});
   const [protocol, setProtocol] = useState({
     pool: null,
     owner: "",
@@ -739,10 +940,11 @@ function App() {
     lpTokenBalance: "0",
     myPolicies: [],
     decryptedPolicies: {},
+    auditorPolicies: {},
   });
   const [policyForm, setPolicyForm] = useState({
     feed: FEEDS[0].id,
-    direction: "0",
+    direction: String(EXPORTER_SCENARIO.activePolicy.direction),
     coverage: "",
     premium: "",
     threshold: "",
@@ -751,7 +953,7 @@ function App() {
   });
   const [policyPreview, setPolicyPreview] = useState(null);
   const [poolForm, setPoolForm] = useState({
-    deposit: "",
+    deposit: String(EXPORTER_SCENARIO.liquidityDeposit),
     withdraw: "",
   });
   const [oracleForm, setOracleForm] = useState({
@@ -785,18 +987,15 @@ function App() {
     }
   }
 
-  function isTxBusy(key) {
-    return txStates[key]?.status === "loading";
-  }
-
   function setTxStatus(key, status, message = "") {
     setTxStates((current) => ({
       ...current,
-      [key]: {
-        status,
-        message,
-      },
+      [key]: { status, message },
     }));
+  }
+
+  function refreshPermitState() {
+    setPermitState(readPermitState());
   }
 
   function getWriteContract() {
@@ -806,12 +1005,14 @@ function App() {
     return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, signer);
   }
 
+  function getReadContract(currentProvider = provider, currentSigner = signer) {
+    const runner = currentSigner || currentProvider;
+    return new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, runner);
+  }
+
   function getWriteToken() {
     if (!signer) {
       throw new Error("Connect wallet first.");
-    }
-    if (!TOKEN_ADDRESS || TOKEN_ADDRESS === ethers.ZeroAddress) {
-      throw new Error("Demo token address is not configured yet.");
     }
     return new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, signer);
   }
@@ -819,15 +1020,13 @@ function App() {
   async function refreshData(
     currentProvider = provider,
     currentAccount = account,
-    decryptUser = true,
-    currentSigner = signer
+    decryptUser = false,
+    currentSigner = signer,
+    quiet = false
   ) {
     try {
-      const contract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, currentProvider);
-      const tokenContract =
-        TOKEN_ADDRESS && TOKEN_ADDRESS !== ethers.ZeroAddress
-          ? new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, currentProvider)
-          : null;
+      const contract = getReadContract(currentProvider, currentSigner);
+      const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, currentProvider);
 
       const [pool, owner, oracle, asset, policyCountRaw, availableLiquidityTokens] = await Promise.all([
         contract.pool(),
@@ -840,7 +1039,7 @@ function App() {
 
       const policyCount = Number(policyCountRaw);
       const ids = [];
-      for (let id = policyCount - 1; id >= 0 && ids.length < 12; id -= 1) {
+      for (let id = policyCount - 1; id >= 0 && ids.length < 16; id -= 1) {
         ids.push(BigInt(id));
       }
 
@@ -875,13 +1074,24 @@ function App() {
             contract.oracleFeedInitialized(feed.bytes32),
             contract.oracleValues(feed.bytes32),
           ]);
-          return {
-            ...feed,
-            initialized,
-            value,
-          };
+          return { ...feed, initialized, value };
         })
       );
+
+      const decisionEntries = await Promise.all(
+        policies
+          .filter((policy) => policy.status === 1)
+          .map(async (policy) => {
+            try {
+              const [ready, triggered] = await contract.finalizePolicyEvaluation.staticCall(policy.id);
+              return [policy.id, classifyFinalizeResult({ ready, triggered })];
+            } catch (error) {
+              return [policy.id, { kind: "error", message: getErrorMessage(error, "Decision probe failed.") }];
+            }
+          })
+      );
+
+      setPendingDecisions(Object.fromEntries(decisionEntries));
 
       setProtocol({
         pool,
@@ -909,17 +1119,17 @@ function App() {
         let allowance = "0";
 
         try {
-          const reader = contract.connect(currentSigner || currentProvider);
+          const reader = getReadContract(currentProvider, currentSigner);
           const results = await Promise.allSettled([
             reader.getMyLpBalance(),
             reader.getMyLpTokenBalance(),
-            tokenContract?.balanceOf(currentAccount),
-            tokenContract?.allowance(currentAccount, CONTRACT_ADDRESS),
+            tokenContract.balanceOf(currentAccount),
+            tokenContract.allowance(currentAccount, CONTRACT_ADDRESS),
           ]);
 
           if (results[0].status === "fulfilled") {
             lpBalanceHandle = results[0].value;
-            if (decryptUser && cofheReady) {
+            if (decryptUser && cofheReady && permitState.ready && permitState.valid) {
               lpBalancePlaintext = String(await decryptUint64(lpBalanceHandle));
             }
           }
@@ -928,11 +1138,11 @@ function App() {
             lpTokenBalance = formatToken(results[1].value);
           }
 
-          if (results[2] && results[2].status === "fulfilled") {
+          if (results[2].status === "fulfilled") {
             tokenBalance = formatToken(results[2].value);
           }
 
-          if (results[3] && results[3].status === "fulfilled") {
+          if (results[3].status === "fulfilled") {
             allowance = formatToken(results[3].value);
           }
         } catch {
@@ -948,6 +1158,7 @@ function App() {
           lpBalancePlaintext,
           lpTokenBalance,
         }));
+        refreshPermitState();
       } else {
         setUserState({
           tokenBalance: "0",
@@ -957,15 +1168,19 @@ function App() {
           lpTokenBalance: "0",
           myPolicies: [],
           decryptedPolicies: {},
+          auditorPolicies: {},
         });
+        setPermitState(defaultPermitState());
       }
     } catch (loadError) {
-      pushToast("State refresh failed", getErrorMessage(loadError, "Failed to load on-chain state."), "error");
+      if (!quiet) {
+        pushToast("State refresh failed", getErrorMessage(loadError, "Failed to load on-chain state."), "error");
+      }
     }
   }
 
   useEffect(() => {
-    refreshData();
+    refreshData(provider, account, walletReady && cofheReady && permitState.valid, signer, false);
   }, [refreshTick]);
 
   useEffect(() => {
@@ -980,6 +1195,7 @@ function App() {
         setProvider(PUBLIC_PROVIDER);
         setWalletReady(false);
         setCofheReady(false);
+        setPermitState(defaultPermitState());
         setRefreshTick((value) => value + 1);
         return;
       }
@@ -1006,7 +1222,23 @@ function App() {
       window.ethereum.removeListener("accountsChanged", handleAccountsChanged);
       window.ethereum.removeListener("chainChanged", handleChainChanged);
     };
-  }, [cofheReady]);
+  }, []);
+
+  const shouldPoll =
+    protocol.policies.some((policy) => policy.status === 1) ||
+    Object.values(txStates).some((state) => state.status === "loading" || state.status === "pending");
+
+  useEffect(() => {
+    if (!shouldPoll) {
+      return undefined;
+    }
+
+    const timer = window.setInterval(() => {
+      refreshData(provider, account, false, signer, true);
+    }, 7000);
+
+    return () => window.clearInterval(timer);
+  }, [shouldPoll, provider, account, signer, walletReady, cofheReady]);
 
   async function connectWallet(silent = false) {
     if (!window.ethereum) {
@@ -1041,12 +1273,14 @@ function App() {
       setChainId(Number(network.chainId));
       setWalletReady(true);
       setCofheReady(true);
+      refreshPermitState();
+
       updateToast(toastId, {
         title: "Wallet connected",
-        body: "CoFHE encryption and decryption are ready on Arbitrum Sepolia.",
+        body: "CoFHE encryption, permit signing, and local decrypt flows are ready.",
         variant: "success",
       });
-      await refreshData(browserProvider, address, true, walletSigner);
+      await refreshData(browserProvider, address, true, walletSigner, true);
     } catch (connectError) {
       updateToast(toastId, {
         title: "Wallet connection failed",
@@ -1064,12 +1298,13 @@ function App() {
 
     try {
       const outcome = await action();
-      setTxStatus(key, "success", `${label} confirmed on Arbitrum Sepolia.`);
+      setTxStatus(key, "success", options.successMessage || `${label} confirmed.`);
       updateToast(toastId, {
         title: label,
         body: options.successMessage || `${label} confirmed on Arbitrum Sepolia.`,
         variant: "success",
       });
+      refreshPermitState();
       setRefreshTick((value) => value + 1);
       return outcome;
     } catch (actionError) {
@@ -1082,6 +1317,26 @@ function App() {
       });
       return null;
     }
+  }
+
+  async function handlePermitRefresh() {
+    await runAction(
+      "refresh-permit",
+      permitState.ready ? "Refresh permit" : "Request permit",
+      async () => {
+        unwrapResult(
+          await cofhejs.createPermit({
+            name: "VeilShield role access",
+            expiration: Math.floor(Date.now() / 1000) + 60 * 60 * 12,
+          }),
+          "Permit creation"
+        );
+        refreshPermitState();
+      },
+      {
+        successMessage: "Fresh EIP-712 decrypt permit signed. Plaintext stays in the browser.",
+      }
+    );
   }
 
   async function previewPolicyEncryption() {
@@ -1100,7 +1355,7 @@ function App() {
       setPolicyPreview({ coverage, premium, threshold });
       pushToast(
         "Encryption preview ready",
-        "Threshold is sent encrypted. Coverage and premium previews are shown for the mirrored on-chain handles.",
+        "Threshold is sent encrypted. Coverage and premium previews show the mirrored handles used in the policy view.",
         "success"
       );
     } catch (previewError) {
@@ -1109,7 +1364,7 @@ function App() {
   }
 
   async function handleCreatePolicy() {
-    await runAction("create-policy", "Create policy", async () => {
+    await runAction("create-policy", "Create exporter policy", async () => {
       if (!walletReady || !cofheReady) {
         throw new Error("Connect wallet and initialize CoFHE first.");
       }
@@ -1158,8 +1413,10 @@ function App() {
         premium: "",
         threshold: "",
         expiry: "",
-        beneficiary: "",
+        beneficiary: account || "",
       });
+    }, {
+      successMessage: "Cargo delay cover created. Threshold stays encrypted during on-chain evaluation.",
     });
   }
 
@@ -1173,8 +1430,7 @@ function App() {
         throw new Error(`Approve ${TOKEN_SYMBOL} before depositing.`);
       }
 
-      const writeContract = getWriteContract();
-      const tx = await writeContract.depositLiquidity(amount);
+      const tx = await getWriteContract().depositLiquidity(amount);
       await tx.wait();
       setPoolForm((current) => ({ ...current, deposit: "" }));
     });
@@ -1186,42 +1442,62 @@ function App() {
       if (amount <= 0n) {
         throw new Error("Withdraw amount must be greater than zero.");
       }
-
-      const writeContract = getWriteContract();
-      const tx = await writeContract.withdrawLiquidity(amount);
+      const tx = await getWriteContract().withdrawLiquidity(amount);
       await tx.wait();
       setPoolForm((current) => ({ ...current, withdraw: "" }));
     });
   }
 
   async function handleTokenApprove() {
-    await runAction("approve-token", `Approve ${TOKEN_SYMBOL}`, async () => {
-      const token = getWriteToken();
-      const tx = await token.approve(CONTRACT_ADDRESS, ethers.MaxUint256);
-      await tx.wait();
-    }, {
-      successMessage: `${TOKEN_SYMBOL} allowance updated for the live VeilShield contract.`,
-    });
+    await runAction(
+      "approve-token",
+      `Approve ${TOKEN_SYMBOL}`,
+      async () => {
+        const token = getWriteToken();
+        const tx = await token.approve(CONTRACT_ADDRESS, ethers.MaxUint256);
+        await tx.wait();
+      },
+      {
+        successMessage: `${TOKEN_SYMBOL} allowance updated for the live VeilShield contract.`,
+      }
+    );
   }
 
   async function handleTokenFaucet() {
-    await runAction("token-faucet", `${TOKEN_SYMBOL} faucet`, async () => {
-      const token = getWriteToken();
-      const tx = await token.faucet();
-      await tx.wait();
-    }, {
-      successMessage: `${TOKEN_FAUCET_AMOUNT.toLocaleString()} ${TOKEN_SYMBOL} minted to the connected wallet.`,
-    });
+    await runAction(
+      "token-faucet",
+      `${TOKEN_SYMBOL} faucet`,
+      async () => {
+        const token = getWriteToken();
+        const tx = await token.faucet();
+        await tx.wait();
+      },
+      {
+        successMessage: `${TOKEN_FAUCET_AMOUNT.toLocaleString()} ${TOKEN_SYMBOL} minted to the connected wallet.`,
+      }
+    );
   }
 
   async function handleOracleSubmit() {
     await runAction("oracle-submit", "Submit oracle reading", async () => {
-      const writeContract = getWriteContract();
       const encrypted = await encryptUint64(oracleForm.reading);
-      const tx = await writeContract.submitOracleReading(makeFeedBytes32(oracleForm.feed), encrypted);
+      const tx = await getWriteContract().submitOracleReading(makeFeedBytes32(oracleForm.feed), encrypted);
       await tx.wait();
       setOracleForm((current) => ({ ...current, reading: "" }));
+    }, {
+      successMessage: "Encrypted exporter feed reading submitted to the live oracle slot.",
     });
+  }
+
+  async function waitForDecisionReady(writeContract, policyId) {
+    for (let attempt = 0; attempt < 18; attempt += 1) {
+      const [ready] = await writeContract.finalizePolicyEvaluation.staticCall(policyId);
+      if (ready) {
+        return;
+      }
+      await sleep(4000);
+    }
+    throw new Error("Threshold decision did not finish in time. Retry in a few seconds.");
   }
 
   async function handlePolicyAction(actionName, policyId) {
@@ -1229,10 +1505,8 @@ function App() {
 
     if (actionName === "Finalize evaluation") {
       try {
-        const writeContract = getWriteContract();
-        const [ready, triggered] = await writeContract.finalizePolicyEvaluation.staticCall(policyId);
+        const [ready, triggered] = await getWriteContract().finalizePolicyEvaluation.staticCall(policyId);
         const classification = classifyFinalizeResult({ ready, triggered });
-
         if (!ready) {
           setTxStatus(actionKey, "pending", classification.message);
           pushToast("Finalize pending", classification.message, "pending");
@@ -1260,7 +1534,7 @@ function App() {
     }, {
       successMessage:
         actionName === "Request evaluation"
-          ? "Policy evaluation requested. Wait for threshold decryption before finalizing."
+          ? "Evaluation requested. Status rail and claim queue will auto-refresh until finalize is ready."
           : undefined,
     });
   }
@@ -1272,6 +1546,9 @@ function App() {
       if (!walletReady || !cofheReady) {
         throw new Error("Connect wallet before decrypting.");
       }
+      if (!permitState.ready || !permitState.valid) {
+        throw new Error("Permit missing or stale.");
+      }
       const handle = await getWriteContract().getMyLpBalance();
       const plaintext = await decryptUint64(handle);
       setUserState((current) => ({
@@ -1282,7 +1559,7 @@ function App() {
       setTxStatus("decrypt-lp-balance", "success", "LP balance decrypted.");
       updateToast(toastId, {
         title: "LP balance decrypted",
-        body: "LP balance decrypted through the CoFHE threshold network.",
+        body: "LP principal unsealed locally in the connected browser session.",
         variant: "success",
       });
     } catch (decryptError) {
@@ -1298,20 +1575,26 @@ function App() {
 
   async function decryptMyPolicy(policyId) {
     const stateKey = `decrypt-policy-${policyId}`;
-    const toastId = pushToast("Decrypt policy", `Decrypting policy ${policyId} for the connected wallet...`, "loading", { persist: true });
+    const toastId = pushToast("Decrypt policy", `Decrypting role-scoped policy view for #${policyId}...`, "loading", { persist: true });
     setTxStatus(stateKey, "loading", `Decrypting policy ${policyId}...`);
     try {
       if (!walletReady || !cofheReady) {
         throw new Error("Connect wallet before decrypting.");
       }
+      if (!permitState.ready || !permitState.valid) {
+        throw new Error("Permit missing or stale.");
+      }
 
       const writeContract = getWriteContract();
-      let coverage = "";
-      let premium = "";
-      let threshold = "";
-      let payout = "";
+      const policy = protocol.policies.find((entry) => entry.id === policyId);
+      const isInsured = policy && account && policy.insured.toLowerCase() === account.toLowerCase();
+      const isBeneficiary = policy && account && policy.beneficiary.toLowerCase() === account.toLowerCase();
+      let coverage = "not available";
+      let premium = "not available";
+      let threshold = "not available";
+      let payout = "not available";
 
-      try {
+      if (isInsured) {
         const terms = await writeContract.getMyPolicyTerms(policyId);
         const decryptedTerms = await Promise.all([
           decryptUint64(terms[0]),
@@ -1321,18 +1604,16 @@ function App() {
         coverage = String(decryptedTerms[0]);
         premium = String(decryptedTerms[1]);
         threshold = String(decryptedTerms[2]);
-      } catch {
-        coverage = "insured-only";
-        premium = "insured-only";
-        threshold = "insured-only";
       }
 
-      try {
-        const payoutHandle = await writeContract.getMyPendingPayout(policyId);
-        payout = String(await decryptUint64(payoutHandle));
-      } catch (payoutError) {
-        const classified = classifyDecryptError(payoutError);
-        payout = classified.kind === "pending" ? "pending threshold result" : classified.message;
+      if (isInsured || isBeneficiary) {
+        try {
+          const payoutHandle = await writeContract.getMyPendingPayout(policyId);
+          payout = String(await decryptUint64(payoutHandle));
+        } catch (payoutError) {
+          const classified = classifyDecryptError(payoutError);
+          payout = classified.kind === "pending" ? "pending threshold result" : classified.message;
+        }
       }
 
       setUserState((current) => ({
@@ -1344,13 +1625,15 @@ function App() {
             premium,
             threshold,
             payout,
+            insuredView: Boolean(isInsured),
+            beneficiaryView: Boolean(isBeneficiary),
           },
         },
       }));
       setTxStatus(stateKey, "success", `Policy ${policyId} decrypted.`);
       updateToast(toastId, {
         title: "Policy decrypted",
-        body: `Policy ${policyId} decrypted for the connected wallet.`,
+        body: `Role-scoped policy data unsealed locally for policy #${policyId}.`,
         variant: "success",
       });
     } catch (decryptError) {
@@ -1364,84 +1647,271 @@ function App() {
     }
   }
 
-  const pages = {
-    dashboard: (
-      <DashboardPage
-        protocol={protocol}
-        account={account}
-        onPolicyAction={handlePolicyAction}
-        onDecryptPolicy={decryptMyPolicy}
-        userState={userState}
-        walletReady={walletReady}
-        txStates={txStates}
-      />
-    ),
-    create: (
-      <CreatePolicyPage
-        form={policyForm}
-        setForm={setPolicyForm}
-        preview={policyPreview}
-        onPreview={previewPolicyEncryption}
-        onSubmit={handleCreatePolicy}
-        onApprove={handleTokenApprove}
-        walletReady={walletReady}
-        cofheReady={cofheReady}
-        userState={userState}
-        txStates={txStates}
-      />
-    ),
-    pool: (
-      <PoolPage
-        pool={protocol.pool}
-        availableLiquidityTokens={protocol.availableLiquidityTokens}
-        form={poolForm}
-        setForm={setPoolForm}
-        onDeposit={handleDeposit}
-        onWithdraw={handleWithdraw}
-        onDecryptBalance={decryptMyLpBalance}
-        onApprove={handleTokenApprove}
-        onFaucet={handleTokenFaucet}
-        userState={userState}
-        walletReady={walletReady}
-        txStates={txStates}
-      />
-    ),
-    oracles: (
-      <OraclePage
-        feeds={protocol.feeds}
-        oracle={protocol.oracle}
-        account={account}
-        form={oracleForm}
-        setForm={setOracleForm}
-        onSubmit={handleOracleSubmit}
-        walletReady={walletReady}
-        txStates={txStates}
-      />
-    ),
+  async function decryptAuditorPolicy(policyId) {
+    const stateKey = `decrypt-auditor-${policyId}`;
+    const toastId = pushToast("Decrypt auditor view", `Decrypting auditor policy view for #${policyId}...`, "loading", { persist: true });
+    setTxStatus(stateKey, "loading", `Decrypting auditor view for policy ${policyId}...`);
+    try {
+      if (!walletReady || !cofheReady) {
+        throw new Error("Connect wallet before decrypting.");
+      }
+      if (!permitState.ready || !permitState.valid) {
+        throw new Error("Permit missing or stale.");
+      }
+      const [coverageHandle, premiumHandle, thresholdHandle, payoutHandle] =
+        await getWriteContract().getAuditorPolicyView(policyId);
+      const [coverage, premium, threshold] = await Promise.all([
+        decryptUint64(coverageHandle),
+        decryptUint64(premiumHandle),
+        decryptUint64(thresholdHandle),
+      ]);
+      let payout = "0";
+      try {
+        payout = String(await decryptUint64(payoutHandle));
+      } catch (payoutError) {
+        const classified = classifyDecryptError(payoutError);
+        payout = classified.kind === "pending" ? "pending threshold result" : classified.message;
+      }
+
+      setUserState((current) => ({
+        ...current,
+        auditorPolicies: {
+          ...current.auditorPolicies,
+          [policyId]: {
+            coverage: String(coverage),
+            premium: String(premium),
+            threshold: String(threshold),
+            payout,
+          },
+        },
+      }));
+      setTxStatus(stateKey, "success", `Auditor view for policy ${policyId} decrypted.`);
+      updateToast(toastId, {
+        title: "Auditor view decrypted",
+        body: `Owner-scoped encrypted mirrors and payout state loaded for policy #${policyId}.`,
+        variant: "success",
+      });
+    } catch (decryptError) {
+      const classified = classifyDecryptError(decryptError);
+      setTxStatus(stateKey, classified.kind, classified.message);
+      updateToast(toastId, {
+        title: classified.kind === "pending" ? "Auditor decrypt pending" : "Auditor decrypt failed",
+        body: classified.message,
+        variant: classified.kind === "pending" ? "pending" : "error",
+      });
+    }
+  }
+
+  async function seedExporterDemo() {
+    await runAction("seed-demo", "Seed exporter demo", async () => {
+      if (!walletReady || !cofheReady) {
+        throw new Error("Connect the oracle wallet first.");
+      }
+      const accountNormalized = account.toLowerCase();
+      if (
+        protocol.oracle &&
+        protocol.oracle.toLowerCase() !== accountNormalized &&
+        protocol.owner.toLowerCase() !== accountNormalized
+      ) {
+        throw new Error("Only the oracle / owner wallet can seed the live exporter scenario.");
+      }
+
+      const alreadySeeded =
+        protocol.policies.some((policy) => policy.status === 0) &&
+        protocol.policies.some((policy) => policy.status === 3);
+      if (alreadySeeded) {
+        throw new Error("Live scenario already contains at least one active and one settled policy.");
+      }
+
+      const token = getWriteToken();
+      const contract = getWriteContract();
+      const requiredCapital =
+        BigInt(EXPORTER_SCENARIO.liquidityDeposit) +
+        BigInt(EXPORTER_SCENARIO.activePolicy.premium) +
+        BigInt(EXPORTER_SCENARIO.settledPolicy.premium);
+
+      if (BigInt(userState.tokenBalance || "0") < requiredCapital) {
+        const faucetTx = await token.faucet();
+        await faucetTx.wait();
+      }
+
+      if (BigInt(userState.allowance || "0") < requiredCapital) {
+        const approveTx = await token.approve(CONTRACT_ADDRESS, ethers.MaxUint256);
+        await approveTx.wait();
+      }
+
+      const poolBefore = protocol.pool ? BigInt(protocol.pool.tokenLiquidity) : 0n;
+      if (poolBefore === 0n) {
+        const depositTx = await contract.depositLiquidity(BigInt(EXPORTER_SCENARIO.liquidityDeposit));
+        await depositTx.wait();
+      }
+
+      const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 14);
+      const activePolicyId = Number(await contract.policyCount());
+      const activeThreshold = await encryptUint64(EXPORTER_SCENARIO.activePolicy.threshold);
+      await (
+        await contract.createPolicy(
+          BigInt(EXPORTER_SCENARIO.activePolicy.coverage),
+          BigInt(EXPORTER_SCENARIO.activePolicy.premium),
+          activeThreshold,
+          makeFeedBytes32(EXPORTER_SCENARIO.activePolicy.feed),
+          EXPORTER_SCENARIO.activePolicy.direction,
+          expiry,
+          account
+        )
+      ).wait();
+
+      const settledPolicyId = activePolicyId + 1;
+      const settledThreshold = await encryptUint64(EXPORTER_SCENARIO.settledPolicy.threshold);
+      await (
+        await contract.createPolicy(
+          BigInt(EXPORTER_SCENARIO.settledPolicy.coverage),
+          BigInt(EXPORTER_SCENARIO.settledPolicy.premium),
+          settledThreshold,
+          makeFeedBytes32(EXPORTER_SCENARIO.settledPolicy.feed),
+          EXPORTER_SCENARIO.settledPolicy.direction,
+          expiry,
+          account
+        )
+      ).wait();
+
+      const encryptedReading = await encryptUint64(EXPORTER_SCENARIO.settledPolicy.oracleReading);
+      await (
+        await contract.submitOracleReading(
+          makeFeedBytes32(EXPORTER_SCENARIO.settledPolicy.feed),
+          encryptedReading
+        )
+      ).wait();
+      await (await contract.requestPolicyEvaluation(BigInt(settledPolicyId))).wait();
+      await waitForDecisionReady(contract, BigInt(settledPolicyId));
+      await (await contract.finalizePolicyEvaluation(BigInt(settledPolicyId))).wait();
+      await (await contract.settleTriggeredPolicy(BigInt(settledPolicyId))).wait();
+    }, {
+      successMessage: "Seeded one active cargo policy and one settled claim for the live exporter demo.",
+    });
+  }
+
+  const isOracle =
+    walletReady &&
+    protocol.oracle &&
+    account &&
+    protocol.oracle.toLowerCase() === account.toLowerCase();
+  const isAuditor =
+    walletReady &&
+    protocol.owner &&
+    account &&
+    protocol.owner.toLowerCase() === account.toLowerCase();
+
+  const workspaces = [
+    ["policy", "Policy Holder"],
+    ["lp", "Liquidity Provider"],
+    ["claims", "Oracle / Claims"],
+    ["auditor", "Auditor"],
+  ];
+
+  const workspaceMeta = {
+    policy: {
+      eyebrow: "Policy Holder Workspace",
+      title: "Confidential shipment delay cover for exporters",
+      body:
+        "Create a cargo delay policy, encrypt the threshold in-browser, and only unseal your policy or beneficiary view when you need to inspect it.",
+      bullets: [
+        "Threshold stays encrypted during trigger evaluation.",
+        "Coverage and premium settle in live vUSD on Arbitrum Sepolia.",
+        "Policy and beneficiary views use permit-scoped local decrypt.",
+      ],
+    },
+    lp: {
+      eyebrow: "Liquidity Provider Workspace",
+      title: "Fund exporter risk without opening private positions",
+      body:
+        "LP capital backs active cargo covers while balances remain available as encrypted handles for the connected provider.",
+      bullets: [
+        "Mint vUSD, approve once, and deposit into the live pool.",
+        "Decrypt your own LP principal with a local permit.",
+        "Watch available versus reserved capacity in real time.",
+      ],
+    },
+    claims: {
+      eyebrow: "Oracle / Claims Workspace",
+      title: "Submit sealed delay signals and finalize claims",
+      body:
+        "The claims desk works off encrypted feed updates. Pending policies auto-refresh until the threshold network makes finalize ready.",
+      bullets: [
+        "Oracle readings are encrypted before submission.",
+        "Pending claims auto-refresh instead of requiring manual reloads.",
+        "Seed the live exporter scenario from the oracle wallet when you need a demo-ready state.",
+      ],
+    },
+    auditor: {
+      eyebrow: "Auditor Workspace",
+      title: "Selective disclosure for portfolio review",
+      body:
+        "The contract owner can decrypt the encrypted policy mirrors and pending payout state without exposing them to the public chain view.",
+      bullets: [
+        "Owner-scoped auditor view is enforced in the contract.",
+        "Decrypt happens locally with a wallet-signed permit.",
+        "Claim history remains public while risk terms stay role-scoped.",
+      ],
+    },
   };
+
+  const currentMeta = workspaceMeta[workspace];
+  const statusItems = [
+    {
+      label: "Wallet",
+      value: walletReady ? shortAddress(account) : "disconnected",
+      variant: walletReady ? "good" : "bad",
+    },
+    {
+      label: "Network",
+      value: chainId === ARB_SEPOLIA_CHAIN_ID ? "Arbitrum Sepolia" : `Chain ${chainId}`,
+      variant: chainId === ARB_SEPOLIA_CHAIN_ID ? "good" : "warn",
+    },
+    {
+      label: "CoFHE",
+      value: cofheReady ? "initialized" : "offline",
+      variant: cofheReady ? "good" : "warn",
+    },
+    {
+      label: "Permit",
+      value: permitState.ready ? `${permitState.valid ? "active" : permitState.error} ${shortAddress(permitState.hash)}` : "missing",
+      variant: permitState.ready && permitState.valid ? "good" : permitState.ready ? "warn" : "bad",
+    },
+    {
+      label: "Oracle Role",
+      value: isOracle ? "connected" : "viewer",
+      variant: isOracle ? "good" : "neutral",
+    },
+    {
+      label: "Contract",
+      value: `live ${shortAddress(CONTRACT_ADDRESS)}`,
+      variant: "good",
+    },
+  ];
 
   return (
     <div style={css.root}>
       <header style={css.header}>
         <div style={css.logo}>
-          <div style={css.logoMark}>VS</div>
-          <span style={css.logoText}>VeilShield</span>
-          <span style={{ fontSize: "11px", color: T.textTertiary, fontFamily: T.mono, marginLeft: "4px" }}>
-            live
-          </span>
+          <img src="/veilshield-logo.png" alt="VeilShield logo" style={css.logoImage} />
+          <div>
+            <div style={css.logoTextWrap}>
+              <span style={css.logoText}>VeilShield</span>
+              <span style={css.logoMeta}>live</span>
+            </div>
+            <div style={css.logoMeta}>{APP_TAGLINE}</div>
+          </div>
         </div>
+
         <nav style={css.nav}>
-          {[
-            ["dashboard", "Dashboard"],
-            ["create", "New Policy"],
-            ["pool", "Liquidity Pool"],
-            ["oracles", "Oracles"],
-          ].map(([key, label]) => (
-            <button key={key} style={css.navItem(page === key)} onClick={() => setPage(key)}>
+          {workspaces.map(([key, label]) => (
+            <button key={key} style={css.navItem(workspace === key)} onClick={() => setWorkspace(key)}>
               {label}
             </button>
           ))}
         </nav>
+
         <div style={css.buttonRow}>
           {!walletReady && (
             <button style={css.walletBtn} onClick={() => connectWallet(false)} disabled={walletBusy}>
@@ -1449,32 +1919,57 @@ function App() {
             </button>
           )}
           {walletReady && (
-            <button style={css.walletBtnSecondary} onClick={() => refreshData(provider, account, true)} disabled={walletBusy}>
-              {shortAddress(account)}
-            </button>
+            <>
+              <button
+                style={css.walletBtnSecondary}
+                onClick={() => refreshData(provider, account, true, signer, false)}
+                disabled={walletBusy}
+              >
+                {shortAddress(account)}
+              </button>
+              <button style={css.walletBtnSecondary} onClick={handlePermitRefresh}>
+                {permitState.ready ? "Refresh Permit" : "Request Permit"}
+              </button>
+            </>
           )}
         </div>
       </header>
 
       <main style={css.main}>
-        <div style={{ marginBottom: "24px", display: "flex", alignItems: "center", justifyContent: "space-between", gap: "12px", flexWrap: "wrap" }}>
-          <div>
-            <h1 style={{ fontSize: "18px", fontWeight: 600, margin: "0 0 4px", letterSpacing: "-0.01em" }}>
-              {page === "dashboard" && "Protocol Overview"}
-              {page === "create" && "Create Policy"}
-              {page === "pool" && "Liquidity Pool"}
-              {page === "oracles" && "Oracle Feeds"}
-            </h1>
-            <p style={{ fontSize: "13px", color: T.textSecondary, margin: 0 }}>
-              {page === "dashboard" && "State from the current Arbitrum Sepolia deployment"}
-              {page === "create" && "Encrypt policy terms in the browser, then pay premium in vUSD"}
-              {page === "pool" && "Mint vUSD, approve it once, then manage your LP position"}
-              {page === "oracles" && "Check encrypted feed handles and submit readings from the oracle wallet"}
-            </p>
+        <div style={css.hero}>
+          <div style={css.heroPrimary}>
+            <div style={css.heroEyebrow}>{currentMeta.eyebrow}</div>
+            <h1 style={css.heroTitle}>{currentMeta.title}</h1>
+            <p style={css.heroBody}>{currentMeta.body}</p>
+            <div style={css.heroMeta}>
+              <div style={css.heroMetaCard}>
+                <div style={css.heroMetaLabel}>Live Network</div>
+                <div style={css.heroMetaValue}>Arbitrum Sepolia</div>
+              </div>
+              <div style={css.heroMetaCard}>
+                <div style={css.heroMetaLabel}>Live Contract</div>
+                <div style={css.heroMetaValue}>{shortAddress(CONTRACT_ADDRESS)}</div>
+              </div>
+              <div style={css.heroMetaCard}>
+                <div style={css.heroMetaLabel}>Cargo Policies</div>
+                <div style={css.heroMetaValue}>{protocol.policyCount}</div>
+              </div>
+              <div style={css.heroMetaCard}>
+                <div style={css.heroMetaLabel}>Pool TVL</div>
+                <div style={css.heroMetaValue}>{protocol.pool ? formatToken(protocol.pool.tokenLiquidity) : "0"} {TOKEN_SYMBOL}</div>
+              </div>
+            </div>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11px", color: chainId === ARB_SEPOLIA_CHAIN_ID ? T.accent : T.warning, fontFamily: T.mono }}>
-            <ShieldIcon size={14} color={chainId === ARB_SEPOLIA_CHAIN_ID ? T.accent : T.warning} />
-            <span>{chainId === ARB_SEPOLIA_CHAIN_ID ? "Arbitrum Sepolia" : `Chain ${chainId}`}</span>
+          <div style={css.heroSecondary}>
+            <div style={css.cardTitle}>Why This Workspace Exists</div>
+            <ul style={css.heroList}>
+              {currentMeta.bullets.map((item) => (
+                <li key={item}>{item}</li>
+              ))}
+            </ul>
+            <div style={css.callout}>
+              Built for exporters who need to hedge cargo delay exposure without publishing thresholds, payout intent, or LP positions on transparent rails.
+            </div>
           </div>
         </div>
 
@@ -1490,7 +1985,7 @@ function App() {
             <span style={css.deploymentValue}>Oracle {shortAddress(protocol.oracle || deployment.oracle)}</span>
             <span style={css.deploymentValue}>Policies {protocol.policyCount}</span>
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "12px", flexWrap: "wrap" }}>
+          <div style={css.buttonRow}>
             <a href={EXPLORER_URL} target="_blank" rel="noreferrer" style={css.link}>
               Contract
             </a>
@@ -1499,10 +1994,86 @@ function App() {
                 Token
               </a>
             )}
+            {(isOracle || isAuditor) && (
+              <button style={css.btnGhost} onClick={seedExporterDemo} disabled={txStates["seed-demo"]?.status === "loading"}>
+                {txStates["seed-demo"]?.status === "loading" ? "Seeding..." : "Seed Exporter Demo"}
+              </button>
+            )}
           </div>
         </div>
 
-        {pages[page]}
+        <StatusRail items={statusItems} />
+
+        <PermitPanel
+          permitState={permitState}
+          onRefresh={handlePermitRefresh}
+          walletReady={walletReady}
+          isAuditor={isAuditor}
+          isOracle={isOracle}
+          txStates={txStates}
+        />
+
+        {workspace === "policy" && (
+          <PolicyWorkspace
+            protocol={protocol}
+            account={account}
+            walletReady={walletReady}
+            userState={userState}
+            txStates={txStates}
+            pendingDecisions={pendingDecisions}
+            onPolicyAction={handlePolicyAction}
+            onDecryptPolicy={decryptMyPolicy}
+            policyForm={policyForm}
+            setPolicyForm={setPolicyForm}
+            preview={policyPreview}
+            onPreview={previewPolicyEncryption}
+            onSubmit={handleCreatePolicy}
+            onApprove={handleTokenApprove}
+            cofheReady={cofheReady}
+          />
+        )}
+
+        {workspace === "lp" && (
+          <LiquidityWorkspace
+            protocol={protocol}
+            walletReady={walletReady}
+            userState={userState}
+            txStates={txStates}
+            form={poolForm}
+            setForm={setPoolForm}
+            onDeposit={handleDeposit}
+            onWithdraw={handleWithdraw}
+            onDecryptBalance={decryptMyLpBalance}
+            onApprove={handleTokenApprove}
+            onFaucet={handleTokenFaucet}
+          />
+        )}
+
+        {workspace === "claims" && (
+          <ClaimsWorkspace
+            protocol={protocol}
+            walletReady={walletReady}
+            account={account}
+            form={oracleForm}
+            setForm={setOracleForm}
+            onSubmit={handleOracleSubmit}
+            onPolicyAction={handlePolicyAction}
+            txStates={txStates}
+            pendingDecisions={pendingDecisions}
+            isOracle={isOracle}
+          />
+        )}
+
+        {workspace === "auditor" && (
+          <AuditorWorkspace
+            protocol={protocol}
+            walletReady={walletReady}
+            isAuditor={isAuditor}
+            onDecryptAuditorPolicy={decryptAuditorPolicy}
+            userState={userState}
+            txStates={txStates}
+          />
+        )}
       </main>
 
       <div style={css.toastViewport}>
@@ -1515,197 +2086,185 @@ function App() {
       </div>
 
       <footer style={css.footer}>
-        VeilShield Protocol — Confidential Parametric Insurance — {shortAddress(CONTRACT_ADDRESS)} on Arbitrum Sepolia
+        VeilShield — Confidential cargo delay cover for exporters — {shortAddress(CONTRACT_ADDRESS)} on Arbitrum Sepolia
       </footer>
     </div>
   );
 }
 
-function DashboardPage({ protocol, account, onPolicyAction, onDecryptPolicy, userState, walletReady, txStates = {} }) {
+function StatusRail({ items }) {
   return (
-    <div>
-      <div style={{ ...css.grid4, marginBottom: "24px" }}>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Pool TVL ({TOKEN_SYMBOL})</div>
-            <div style={css.statValue}>{protocol.pool ? formatToken(protocol.pool.tokenLiquidity) : "0"}</div>
-          </div>
+    <div style={css.statusRail}>
+      {items.map((item) => (
+        <div key={item.label} style={css.statusCard(item.variant)}>
+          <div style={css.statusLabel}>{item.label}</div>
+          <div style={css.statusValue}>{item.value}</div>
         </div>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Available ({TOKEN_SYMBOL})</div>
-            <div style={css.statValue}>{protocol.availableLiquidityTokens}</div>
-          </div>
-        </div>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Reserved ({TOKEN_SYMBOL})</div>
-            <div style={css.statValue}>{protocol.pool ? formatToken(protocol.pool.tokenReserved) : "0"}</div>
-          </div>
-        </div>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Encrypted TVL Handle</div>
-            {protocol.pool ? (
-              <div style={css.statEncrypted}>
-                <LockIcon size={14} color={T.accent} />
-                <span>{formatCipher(protocol.pool.encTotalDeposits)}</span>
-              </div>
-            ) : (
-              <div style={css.muted}>loading</div>
-            )}
-          </div>
-        </div>
-      </div>
+      ))}
+    </div>
+  );
+}
 
-      <div style={{ ...css.grid4, marginBottom: "24px" }}>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Reserved Handle</div>
-            {protocol.pool ? (
-              <div style={css.statEncrypted}>
-                <LockIcon size={14} color={T.accent} />
-                <span>{formatCipher(protocol.pool.encTotalReserved)}</span>
-              </div>
-            ) : (
-              <div style={css.muted}>loading</div>
-            )}
+function PermitPanel({ permitState, onRefresh, walletReady, isAuditor, isOracle, txStates = {} }) {
+  const permitAction = txStates["refresh-permit"];
+
+  return (
+    <div style={css.permitPanel}>
+      <div style={{ ...css.cardTitle, marginBottom: "10px" }}>Permit-Based Selective Disclosure</div>
+      <div style={css.permitGrid}>
+        <div>
+          <div style={{ fontSize: "13px", color: T.textSecondary }}>
+            The live app uses wallet-signed CoFHE permits for local unsealing. Public chain readers still see ciphertext handles only. Role-scoped decrypt flows now cover policy holder, beneficiary, LP, and auditor views.
           </div>
-        </div>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Active Policies</div>
-            <div style={css.statValue}>
-              {protocol.policies.filter((policy) => Number(policy.status) === 0).length}
+          <div style={css.permitMetaGrid}>
+            <div style={css.permitMetaCard}>
+              <div style={css.statLabel}>Active Permit</div>
+              <div style={{ ...css.heroMetaValue, color: permitState.ready ? T.textSecondary : T.warning }}>
+                {permitState.ready ? shortAddress(permitState.hash) : "missing"}
+              </div>
+            </div>
+            <div style={css.permitMetaCard}>
+              <div style={css.statLabel}>Validity</div>
+              <div style={{ ...css.heroMetaValue, color: permitState.valid ? T.accentDark : T.warning }}>
+                {permitState.ready ? (permitState.valid ? "valid" : permitState.error) : "not issued"}
+              </div>
+            </div>
+            <div style={css.permitMetaCard}>
+              <div style={css.statLabel}>Expiry</div>
+              <div style={css.heroMetaValue}>{formatPermitExpiry(permitState.expiration)}</div>
+            </div>
+            <div style={css.permitMetaCard}>
+              <div style={css.statLabel}>Stored Permits</div>
+              <div style={css.heroMetaValue}>{permitState.count}</div>
             </div>
           </div>
         </div>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>LP Count</div>
-            <div style={css.statValue}>{protocol.pool ? String(protocol.pool.lpCount) : "0"}</div>
+
+        <div>
+          <div style={css.callout}>
+            Roles available with the connected wallet:
+            <div style={{ marginTop: "8px", fontFamily: T.mono }}>
+              policy holder / beneficiary / LP / {isOracle ? "oracle" : "oracle viewer"} / {isAuditor ? "auditor" : "auditor viewer"}
+            </div>
           </div>
+          <div style={{ ...css.buttonRow, marginTop: "12px" }}>
+            <button style={css.btnPrimary} onClick={onRefresh} disabled={!walletReady || permitAction?.status === "loading"}>
+              {permitAction?.status === "loading"
+                ? "Signing..."
+                : permitState.ready
+                  ? "Refresh Permit"
+                  : "Request Permit"}
+            </button>
+          </div>
+          {permitAction?.message && <div style={css.inlineStatus}>{permitAction.message}</div>}
         </div>
+      </div>
+    </div>
+  );
+}
+
+function OverviewCards({ protocol, userState, walletReady }) {
+  const settledCount = protocol.policies.filter((policy) => policy.status === 3).length;
+  const activeCount = protocol.policies.filter((policy) => policy.status === 0).length;
+
+  return (
+    <div style={{ ...css.grid4, marginBottom: "20px" }}>
+      <div style={css.card}>
+        <div style={{ padding: "16px 20px" }}>
+          <div style={css.statLabel}>Pool TVL ({TOKEN_SYMBOL})</div>
+          <div style={css.statValue}>{protocol.pool ? formatToken(protocol.pool.tokenLiquidity) : "0"}</div>
+        </div>
+      </div>
+      <div style={css.card}>
+        <div style={{ padding: "16px 20px" }}>
+          <div style={css.statLabel}>Active Covers</div>
+          <div style={css.statValue}>{activeCount}</div>
+        </div>
+      </div>
+      <div style={css.card}>
+        <div style={{ padding: "16px 20px" }}>
+          <div style={css.statLabel}>Settled Claims</div>
+          <div style={css.statValue}>{settledCount}</div>
+        </div>
+      </div>
+      <div style={css.card}>
+        <div style={{ padding: "16px 20px" }}>
+          <div style={css.statLabel}>Your Wallet ({TOKEN_SYMBOL})</div>
+          <div style={css.statValue}>{walletReady ? userState.tokenBalance : "0"}</div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function PolicyWorkspace(props) {
+  const {
+    protocol,
+    account,
+    walletReady,
+    userState,
+    txStates,
+    pendingDecisions,
+    onPolicyAction,
+    onDecryptPolicy,
+    policyForm,
+    setPolicyForm,
+    preview,
+    onPreview,
+    onSubmit,
+    onApprove,
+    cofheReady,
+  } = props;
+
+  return (
+    <div>
+      <OverviewCards protocol={protocol} userState={userState} walletReady={walletReady} />
+
+      <div style={css.grid2}>
+        <CreatePolicyPage
+          form={policyForm}
+          setForm={setPolicyForm}
+          preview={preview}
+          onPreview={onPreview}
+          onSubmit={onSubmit}
+          onApprove={onApprove}
+          walletReady={walletReady}
+          cofheReady={cofheReady}
+          userState={userState}
+          txStates={txStates}
+        />
+
         <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Your Wallet ({TOKEN_SYMBOL})</div>
-            <div style={css.statValue}>{walletReady ? userState.tokenBalance : "0"}</div>
+          <div style={css.cardHeader}>
+            <span style={css.cardTitle}>Role-Scoped Decrypt Paths</span>
+          </div>
+          <div style={css.cardBody}>
+            <div style={css.callout}>
+              Policy Holder: decrypt coverage, premium, threshold, and pending payout when you are the insured.
+            </div>
+            <div style={{ ...css.callout, marginTop: "12px" }}>
+              Beneficiary: decrypt pending payout only. The claim amount becomes visible locally after the permit check.
+            </div>
+            <div style={{ ...css.callout, marginTop: "12px" }}>
+              Public viewers still see ciphertext hashes and claim status only.
+            </div>
           </div>
         </div>
       </div>
 
-      <div style={css.card}>
-        <div style={css.cardHeader}>
-          <span style={css.cardTitle}>Recent Policies</span>
-          <span style={css.muted}>Contract {shortAddress(CONTRACT_ADDRESS)}</span>
-        </div>
-        <div style={css.tableWrap}>
-          <table style={css.table}>
-            <thead>
-              <tr>
-                <th style={css.th}>ID</th>
-                <th style={css.th}>Oracle Feed</th>
-                <th style={css.th}>Coverage ({TOKEN_SYMBOL})</th>
-                <th style={css.th}>Premium ({TOKEN_SYMBOL})</th>
-                <th style={css.th}>Coverage Handle</th>
-                <th style={css.th}>Premium Handle</th>
-                <th style={css.th}>Threshold</th>
-                <th style={css.th}>Status</th>
-                <th style={css.th}>Expiry</th>
-                <th style={css.th}>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              {protocol.policies.length === 0 && (
-                <tr>
-                  <td colSpan="10" style={css.tdText}>No policies on-chain yet.</td>
-                </tr>
-              )}
-              {protocol.policies.map((policy) => {
-                const status = STATUS_LABELS[policy.status] || "unknown";
-                const isMine =
-                  account &&
-                  (policy.insured.toLowerCase() === account.toLowerCase() ||
-                    policy.beneficiary.toLowerCase() === account.toLowerCase());
-                const decrypted = userState.decryptedPolicies[policy.id];
-                const requestKey = `request-evaluation-${policy.id}`;
-                const finalizeKey = `finalize-evaluation-${policy.id}`;
-                const settleKey = `settle-policy-${policy.id}`;
-                const decryptKey = `decrypt-policy-${policy.id}`;
-                const inlineState =
-                  txStates[requestKey] ||
-                  txStates[finalizeKey] ||
-                  txStates[settleKey] ||
-                  txStates[decryptKey];
-
-                return (
-                  <tr key={policy.id}>
-                    <td style={css.td}>#{policy.id}</td>
-                    <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
-                    <td style={css.td}>{formatToken(policy.coverageAmount)}</td>
-                    <td style={css.td}>{formatToken(policy.premiumAmount)}</td>
-                    <td style={css.td}><EncryptedValue value={policy.encCoverage} /></td>
-                    <td style={css.td}><EncryptedValue value={policy.encPremium} /></td>
-                    <td style={css.td}><EncryptedValue value={policy.encThreshold} /></td>
-                    <td style={css.tdText}>
-                      <span style={css.badge(status)}>{status}</span>
-                    </td>
-                    <td style={css.td}>{formatTimestamp(policy.expiryTimestamp)}</td>
-                    <td style={css.tdText}>
-                      <div style={css.buttonRow}>
-                        {walletReady && policy.status === 0 && (
-                          <button
-                            style={css.btnGhost}
-                            disabled={txStates[requestKey]?.status === "loading"}
-                            onClick={() => onPolicyAction("Request evaluation", policy.id)}
-                          >
-                            Evaluate
-                          </button>
-                        )}
-                        {walletReady && policy.status === 1 && (
-                          <button
-                            style={css.btnGhost}
-                            disabled={txStates[finalizeKey]?.status === "loading"}
-                            onClick={() => onPolicyAction("Finalize evaluation", policy.id)}
-                          >
-                            Finalize
-                          </button>
-                        )}
-                        {walletReady && policy.status === 2 && (
-                          <button
-                            style={css.btnGhost}
-                            disabled={txStates[settleKey]?.status === "loading"}
-                            onClick={() => onPolicyAction("Settle policy", policy.id)}
-                          >
-                            Settle
-                          </button>
-                        )}
-                        {walletReady && isMine && (
-                          <button
-                            style={css.btnGhost}
-                            disabled={txStates[decryptKey]?.status === "loading"}
-                            onClick={() => onDecryptPolicy(policy.id)}
-                          >
-                            Decrypt My View
-                          </button>
-                        )}
-                      </div>
-                      {inlineState?.message && (
-                        <div style={css.inlineStatus}>{inlineState.message}</div>
-                      )}
-                      {decrypted && (
-                        <div style={{ ...css.callout, marginTop: "10px" }}>
-                          coverage {decrypted.coverage} | premium {decrypted.premium} | threshold {decrypted.threshold}
-                          {decrypted.payout !== "" ? ` | payout ${decrypted.payout}` : ""}
-                        </div>
-                      )}
-                    </td>
-                  </tr>
-                );
-              })}
-            </tbody>
-          </table>
-        </div>
+      <div style={{ marginTop: "20px" }}>
+        <PolicyTable
+          title="Cargo Cover Book"
+          subtitle="Public policy state plus role-scoped decrypt actions"
+          policies={protocol.policies}
+          account={account}
+          onPolicyAction={onPolicyAction}
+          onDecryptPolicy={onDecryptPolicy}
+          userState={userState}
+          walletReady={walletReady}
+          txStates={txStates}
+          pendingDecisions={pendingDecisions}
+        />
       </div>
     </div>
   );
@@ -1728,72 +2287,76 @@ function CreatePolicyPage({
   const hasAllowance = BigInt(userState.allowance || "0") > 0n;
 
   return (
-    <div style={css.grid2}>
-      <div style={css.card}>
-        <div style={css.cardHeader}>
-          <span style={css.cardTitle}>New Policy</span>
-        </div>
-        <div style={css.cardBody}>
-          <div style={css.formGroup}>
-            <label style={css.label}>Oracle Feed</label>
-            <select style={css.select} value={form.feed} onChange={(event) => setForm({ ...form, feed: event.target.value })}>
-              {FEEDS.map((feed) => (
-                <option key={feed.id} value={feed.id}>{feed.name}</option>
-              ))}
-            </select>
-          </div>
-          <div style={css.formGroup}>
-            <label style={css.label}>Trigger Direction</label>
-            <select style={css.select} value={form.direction} onChange={(event) => setForm({ ...form, direction: event.target.value })}>
-              <option value="0">≥ (oracle above threshold)</option>
-              <option value="1">≤ (oracle below threshold)</option>
-            </select>
-          </div>
-          <div style={css.formGroup}>
-            <label style={css.label}>Trigger Threshold</label>
-            <input style={css.input} type="number" placeholder="e.g. 2500" value={form.threshold} onChange={(event) => setForm({ ...form, threshold: event.target.value })} />
-          </div>
-          <div style={css.grid2}>
-            <div style={css.formGroup}>
-              <label style={css.label}>Coverage Amount</label>
-              <input style={css.input} type="number" placeholder="e.g. 10000" value={form.coverage} onChange={(event) => setForm({ ...form, coverage: event.target.value })} />
-            </div>
-            <div style={css.formGroup}>
-              <label style={css.label}>Premium</label>
-              <input style={css.input} type="number" placeholder="e.g. 250" value={form.premium} onChange={(event) => setForm({ ...form, premium: event.target.value })} />
-            </div>
-          </div>
-          <div style={css.formGroup}>
-            <label style={css.label}>Beneficiary Address</label>
-            <input style={css.input} placeholder="0x..." value={form.beneficiary} onChange={(event) => setForm({ ...form, beneficiary: event.target.value })} />
-          </div>
-          <div style={css.formGroup}>
-            <label style={css.label}>Expiry Date</label>
-            <input style={css.input} type="date" value={form.expiry} onChange={(event) => setForm({ ...form, expiry: event.target.value })} />
-          </div>
-          <div style={css.buttonRow}>
-            <button style={css.btnSecondary} onClick={onApprove} disabled={approveState?.status === "loading" || !walletReady}>
-              {approveState?.status === "loading" ? `Approving ${TOKEN_SYMBOL}...` : `Approve ${TOKEN_SYMBOL}`}
-            </button>
-            <button style={css.btnSecondary} onClick={onPreview} disabled={createState?.status === "loading"}>
-              Preview Encryption
-            </button>
-            <button style={css.btnPrimary} onClick={onSubmit} disabled={createState?.status === "loading"}>
-              {createState?.status === "loading" ? "Submitting..." : "Encrypt & Submit"}
-            </button>
-          </div>
-          {approveState?.message && <div style={css.inlineStatus}>{approveState.message}</div>}
-          {createState?.message && <div style={css.inlineStatus}>{createState.message}</div>}
-          <div style={{ ...css.callout, marginTop: "12px" }}>
-            {walletReady && cofheReady
-              ? `Premium is funded in live ${TOKEN_SYMBOL}. Current allowance: ${formatAllowanceDisplay(userState.allowance)}. ${hasAllowance ? "Approval already set." : "Approve token spending before submitting."}`
-              : "Connect a wallet on Arbitrum Sepolia to enable encryption and submission."}
-          </div>
-        </div>
+    <div style={css.card}>
+      <div style={css.cardHeader}>
+        <span style={css.cardTitle}>Create Exporter Policy</span>
       </div>
+      <div style={css.cardBody}>
+        <div style={css.formGroup}>
+          <label style={css.label}>Delay Feed</label>
+          <select style={css.select} value={form.feed} onChange={(event) => setForm({ ...form, feed: event.target.value })}>
+            {FEEDS.map((feed) => (
+              <option key={feed.id} value={feed.id}>{feed.name}</option>
+            ))}
+          </select>
+        </div>
 
-      <div>
-        <div style={{ ...css.card, marginBottom: "16px" }}>
+        <div style={css.formGroup}>
+          <label style={css.label}>Trigger Direction</label>
+          <select style={css.select} value={form.direction} onChange={(event) => setForm({ ...form, direction: event.target.value })}>
+            <option value="0">≥ delay above threshold</option>
+            <option value="1">≤ delay below threshold</option>
+          </select>
+        </div>
+
+        <div style={css.formGroup}>
+          <label style={css.label}>Encrypted Delay Threshold (hours)</label>
+          <input style={css.input} type="number" placeholder="e.g. 48" value={form.threshold} onChange={(event) => setForm({ ...form, threshold: event.target.value })} />
+        </div>
+
+        <div style={css.grid2}>
+          <div style={css.formGroup}>
+            <label style={css.label}>Coverage Amount</label>
+            <input style={css.input} type="number" placeholder="e.g. 1800" value={form.coverage} onChange={(event) => setForm({ ...form, coverage: event.target.value })} />
+          </div>
+          <div style={css.formGroup}>
+            <label style={css.label}>Premium</label>
+            <input style={css.input} type="number" placeholder="e.g. 120" value={form.premium} onChange={(event) => setForm({ ...form, premium: event.target.value })} />
+          </div>
+        </div>
+
+        <div style={css.formGroup}>
+          <label style={css.label}>Beneficiary Address</label>
+          <input style={css.input} placeholder="0x..." value={form.beneficiary} onChange={(event) => setForm({ ...form, beneficiary: event.target.value })} />
+        </div>
+
+        <div style={css.formGroup}>
+          <label style={css.label}>Expiry Date</label>
+          <input style={css.input} type="date" value={form.expiry} onChange={(event) => setForm({ ...form, expiry: event.target.value })} />
+        </div>
+
+        <div style={css.buttonRow}>
+          <button style={css.btnSecondary} onClick={onApprove} disabled={approveState?.status === "loading" || !walletReady}>
+            {approveState?.status === "loading" ? `Approving ${TOKEN_SYMBOL}...` : `Approve ${TOKEN_SYMBOL}`}
+          </button>
+          <button style={css.btnSecondary} onClick={onPreview} disabled={createState?.status === "loading"}>
+            Preview Encryption
+          </button>
+          <button style={css.btnPrimary} onClick={onSubmit} disabled={createState?.status === "loading"}>
+            {createState?.status === "loading" ? "Submitting..." : "Encrypt & Submit"}
+          </button>
+        </div>
+
+        {approveState?.message && <div style={css.inlineStatus}>{approveState.message}</div>}
+        {createState?.message && <div style={css.inlineStatus}>{createState.message}</div>}
+
+        <div style={{ ...css.callout, marginTop: "12px" }}>
+          {walletReady && cofheReady
+            ? `Premium is funded in live ${TOKEN_SYMBOL}. Current allowance: ${formatAllowanceDisplay(userState.allowance)}. ${hasAllowance ? "Approval already set." : "Approve token spending before submitting."}`
+            : "Connect a wallet on Arbitrum Sepolia to enable encryption and submission."}
+        </div>
+
+        <div style={{ ...css.card, marginTop: "16px" }}>
           <div style={css.cardHeader}>
             <span style={css.cardTitle}>Encryption Preview</span>
           </div>
@@ -1812,45 +2375,168 @@ function CreatePolicyPage({
             )}
           </div>
         </div>
-
-        <div style={css.card}>
-          <div style={css.cardHeader}>
-            <span style={css.cardTitle}>Privacy Guarantees</span>
-          </div>
-          <div style={css.cardBody}>
-            {[
-              [`Coverage amount (${TOKEN_SYMBOL})`, "Public input + encrypted mirror"],
-              [`Premium paid (${TOKEN_SYMBOL})`, "Public input + encrypted mirror"],
-              ["Trigger threshold", "Encrypted (euint64)"],
-              ["Oracle reading", "Encrypted (euint64)"],
-              ["Payout result", "Encrypted (FHE.select)"],
-              ["Oracle feed ID", "Public"],
-              ["Expiry date", "Public"],
-              ["Beneficiary", "Public"],
-            ].map(([field, visibility], index) => (
-              <div key={field} style={{ display: "flex", justifyContent: "space-between", padding: "6px 0", borderBottom: index < 7 ? `1px solid ${T.border}` : "none", fontSize: "12px", gap: "16px" }}>
-                <span>{field}</span>
-                {visibility === "Public" ? (
-                  <span style={{ fontFamily: T.mono, color: T.textTertiary, fontSize: "11px" }}>{visibility}</span>
-                ) : visibility === "Public input + encrypted mirror" ? (
-                  <span style={{ fontFamily: T.mono, color: T.textSecondary, fontSize: "11px" }}>{visibility}</span>
-                ) : (
-                  <span style={css.encryptedMeta}>
-                    <LockIcon size={10} color={T.accent} /> {visibility}
-                  </span>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
       </div>
     </div>
   );
 }
 
-function PoolPage({
-  pool,
-  availableLiquidityTokens,
+function PolicyTable({
+  title,
+  subtitle,
+  policies,
+  account,
+  onPolicyAction,
+  onDecryptPolicy,
+  userState,
+  walletReady,
+  txStates = {},
+  pendingDecisions = {},
+}) {
+  return (
+    <div style={css.card}>
+      <div style={css.cardHeader}>
+        <span style={css.cardTitle}>{title}</span>
+        <span style={css.muted}>{subtitle}</span>
+      </div>
+      <div style={css.tableWrap}>
+        <table style={css.table}>
+          <thead>
+            <tr>
+              <th style={css.th}>ID</th>
+              <th style={css.th}>Feed</th>
+              <th style={css.th}>Coverage</th>
+              <th style={css.th}>Premium</th>
+              <th style={css.th}>Coverage Handle</th>
+              <th style={css.th}>Premium Handle</th>
+              <th style={css.th}>Threshold</th>
+              <th style={css.th}>Status</th>
+              <th style={css.th}>Decision</th>
+              <th style={css.th}>Expiry</th>
+              <th style={css.th}>Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {policies.length === 0 && (
+              <tr>
+                <td colSpan="11" style={css.tdText}>No cargo cover policies on-chain yet.</td>
+              </tr>
+            )}
+            {policies.map((policy) => {
+              const status = STATUS_LABELS[policy.status] || "unknown";
+              const isMine =
+                account &&
+                (policy.insured.toLowerCase() === account.toLowerCase() ||
+                  policy.beneficiary.toLowerCase() === account.toLowerCase());
+              const decrypted = userState.decryptedPolicies[policy.id];
+              const requestKey = `request-evaluation-${policy.id}`;
+              const finalizeKey = `finalize-evaluation-${policy.id}`;
+              const settleKey = `settle-policy-${policy.id}`;
+              const decryptKey = `decrypt-policy-${policy.id}`;
+              const inlineState =
+                txStates[requestKey] ||
+                txStates[finalizeKey] ||
+                txStates[settleKey] ||
+                txStates[decryptKey];
+              const pendingState = pendingDecisions[policy.id];
+
+              return (
+                <tr key={policy.id}>
+                  <td style={css.td}>#{policy.id}</td>
+                  <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
+                  <td style={css.td}>{formatToken(policy.coverageAmount)}</td>
+                  <td style={css.td}>{formatToken(policy.premiumAmount)}</td>
+                  <td style={css.td}><EncryptedValue value={policy.encCoverage} /></td>
+                  <td style={css.td}><EncryptedValue value={policy.encPremium} /></td>
+                  <td style={css.td}><EncryptedValue value={policy.encThreshold} /></td>
+                  <td style={css.tdText}><span style={css.badge(status)}>{status}</span></td>
+                  <td style={css.tdText}>
+                    {policy.status === 1 && pendingState ? (
+                      <span style={css.badge(pendingState.kind === "triggered" || pendingState.kind === "active" ? "ready" : "pending")}>
+                        {pendingState.kind === "triggered" || pendingState.kind === "active"
+                          ? "ready to finalize"
+                          : "decrypt pending"}
+                      </span>
+                    ) : (
+                      <span style={css.muted}>-</span>
+                    )}
+                  </td>
+                  <td style={css.td}>{formatTimestamp(policy.expiryTimestamp)}</td>
+                  <td style={css.tdText}>
+                    <div style={css.buttonRow}>
+                      {walletReady && policy.status === 0 && (
+                        <button
+                          style={css.btnGhost}
+                          disabled={txStates[requestKey]?.status === "loading"}
+                          onClick={() => onPolicyAction("Request evaluation", policy.id)}
+                        >
+                          Evaluate
+                        </button>
+                      )}
+                      {walletReady && policy.status === 1 && (
+                        <button
+                          style={css.btnGhost}
+                          disabled={txStates[finalizeKey]?.status === "loading"}
+                          onClick={() => onPolicyAction("Finalize evaluation", policy.id)}
+                        >
+                          Finalize
+                        </button>
+                      )}
+                      {walletReady && policy.status === 2 && (
+                        <button
+                          style={css.btnGhost}
+                          disabled={txStates[settleKey]?.status === "loading"}
+                          onClick={() => onPolicyAction("Settle policy", policy.id)}
+                        >
+                          Settle
+                        </button>
+                      )}
+                      {walletReady && isMine && (
+                        <button
+                          style={css.btnGhost}
+                          disabled={txStates[decryptKey]?.status === "loading"}
+                          onClick={() => onDecryptPolicy(policy.id)}
+                        >
+                          Decrypt My View
+                        </button>
+                      )}
+                    </div>
+                    {inlineState?.message && <div style={css.inlineStatus}>{inlineState.message}</div>}
+                    {pendingState?.message && policy.status === 1 && (
+                      <div style={{ ...css.inlineStatus, marginTop: "8px" }}>{pendingState.message}</div>
+                    )}
+                    {decrypted && (
+                      <div style={css.disclosureCard}>
+                        {decrypted.insuredView && (
+                          <div>
+                            insured view: coverage {decrypted.coverage} | premium {decrypted.premium} | threshold {decrypted.threshold}
+                          </div>
+                        )}
+                        {decrypted.beneficiaryView && (
+                          <div style={{ marginTop: decrypted.insuredView ? "6px" : 0 }}>
+                            beneficiary view: payout {decrypted.payout}
+                          </div>
+                        )}
+                        {!decrypted.insuredView && !decrypted.beneficiaryView && (
+                          <div>connected wallet has no decrypt scope for this policy.</div>
+                        )}
+                      </div>
+                    )}
+                  </td>
+                </tr>
+              );
+            })}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  );
+}
+
+function LiquidityWorkspace({
+  protocol,
+  walletReady,
+  userState,
+  txStates,
   form,
   setForm,
   onDeposit,
@@ -1858,43 +2544,28 @@ function PoolPage({
   onDecryptBalance,
   onApprove,
   onFaucet,
-  userState,
-  walletReady,
-  txStates = {},
 }) {
   const approveState = txStates["approve-token"];
   const depositState = txStates["deposit-liquidity"];
   const withdrawState = txStates["withdraw-liquidity"];
   const decryptState = txStates["decrypt-lp-balance"];
   const faucetState = txStates["token-faucet"];
+  const pool = protocol.pool;
 
   return (
     <div>
-      <div style={{ ...css.grid3, marginBottom: "24px" }}>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Pool TVL ({TOKEN_SYMBOL})</div>
-            <div style={css.statValue}>{pool ? formatToken(pool.tokenLiquidity) : "0"}</div>
-          </div>
-        </div>
+      <OverviewCards protocol={protocol} userState={userState} walletReady={walletReady} />
+
+      <div style={{ ...css.grid3, marginBottom: "20px" }}>
         <div style={css.card}>
           <div style={{ padding: "16px 20px" }}>
             <div style={css.statLabel}>Available ({TOKEN_SYMBOL})</div>
-            <div style={css.statValue}>{availableLiquidityTokens}</div>
+            <div style={css.statValue}>{protocol.availableLiquidityTokens}</div>
           </div>
         </div>
         <div style={css.card}>
           <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Reserved ({TOKEN_SYMBOL})</div>
-            <div style={css.statValue}>{pool ? formatToken(pool.tokenReserved) : "0"}</div>
-          </div>
-        </div>
-      </div>
-
-      <div style={{ ...css.grid3, marginBottom: "24px" }}>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Encrypted Deposits</div>
+            <div style={css.statLabel}>Encrypted TVL</div>
             {pool ? (
               <div style={css.statEncrypted}><LockIcon size={14} color={T.accent} /><span>{formatCipher(pool.encTotalDeposits)}</span></div>
             ) : (
@@ -1912,23 +2583,17 @@ function PoolPage({
             )}
           </div>
         </div>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Liquidity Providers</div>
-            <div style={css.statValue}>{pool ? String(pool.lpCount) : "0"}</div>
-          </div>
-        </div>
       </div>
 
       <div style={css.grid2}>
         <div style={css.card}>
           <div style={css.cardHeader}>
-            <span style={css.cardTitle}>Deposit Liquidity</span>
+            <span style={css.cardTitle}>Fund Exporter Risk Pool</span>
           </div>
           <div style={css.cardBody}>
             <div style={css.formGroup}>
-              <label style={css.label}>Amount</label>
-              <input style={css.input} type="number" placeholder="e.g. 50000" value={form.deposit} onChange={(event) => setForm({ ...form, deposit: event.target.value })} />
+              <label style={css.label}>Deposit Amount</label>
+              <input style={css.input} type="number" value={form.deposit} onChange={(event) => setForm({ ...form, deposit: event.target.value })} />
             </div>
             <div style={css.buttonRow}>
               <button style={css.btnSecondary} onClick={onFaucet} disabled={faucetState?.status === "loading" || !walletReady}>
@@ -1938,7 +2603,7 @@ function PoolPage({
                 {approveState?.status === "loading" ? `Approving ${TOKEN_SYMBOL}...` : `Approve ${TOKEN_SYMBOL}`}
               </button>
               <button style={css.btnPrimary} onClick={onDeposit} disabled={depositState?.status === "loading"}>
-                {depositState?.status === "loading" ? "Depositing..." : "Encrypt & Deposit"}
+                {depositState?.status === "loading" ? "Depositing..." : "Deposit"}
               </button>
             </div>
             {faucetState?.message && <div style={css.inlineStatus}>{faucetState.message}</div>}
@@ -1949,29 +2614,30 @@ function PoolPage({
             </div>
           </div>
         </div>
+
         <div style={css.card}>
           <div style={css.cardHeader}>
-            <span style={css.cardTitle}>Withdraw Liquidity</span>
+            <span style={css.cardTitle}>Withdraw Position</span>
           </div>
           <div style={css.cardBody}>
             <div style={css.formGroup}>
-              <label style={css.label}>Amount</label>
-              <input style={css.input} type="number" placeholder="e.g. 10000" value={form.withdraw} onChange={(event) => setForm({ ...form, withdraw: event.target.value })} />
+              <label style={css.label}>Withdraw Amount</label>
+              <input style={css.input} type="number" value={form.withdraw} onChange={(event) => setForm({ ...form, withdraw: event.target.value })} />
             </div>
             <button style={css.btnSecondary} onClick={onWithdraw} disabled={withdrawState?.status === "loading"}>
-              {withdrawState?.status === "loading" ? "Withdrawing..." : "Encrypt & Withdraw"}
+              {withdrawState?.status === "loading" ? "Withdrawing..." : "Withdraw"}
             </button>
             {withdrawState?.message && <div style={css.inlineStatus}>{withdrawState.message}</div>}
             <div style={{ fontSize: "11px", color: T.textTertiary, marginTop: "8px" }}>
-              `FHE.select` keeps the withdrawal path quiet. Tokens only move when the withdrawal is actually allowed.
+              `FHE.select` keeps the insufficient-liquidity path quiet. Tokens only move when withdrawal is actually allowed.
             </div>
           </div>
         </div>
       </div>
 
-      <div style={{ ...css.card, marginTop: "24px" }}>
+      <div style={{ ...css.card, marginTop: "20px" }}>
         <div style={css.cardHeader}>
-          <span style={css.cardTitle}>Your LP Position</span>
+          <span style={css.cardTitle}>Selective Disclosure: LP View</span>
         </div>
         <div style={css.cardBody}>
           {!walletReady && <div style={css.callout}>Connect a wallet to read and decrypt your LP position.</div>}
@@ -1981,7 +2647,7 @@ function PoolPage({
                 <span style={{ fontSize: "12px", color: T.textSecondary }}>Balance Handle:</span>
                 {userState.lpBalanceHandle ? <EncryptedValue value={userState.lpBalanceHandle} /> : <span style={css.muted}>not initialized</span>}
                 <button style={css.btnGhost} onClick={onDecryptBalance} disabled={decryptState?.status === "loading"}>
-                  {decryptState?.status === "loading" ? "Decrypting..." : "Decrypt Balance"}
+                  {decryptState?.status === "loading" ? "Decrypting..." : "Decrypt LP View"}
                 </button>
               </div>
               <div style={{ ...css.callout, marginTop: "12px" }}>
@@ -2001,19 +2667,160 @@ function PoolPage({
   );
 }
 
-function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletReady, txStates = {} }) {
-  const isOracle = walletReady && oracle && account.toLowerCase() === oracle.toLowerCase();
+function ClaimsWorkspace({
+  protocol,
+  walletReady,
+  account,
+  form,
+  setForm,
+  onSubmit,
+  onPolicyAction,
+  txStates = {},
+  pendingDecisions = {},
+  isOracle,
+}) {
   const oracleState = txStates["oracle-submit"];
+  const claims = protocol.policies.filter((policy) => [0, 1, 2].includes(policy.status));
 
   return (
     <div>
-      <div style={css.card}>
-        <div style={css.cardHeader}>
-          <span style={css.cardTitle}>Oracle Feeds</span>
-          <span style={{ fontSize: "12px", color: T.textTertiary }}>
-            Oracle wallet {shortAddress(oracle)}
-          </span>
+      <div style={css.grid2}>
+        <OraclePage
+          feeds={protocol.feeds}
+          oracle={protocol.oracle}
+          account={account}
+          form={form}
+          setForm={setForm}
+          onSubmit={onSubmit}
+          walletReady={walletReady}
+          txStates={txStates}
+          isOracle={isOracle}
+        />
+
+        <div style={css.card}>
+          <div style={css.cardHeader}>
+            <span style={css.cardTitle}>Claims Queue</span>
+          </div>
+          <div style={css.cardBody}>
+            <div style={css.callout}>
+              Pending claim statuses auto-refresh every few seconds. When threshold decryption finishes, rows move to “ready to finalize” without a manual reload.
+            </div>
+            <div style={{ ...css.grid3, marginTop: "16px" }}>
+              <div style={css.permitMetaCard}>
+                <div style={css.statLabel}>Active Claims</div>
+                <div style={css.heroMetaValue}>{claims.filter((policy) => policy.status === 0).length}</div>
+              </div>
+              <div style={css.permitMetaCard}>
+                <div style={css.statLabel}>Pending Decisions</div>
+                <div style={css.heroMetaValue}>{claims.filter((policy) => policy.status === 1).length}</div>
+              </div>
+              <div style={css.permitMetaCard}>
+                <div style={css.statLabel}>Triggered Claims</div>
+                <div style={css.heroMetaValue}>{claims.filter((policy) => policy.status === 2).length}</div>
+              </div>
+            </div>
+          </div>
         </div>
+      </div>
+
+      <div style={{ marginTop: "20px" }}>
+        <div style={css.card}>
+          <div style={css.cardHeader}>
+            <span style={css.cardTitle}>Claims Book</span>
+            <span style={css.muted}>Exporter delay covers in active claim flow</span>
+          </div>
+          <div style={css.tableWrap}>
+            <table style={css.table}>
+              <thead>
+                <tr>
+                  <th style={css.th}>Policy</th>
+                  <th style={css.th}>Feed</th>
+                  <th style={css.th}>Status</th>
+                  <th style={css.th}>Decision State</th>
+                  <th style={css.th}>Expiry</th>
+                  <th style={css.th}>Actions</th>
+                </tr>
+              </thead>
+              <tbody>
+                {claims.length === 0 && (
+                  <tr>
+                    <td colSpan="6" style={css.tdText}>No active claim flow right now.</td>
+                  </tr>
+                )}
+                {claims.map((policy) => {
+                  const status = STATUS_LABELS[policy.status] || "unknown";
+                  const pendingState = pendingDecisions[policy.id];
+                  const requestKey = `request-evaluation-${policy.id}`;
+                  const finalizeKey = `finalize-evaluation-${policy.id}`;
+                  const settleKey = `settle-policy-${policy.id}`;
+                  const inlineState =
+                    txStates[requestKey] ||
+                    txStates[finalizeKey] ||
+                    txStates[settleKey];
+                  return (
+                    <tr key={policy.id}>
+                      <td style={css.td}>#{policy.id}</td>
+                      <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
+                      <td style={css.tdText}><span style={css.badge(status)}>{status}</span></td>
+                      <td style={css.tdText}>
+                        {policy.status === 1 && pendingState ? (
+                          <span style={css.badge(pendingState.kind === "triggered" || pendingState.kind === "active" ? "ready" : "pending")}>
+                            {pendingState.kind === "triggered" || pendingState.kind === "active"
+                              ? "ready to finalize"
+                              : "threshold pending"}
+                          </span>
+                        ) : (
+                          <span style={css.muted}>-</span>
+                        )}
+                      </td>
+                      <td style={css.td}>{formatTimestamp(policy.expiryTimestamp)}</td>
+                      <td style={css.tdText}>
+                        <div style={css.buttonRow}>
+                          {walletReady && policy.status === 0 && (
+                            <button style={css.btnGhost} disabled={txStates[requestKey]?.status === "loading"} onClick={() => onPolicyAction("Request evaluation", policy.id)}>
+                              Evaluate
+                            </button>
+                          )}
+                          {walletReady && policy.status === 1 && (
+                            <button style={css.btnGhost} disabled={txStates[finalizeKey]?.status === "loading"} onClick={() => onPolicyAction("Finalize evaluation", policy.id)}>
+                              Finalize
+                            </button>
+                          )}
+                          {walletReady && policy.status === 2 && (
+                            <button style={css.btnGhost} disabled={txStates[settleKey]?.status === "loading"} onClick={() => onPolicyAction("Settle policy", policy.id)}>
+                              Settle
+                            </button>
+                          )}
+                        </div>
+                        {inlineState?.message && <div style={css.inlineStatus}>{inlineState.message}</div>}
+                        {pendingState?.message && policy.status === 1 && (
+                          <div style={{ ...css.inlineStatus, marginTop: "8px" }}>{pendingState.message}</div>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletReady, txStates = {}, isOracle }) {
+  const oracleState = txStates["oracle-submit"];
+
+  return (
+    <div style={css.card}>
+      <div style={css.cardHeader}>
+        <span style={css.cardTitle}>Oracle Feed Desk</span>
+        <span style={{ fontSize: "12px", color: T.textTertiary }}>
+          Oracle wallet {shortAddress(oracle)}
+        </span>
+      </div>
+      <div style={css.cardBody}>
         <div style={css.tableWrap}>
           <table style={css.table}>
             <thead>
@@ -2021,7 +2828,7 @@ function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletRea
                 <th style={css.th}>Feed</th>
                 <th style={css.th}>Source</th>
                 <th style={css.th}>Latest Handle</th>
-                <th style={css.th}>Initialized</th>
+                <th style={css.th}>Status</th>
               </tr>
             </thead>
             <tbody>
@@ -2040,13 +2847,8 @@ function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletRea
             </tbody>
           </table>
         </div>
-      </div>
 
-      <div style={{ ...css.card, marginTop: "24px" }}>
-        <div style={css.cardHeader}>
-          <span style={css.cardTitle}>Submit Oracle Reading</span>
-        </div>
-        <div style={css.cardBody}>
+        <div style={{ marginTop: "16px" }}>
           {!walletReady && <div style={css.callout}>Connect a wallet to submit encrypted oracle readings.</div>}
           {walletReady && !isOracle && (
             <div style={css.callout}>
@@ -2065,13 +2867,113 @@ function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletRea
               </div>
               <div style={css.formGroup}>
                 <label style={css.label}>Reading</label>
-                <input style={css.input} type="number" placeholder="e.g. 3200" value={form.reading} onChange={(event) => setForm({ ...form, reading: event.target.value })} />
+                <input style={css.input} type="number" placeholder="e.g. 72" value={form.reading} onChange={(event) => setForm({ ...form, reading: event.target.value })} />
               </div>
               <button style={css.btnPrimary} onClick={onSubmit} disabled={oracleState?.status === "loading"}>
                 {oracleState?.status === "loading" ? "Submitting..." : "Encrypt & Submit Reading"}
               </button>
               {oracleState?.message && <div style={css.inlineStatus}>{oracleState.message}</div>}
             </>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPolicy, userState, txStates = {} }) {
+  const history = protocol.policies.filter((policy) => [3, 4, 5].includes(policy.status));
+
+  return (
+    <div>
+      <OverviewCards protocol={protocol} userState={userState} walletReady={walletReady} />
+
+      <div style={css.card}>
+        <div style={css.cardHeader}>
+          <span style={css.cardTitle}>Auditor Disclosure Desk</span>
+          <span style={css.muted}>Owner-only encrypted mirrors and payout state</span>
+        </div>
+        <div style={css.cardBody}>
+          {!walletReady && <div style={css.callout}>Connect the owner wallet to access the auditor disclosure view.</div>}
+          {walletReady && !isAuditor && (
+            <div style={css.callout}>
+              This workspace is locked to the contract owner wallet. Public claim history remains visible below.
+            </div>
+          )}
+          {walletReady && isAuditor && (
+            <div style={css.callout}>
+              Auditor scope can decrypt encrypted policy mirrors plus pending payout. This is separate from the policy holder and beneficiary views.
+            </div>
+          )}
+        </div>
+      </div>
+
+      <div style={{ ...css.card, marginTop: "20px" }}>
+        <div style={css.cardHeader}>
+          <span style={css.cardTitle}>Claim History</span>
+        </div>
+        <div style={css.tableWrap}>
+          <table style={css.table}>
+            <thead>
+              <tr>
+                <th style={css.th}>Policy</th>
+                <th style={css.th}>Feed</th>
+                <th style={css.th}>Status</th>
+                <th style={css.th}>Coverage</th>
+                <th style={css.th}>Beneficiary</th>
+                <th style={css.th}>Auditor View</th>
+              </tr>
+            </thead>
+            <tbody>
+              {protocol.policies.length === 0 && (
+                <tr>
+                  <td colSpan="6" style={css.tdText}>No policy history on-chain yet.</td>
+                </tr>
+              )}
+              {protocol.policies.map((policy) => {
+                const decryptKey = `decrypt-auditor-${policy.id}`;
+                const decrypted = userState.auditorPolicies[policy.id];
+                return (
+                  <tr key={policy.id}>
+                    <td style={css.td}>#{policy.id}</td>
+                    <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
+                    <td style={css.tdText}><span style={css.badge(STATUS_LABELS[policy.status] || "active")}>{STATUS_LABELS[policy.status] || "unknown"}</span></td>
+                    <td style={css.td}>{formatToken(policy.coverageAmount)}</td>
+                    <td style={css.td}>{shortAddress(policy.beneficiary)}</td>
+                    <td style={css.tdText}>
+                      {isAuditor ? (
+                        <button style={css.btnGhost} disabled={txStates[decryptKey]?.status === "loading"} onClick={() => onDecryptAuditorPolicy(policy.id)}>
+                          {txStates[decryptKey]?.status === "loading" ? "Decrypting..." : "Decrypt Auditor View"}
+                        </button>
+                      ) : (
+                        <span style={css.muted}>owner only</span>
+                      )}
+                      {txStates[decryptKey]?.message && <div style={css.inlineStatus}>{txStates[decryptKey].message}</div>}
+                      {decrypted && (
+                        <div style={css.disclosureCard}>
+                          coverage {decrypted.coverage} | premium {decrypted.premium} | threshold {decrypted.threshold} | payout {decrypted.payout}
+                        </div>
+                      )}
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div style={{ ...css.card, marginTop: "20px" }}>
+        <div style={css.cardHeader}>
+          <span style={css.cardTitle}>Public Claim Trail</span>
+        </div>
+        <div style={css.cardBody}>
+          {history.length === 0 ? (
+            <div style={css.callout}>No settled, expired, or cancelled cargo claims yet. Use the seeded exporter scenario to open the history trail.</div>
+          ) : (
+            <div style={{ fontSize: "13px", color: T.textSecondary }}>
+              Claim history is public on purpose. Private terms and payout mirrors stay role-scoped and decrypt only under permit.
+            </div>
           )}
         </div>
       </div>

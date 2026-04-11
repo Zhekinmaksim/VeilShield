@@ -1,6 +1,6 @@
 # VeilShield
 
-VeilShield is a Fhenix CoFHE project for parametric insurance on Arbitrum Sepolia.
+VeilShield is a Fhenix CoFHE project for confidential cargo delay cover on Arbitrum Sepolia.
 
 The trigger path runs on encrypted state on-chain. Token settlement still uses a plain ERC-20 test asset, and the contract mirrors the token terms into encrypted handles where the privacy logic needs them.
 
@@ -37,6 +37,9 @@ The bar here is straightforward:
 - conditional routing with `FHE.select`
 - async finalization through `FHE.decrypt`
 - ERC-20 deposit, premium, and payout flow with `vUSD`
+- role-based workspaces for policy holder, LP, oracle / claims, and auditor
+- explicit permit-based selective disclosure flow in the frontend
+- seeded exporter demo path for judges once the oracle wallet is connected
 
 ## Why this fits the buildathon
 
@@ -49,13 +52,20 @@ The bar here is straightforward:
 ## Live deployment
 
 - Network: `Arbitrum Sepolia`
-- VeilShield: `0x65117a5c8686BD35647dF994df1EdFAeE2d884d6`
-- vUSD: `0xb36fFA3fe3faB01A1E9fc59594BA1b0921DDa102`
+- VeilShield: `0x42Fd32Fa18975D5A2Ba57bb0e86682aE9dEb13Da`
+- vUSD: `0x8D58098D3B2Cbef4c5fa1CFef38A0baD7Ef81C70`
 - Oracle: `0x4eD3265fA5217071F678eCD58eAf7f720dBf3FEc`
-- VeilShield on Arbiscan: [0x65117a5c8686BD35647dF994df1EdFAeE2d884d6](https://sepolia.arbiscan.io/address/0x65117a5c8686BD35647dF994df1EdFAeE2d884d6#code)
-- vUSD on Arbiscan: [0xb36fFA3fe3faB01A1E9fc59594BA1b0921DDa102](https://sepolia.arbiscan.io/address/0xb36fFA3fe3faB01A1E9fc59594BA1b0921DDa102#code)
+- VeilShield on Arbiscan: [0x42Fd32Fa18975D5A2Ba57bb0e86682aE9dEb13Da](https://sepolia.arbiscan.io/address/0x42Fd32Fa18975D5A2Ba57bb0e86682aE9dEb13Da#code)
+- vUSD on Arbiscan: [0x8D58098D3B2Cbef4c5fa1CFef38A0baD7Ef81C70](https://sepolia.arbiscan.io/address/0x8D58098D3B2Cbef4c5fa1CFef38A0baD7Ef81C70#code)
 
 The deployment file is in `deployments/arb-sepolia.json`.
+
+Current seeded state on the new deployment:
+
+- one active exporter policy is live
+- one second policy is already in `PendingDecision`
+- pool liquidity and encrypted handles are non-empty
+- once the threshold network returns the pending result, the seeded scenario can be finalized into settled claim history
 
 ## Privacy model
 
@@ -79,6 +89,17 @@ Public:
 - token liquidity and reserved accounting
 
 That tradeoff keeps the project usable: the contract still runs encrypted logic, and the app can still move plain ERC-20 test tokens during deposit and settlement.
+
+## Product framing
+
+The current wedge is exporters buying cargo / shipment delay cover.
+
+Why this use case fits privacy-by-design:
+
+- exporters do not want to reveal delay thresholds that expose operating tolerance
+- coverage sizes can leak shipment value or treasury posture
+- claims history is useful publicly, but policy terms should stay role-scoped
+- LPs and auditors need controlled disclosure, not blanket transparency
 
 ## Run locally
 
@@ -132,22 +153,29 @@ Verify with:
 npm run verify:arb-sepolia
 ```
 
+Seed the live exporter scenario with:
+
+```bash
+npm run seed:arb-sepolia
+```
+
 ## Demo flow
 
 1. Connect a wallet on Arbitrum Sepolia.
 2. Mint `vUSD` in the pool screen.
 3. Approve `vUSD` once.
 4. Deposit liquidity.
-5. Create a policy with an encrypted threshold and encrypted mirrors of the token terms.
+5. Create a cargo delay policy with an encrypted threshold and encrypted mirrors of the token terms.
 6. Submit an encrypted oracle reading from the oracle wallet.
 7. Request evaluation.
-8. Wait a few seconds.
+8. Wait a few seconds while the threshold network finishes the decision.
 9. Finalize the result.
 10. Settle the payout if the policy triggered.
+11. Use permit-based local decrypt for policy holder, beneficiary, LP, or auditor views.
 
 ## Notes
 
 - Tests are written against the local CoFHE mock setup.
-- The frontend is minimal. It is built for demos, not production UX.
+- The frontend is still demo-oriented, but now includes role workspaces, permit status, and async claim polling.
 - Node 20 or 22 is safer with Hardhat than Node 25.
 - The repo is fine to build with AI assistance, but every feature should still be defensible in code, tests, and runtime behavior.

@@ -2,16 +2,16 @@
   "network": "arb-sepolia",
   "chainId": 421614,
   "contractName": "VeilShield",
-  "address": "0x65117a5c8686BD35647dF994df1EdFAeE2d884d6",
+  "address": "0x42Fd32Fa18975D5A2Ba57bb0e86682aE9dEb13Da",
   "oracle": "0x4eD3265fA5217071F678eCD58eAf7f720dBf3FEc",
   "deployer": "0x4eD3265fA5217071F678eCD58eAf7f720dBf3FEc",
-  "explorer": "https://sepolia.arbiscan.io/address/0x65117a5c8686BD35647dF994df1EdFAeE2d884d6",
+  "explorer": "https://sepolia.arbiscan.io/address/0x42Fd32Fa18975D5A2Ba57bb0e86682aE9dEb13Da",
   "token": {
     "contractName": "VeilShieldDemoToken",
-    "address": "0xb36fFA3fe3faB01A1E9fc59594BA1b0921DDa102",
+    "address": "0x8D58098D3B2Cbef4c5fa1CFef38A0baD7Ef81C70",
     "symbol": "vUSD",
     "decimals": 0,
     "faucetAmount": 100000,
-    "explorer": "https://sepolia.arbiscan.io/address/0xb36fFA3fe3faB01A1E9fc59594BA1b0921DDa102"
+    "explorer": "https://sepolia.arbiscan.io/address/0x8D58098D3B2Cbef4c5fa1CFef38A0baD7Ef81C70"
   }
 }

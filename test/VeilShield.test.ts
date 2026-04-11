@@ -93,7 +93,7 @@ describe("VeilShield", function () {
   });
 
   it("creates a policy with encrypted terms and transfers the premium token", async function () {
-    const { insured, beneficiary, lp, token, veilShield } = await deployFixture();
+    const { owner, insured, beneficiary, lp, token, veilShield } = await deployFixture();
     const veilShieldAddress = await veilShield.getAddress();
 
     await approveAndEncrypt(lp, token.connect(lp), veilShieldAddress, 5_000n);
@@ -122,12 +122,18 @@ describe("VeilShield", function () {
     expect(await veilShield.getAvailableLiquidityTokens()).to.equal(4_100n);
 
     const [coverage, premium, threshold] = await veilShield.connect(insured).getMyPolicyTerms(0);
+    const [auditorCoverage, auditorPremium, auditorThreshold, auditorPayout] =
+      await veilShield.connect(owner).getAuditorPolicyView(0);
     const [coverageAmount, premiumAmount] = await veilShield.getPolicyTokenTerms(0);
     expect(coverageAmount).to.equal(1_000n);
     expect(premiumAmount).to.equal(100n);
     await hre.cofhe.mocks.expectPlaintext(coverage, 1_000n);
     await hre.cofhe.mocks.expectPlaintext(premium, 100n);
     await hre.cofhe.mocks.expectPlaintext(threshold, 3_000n);
+    await hre.cofhe.mocks.expectPlaintext(auditorCoverage, 1_000n);
+    await hre.cofhe.mocks.expectPlaintext(auditorPremium, 100n);
+    await hre.cofhe.mocks.expectPlaintext(auditorThreshold, 3_000n);
+    await hre.cofhe.mocks.expectPlaintext(auditorPayout, 0n);
     await hre.cofhe.mocks.expectPlaintext(pool.encTotalReserved, 1_000n);
     await hre.cofhe.mocks.expectPlaintext(pool.encTotalDeposits, 5_000n);
     expect(await veilShield.connect(lp).getMyLpTokenBalance()).to.equal(5_100n);
@@ -299,5 +305,35 @@ describe("VeilShield", function () {
     expect(pool.tokenReserved).to.equal(0n);
     expect(await veilShield.getAvailableLiquidityTokens()).to.equal(5_100n);
     await hre.cofhe.mocks.expectPlaintext(pool.encTotalReserved, 0n);
+  });
+
+  it("restricts auditor policy view to the owner", async function () {
+    const { insured, beneficiary, lp, token, veilShield } = await deployFixture();
+    const veilShieldAddress = await veilShield.getAddress();
+
+    await approveAndEncrypt(lp, token.connect(lp), veilShieldAddress, 5_000n);
+    await (await veilShield.connect(lp).depositLiquidity(5_000n)).wait();
+    await (await token.connect(insured).approve(veilShieldAddress, 100n)).wait();
+
+    await (
+      await veilShield.connect(insured).createPolicy(
+        1_000n,
+        100n,
+        await encryptUint64(insured, 3_000n),
+        ethers.encodeBytes32String("shipment_delay_hours"),
+        0,
+        await futureExpiry(),
+        beneficiary.address
+      )
+    ).wait();
+
+    let reverted = false;
+    try {
+      await veilShield.connect(insured).getAuditorPolicyView(0);
+    } catch (error) {
+      reverted = String(error).includes("NotOwner");
+    }
+
+    expect(reverted).to.equal(true);
   });
 });

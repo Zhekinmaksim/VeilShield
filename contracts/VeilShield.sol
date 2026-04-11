@@ -241,6 +241,9 @@ contract VeilShield {
         FHE.allow(p.encPremium, msg.sender);
         FHE.allow(p.encThreshold, msg.sender);
         FHE.allow(p.encCoverage, beneficiary);
+        FHE.allow(p.encCoverage, owner);
+        FHE.allow(p.encPremium, owner);
+        FHE.allow(p.encThreshold, owner);
 
         pool.encTotalReserved = FHE.add(pool.encTotalReserved, p.encCoverage);
         FHE.allowThis(pool.encTotalReserved);
@@ -285,6 +288,7 @@ contract VeilShield {
         FHE.allowThis(p.pendingPayout);
         FHE.allow(p.pendingPayout, p.insured);
         FHE.allow(p.pendingPayout, p.beneficiary);
+        FHE.allow(p.pendingPayout, owner);
 
         FHE.decrypt(p.pendingTrigger);
         p.status = PolicyStatus.PendingDecision;
@@ -389,6 +393,11 @@ contract VeilShield {
         Policy storage p = _getExistingPolicy(policyId);
         if (msg.sender != p.beneficiary && msg.sender != p.insured) revert NotAuthorized();
         return p.pendingPayout;
+    }
+
+    function getAuditorPolicyView(uint256 policyId) external view onlyOwner returns (euint64, euint64, euint64, euint64) {
+        Policy storage p = _getExistingPolicy(policyId);
+        return (p.encCoverage, p.encPremium, p.encThreshold, p.pendingPayout);
     }
 
     function getMyLpBalance() external view returns (euint64) {

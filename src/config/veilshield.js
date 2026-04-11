@@ -16,6 +16,25 @@ export const TOKEN_FAUCET_AMOUNT = deployment.token?.faucetAmount ?? 100000;
 export const ARB_SEPOLIA_CHAIN_ID = 421614;
 export const ARB_SEPOLIA_HEX = "0x66eee";
 export const ARB_SEPOLIA_RPC = "https://sepolia-rollup.arbitrum.io/rpc";
+export const APP_TAGLINE = "Confidential cargo delay cover for exporters";
+export const EXPORTER_SCENARIO = {
+  activePolicy: {
+    feed: "shipment_delay_hours",
+    direction: 0,
+    threshold: 48,
+    coverage: 1800,
+    premium: 120,
+  },
+  settledPolicy: {
+    feed: "shipment_delay_hours",
+    direction: 0,
+    threshold: 60,
+    coverage: 2200,
+    premium: 180,
+    oracleReading: 72,
+  },
+  liquidityDeposit: 50000,
+};
 
 export const STATUS_LABELS = {
   0: "active",
@@ -27,10 +46,10 @@ export const STATUS_LABELS = {
 };
 
 export const FEEDS = [
-  { id: "eth_usd", name: "ETH/USD Price", source: "Chainlink" },
-  { id: "bdi", name: "Baltic Dry Index", source: "Chainlink" },
-  { id: "temp_fra", name: "Temperature (FRA)", source: "Custom" },
-  { id: "usdc_peg", name: "USDC Peg Index", source: "Chainlink" },
+  { id: "shipment_delay_hours", name: "Shipment Delay (hours)", source: "Carrier + customs oracle" },
+  { id: "port_congestion_index", name: "Port Congestion Index", source: "Port telemetry oracle" },
+  { id: "customs_hold_risk", name: "Customs Hold Risk", source: "Trade compliance oracle" },
+  { id: "freight_rate_spike", name: "Freight Rate Spike", source: "Freight market oracle" },
 ].map((feed) => ({
   ...feed,
   bytes32: ethers.encodeBytes32String(feed.id),

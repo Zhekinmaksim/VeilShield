@@ -14,6 +14,7 @@
     "deploy:eth-sepolia": "hardhat run scripts/deploy.ts --network eth-sepolia",
     "deploy:arb-sepolia": "hardhat run scripts/deploy.ts --network arb-sepolia",
     "deploy:base-sepolia": "hardhat run scripts/deploy.ts --network base-sepolia",
+    "seed:arb-sepolia": "hardhat run scripts/seed-arb-sepolia.ts --network arb-sepolia",
     "verify:arb-sepolia": "hardhat run scripts/verify-arb-sepolia.ts --network arb-sepolia"
   },
   "devDependencies": {
