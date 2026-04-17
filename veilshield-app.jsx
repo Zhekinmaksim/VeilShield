@@ -58,20 +58,17 @@ const css = {
     WebkitFontSmoothing: "antialiased",
   },
   header: {
-    display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "space-between",
+    display: "grid",
+    gridTemplateColumns: "1fr auto",
     padding: "16px 32px",
     borderBottom: `1px solid ${T.border}`,
     background: T.surface,
-    gap: "20px",
-    flexWrap: "wrap",
+    gap: "14px 20px",
   },
   logo: {
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
     gap: "12px",
-    flex: "1 1 420px",
     minWidth: 0,
   },
   logoImage: {
@@ -82,7 +79,6 @@ const css = {
   },
   logoCopy: {
     minWidth: 0,
-    maxWidth: "760px",
   },
   logoTextWrap: {
     display: "flex",
@@ -101,37 +97,43 @@ const css = {
     fontFamily: T.mono,
   },
   logoTagline: {
-    marginTop: "4px",
+    marginTop: "2px",
     fontSize: "11px",
     lineHeight: "1.45",
     color: T.textTertiary,
     fontFamily: T.mono,
-    whiteSpace: "normal",
-    wordBreak: "break-word",
+    whiteSpace: "nowrap",
   },
   headerControls: {
     display: "flex",
-    alignItems: "flex-start",
+    alignItems: "center",
     justifyContent: "flex-end",
-    gap: "12px 16px",
+    gap: "12px",
     flexWrap: "wrap",
-    flex: "0 1 auto",
+  },
+  navRail: {
+    gridColumn: "1 / -1",
+    display: "flex",
+    justifyContent: "center",
+    paddingTop: "2px",
   },
   nav: {
     display: "flex",
-    gap: "4px",
+    gap: "10px",
     flexWrap: "wrap",
-    justifyContent: "flex-end",
+    justifyContent: "center",
   },
   navItem: (active) => ({
-    padding: "8px 14px",
+    minWidth: "168px",
+    padding: "12px 18px",
     fontSize: "12px",
     fontWeight: active ? 600 : 500,
     color: active ? T.accent : T.textSecondary,
-    background: active ? T.accentLight : "transparent",
+    background: active ? T.accentLight : T.surfaceAlt,
     borderRadius: T.radius,
-    border: `1px solid ${active ? T.accentBorder : "transparent"}`,
+    border: `1px solid ${active ? T.accentBorder : T.border}`,
     cursor: "pointer",
+    textAlign: "center",
   }),
   buttonRow: {
     display: "flex",
@@ -1947,14 +1949,6 @@ function App() {
         </div>
 
         <div style={css.headerControls}>
-          <nav style={css.nav}>
-            {workspaces.map(([key, label]) => (
-              <button key={key} style={css.navItem(workspace === key)} onClick={() => setWorkspace(key)}>
-                {label}
-              </button>
-            ))}
-          </nav>
-
           <div style={css.buttonRow}>
             {!walletReady && (
               <button style={css.walletBtn} onClick={() => connectWallet(false)} disabled={walletBusy}>
@@ -1976,6 +1970,16 @@ function App() {
               </>
             )}
           </div>
+        </div>
+
+        <div style={css.navRail}>
+          <nav style={css.nav}>
+            {workspaces.map(([key, label]) => (
+              <button key={key} style={css.navItem(workspace === key)} onClick={() => setWorkspace(key)}>
+                {label}
+              </button>
+            ))}
+          </nav>
         </div>
       </header>
 
