@@ -116,12 +116,15 @@ const css = {
     display: "flex",
     justifyContent: "center",
     paddingTop: "2px",
+    overflowX: "auto",
+    scrollbarWidth: "none",
   },
   nav: {
     display: "flex",
     gap: "10px",
-    flexWrap: "wrap",
+    flexWrap: "nowrap",
     justifyContent: "center",
+    minWidth: "max-content",
   },
   navItem: (active) => ({
     minWidth: "168px",
@@ -134,6 +137,8 @@ const css = {
     border: `1px solid ${active ? T.accentBorder : T.border}`,
     cursor: "pointer",
     textAlign: "center",
+    whiteSpace: "nowrap",
+    flexShrink: 0,
   }),
   buttonRow: {
     display: "flex",
