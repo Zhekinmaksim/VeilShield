@@ -10,14 +10,15 @@ VeilShield lets an exporter buy cargo delay cover where the threshold, trigger e
 
 Show this order:
 
-1. `Policy Holder` workspace
+1. `Oracle / Claims` workspace
 2. status rail: wallet, network, CoFHE, permit, contract
-3. existing active policy
-4. existing settled or pending claim history
-5. `Request permit`
-6. `Decrypt My Policy`
-7. switch to `Auditor`
-8. `Decrypt Auditor View`
+3. existing active queue rows
+4. public claim trail
+5. switch to `Policy Holder`
+6. `Request permit`
+7. `Decrypt My Policy`
+8. switch to `Auditor`
+9. `Decrypt Auditor View`
 
 That path shows privacy architecture faster than recording the whole lifecycle from zero.
 
@@ -67,4 +68,4 @@ That path shows privacy architecture faster than recording the whole lifecycle f
 
 ## Current caveat
 
-The seeded live state can stall in `PendingDecision` when the testnet threshold network is slow. That is an external async dependency, not a frontend mock.
+The seeded live state can stall in `PendingDecision` when the testnet threshold network is slow. The app now opens on the claims workspace so the first screen is still populated with live queue rows and public history.

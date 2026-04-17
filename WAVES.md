@@ -20,6 +20,7 @@ Confidential cargo delay cover for exporters: delay thresholds, claim logic, and
 ### 1. Demo reliability
 
 - keep seeded live state non-empty
+- keep claims-first default impression useful even when finalize is delayed
 - reduce `PendingDecision` friction in judge flows
 - tighten the oracle claim path for recording
 

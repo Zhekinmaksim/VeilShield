@@ -50,6 +50,7 @@ The frontend handles:
 - permit issuance
 - local decrypt for role-scoped views
 - polling for async claim readiness
+- a claims-first default screen with public claim trail and live queue state
 
 ### Privacy flow
 

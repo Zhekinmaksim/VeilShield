@@ -69,7 +69,7 @@ That boundary is deliberate. It is written down in the docs instead of implied b
 - ERC-20 deposit, premium, and payout flow with `vUSD`
 - role-based workspaces for policy holder, LP, oracle / claims, and auditor
 - explicit permit-based selective disclosure flow in the frontend
-- seeded exporter demo path for judges once the oracle wallet is connected
+- seeded exporter demo path for a non-empty live first screen
 
 ## Why this fits the buildathon
 
@@ -93,9 +93,10 @@ The deployment file is in `deployments/arb-sepolia.json`.
 Current seeded state on the new deployment:
 
 - one active exporter policy is live
-- one second policy is already in `PendingDecision`
+- two policies are currently in `PendingDecision`
+- one fallback policy is already in `Cancelled`, so public claim history is not empty
 - pool liquidity and encrypted handles are non-empty
-- once the threshold network returns the pending result, the seeded scenario can be finalized into settled claim history
+- the remaining pending rows depend on the live threshold network returning async decrypt results
 
 ## Product framing
 
@@ -166,7 +167,7 @@ Seed the live exporter scenario with:
 npm run seed:arb-sepolia
 ```
 
-If the threshold network is slow, the seeded state may temporarily show one policy in `PendingDecision` until the async decrypt result arrives.
+If the threshold network is slow, the seeded state may keep one or more policies in `PendingDecision` until the async decrypt result arrives.
 
 ## Demo flow
 
