@@ -59,7 +59,8 @@ const css = {
   },
   header: {
     display: "grid",
-    gridTemplateColumns: "1fr auto",
+    gridTemplateColumns: "auto 1fr auto",
+    alignItems: "center",
     padding: "16px 32px",
     borderBottom: `1px solid ${T.border}`,
     background: T.surface,
@@ -106,32 +107,36 @@ const css = {
   },
   headerControls: {
     display: "flex",
-    alignItems: "flex-start",
-    justifyContent: "flex-end",
-    gap: "12px",
-    flexWrap: "wrap",
+    alignItems: "center",
+    justifyContent: "center",
+    minWidth: 0,
   },
   nav: {
     display: "flex",
-    gap: "10px",
+    gap: "4px",
     flexWrap: "nowrap",
-    justifyContent: "flex-end",
-    minWidth: "max-content",
+    justifyContent: "center",
+    alignItems: "center",
   },
   navItem: (active) => ({
-    minWidth: "168px",
-    padding: "12px 18px",
+    padding: "8px 14px",
     fontSize: "12px",
     fontWeight: active ? 600 : 500,
     color: active ? T.accent : T.textSecondary,
-    background: active ? T.accentLight : T.surfaceAlt,
+    background: active ? T.accentLight : "transparent",
     borderRadius: T.radius,
-    border: `1px solid ${active ? T.accentBorder : T.border}`,
+    border: "none",
     cursor: "pointer",
     textAlign: "center",
     whiteSpace: "nowrap",
-    flexShrink: 0,
   }),
+  walletControls: {
+    display: "flex",
+    gap: "8px",
+    alignItems: "center",
+    justifyContent: "flex-end",
+    flexWrap: "wrap",
+  },
   buttonRow: {
     display: "flex",
     gap: "8px",
@@ -1953,28 +1958,28 @@ function App() {
               </button>
             ))}
           </nav>
+        </div>
 
-          <div style={css.buttonRow}>
-            {!walletReady && (
-              <button style={css.walletBtn} onClick={() => connectWallet(false)} disabled={walletBusy}>
-                {walletBusy ? "Connecting..." : "Connect Wallet"}
+        <div style={css.walletControls}>
+          {!walletReady && (
+            <button style={css.walletBtn} onClick={() => connectWallet(false)} disabled={walletBusy}>
+              {walletBusy ? "Connecting..." : "Connect Wallet"}
+            </button>
+          )}
+          {walletReady && (
+            <>
+              <button
+                style={css.walletBtnSecondary}
+                onClick={() => refreshData(provider, account, true, signer, false)}
+                disabled={walletBusy}
+              >
+                {shortAddress(account)}
               </button>
-            )}
-            {walletReady && (
-              <>
-                <button
-                  style={css.walletBtnSecondary}
-                  onClick={() => refreshData(provider, account, true, signer, false)}
-                  disabled={walletBusy}
-                >
-                  {shortAddress(account)}
-                </button>
-                <button style={css.walletBtnSecondary} onClick={handlePermitRefresh}>
-                  {permitState.ready ? "Refresh Permit" : "Request Permit"}
-                </button>
-              </>
-            )}
-          </div>
+              <button style={css.walletBtnSecondary} onClick={handlePermitRefresh}>
+                {permitState.ready ? "Refresh Permit" : "Request Permit"}
+              </button>
+            </>
+          )}
         </div>
       </header>
 
