@@ -106,24 +106,16 @@ const css = {
   },
   headerControls: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "flex-end",
     gap: "12px",
     flexWrap: "wrap",
-  },
-  navRail: {
-    gridColumn: "1 / -1",
-    display: "flex",
-    justifyContent: "center",
-    paddingTop: "2px",
-    overflowX: "auto",
-    scrollbarWidth: "none",
   },
   nav: {
     display: "flex",
     gap: "10px",
     flexWrap: "nowrap",
-    justifyContent: "center",
+    justifyContent: "flex-end",
     minWidth: "max-content",
   },
   navItem: (active) => ({
@@ -1954,6 +1946,14 @@ function App() {
         </div>
 
         <div style={css.headerControls}>
+          <nav style={css.nav}>
+            {workspaces.map(([key, label]) => (
+              <button key={key} style={css.navItem(workspace === key)} onClick={() => setWorkspace(key)}>
+                {label}
+              </button>
+            ))}
+          </nav>
+
           <div style={css.buttonRow}>
             {!walletReady && (
               <button style={css.walletBtn} onClick={() => connectWallet(false)} disabled={walletBusy}>
@@ -1975,16 +1975,6 @@ function App() {
               </>
             )}
           </div>
-        </div>
-
-        <div style={css.navRail}>
-          <nav style={css.nav}>
-            {workspaces.map(([key, label]) => (
-              <button key={key} style={css.navItem(workspace === key)} onClick={() => setWorkspace(key)}>
-                {label}
-              </button>
-            ))}
-          </nav>
         </div>
       </header>
 
