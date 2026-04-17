@@ -59,23 +59,30 @@ const css = {
   },
   header: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     justifyContent: "space-between",
     padding: "16px 32px",
     borderBottom: `1px solid ${T.border}`,
     background: T.surface,
-    gap: "16px",
+    gap: "20px",
     flexWrap: "wrap",
   },
   logo: {
     display: "flex",
-    alignItems: "center",
+    alignItems: "flex-start",
     gap: "12px",
+    flex: "1 1 420px",
+    minWidth: 0,
   },
   logoImage: {
     width: "36px",
     height: "36px",
     display: "block",
+    flexShrink: 0,
+  },
+  logoCopy: {
+    minWidth: 0,
+    maxWidth: "760px",
   },
   logoTextWrap: {
     display: "flex",
@@ -93,10 +100,28 @@ const css = {
     color: T.textTertiary,
     fontFamily: T.mono,
   },
+  logoTagline: {
+    marginTop: "4px",
+    fontSize: "11px",
+    lineHeight: "1.45",
+    color: T.textTertiary,
+    fontFamily: T.mono,
+    whiteSpace: "normal",
+    wordBreak: "break-word",
+  },
+  headerControls: {
+    display: "flex",
+    alignItems: "flex-start",
+    justifyContent: "flex-end",
+    gap: "12px 16px",
+    flexWrap: "wrap",
+    flex: "0 1 auto",
+  },
   nav: {
     display: "flex",
     gap: "4px",
     flexWrap: "wrap",
+    justifyContent: "flex-end",
   },
   navItem: (active) => ({
     padding: "8px 14px",
@@ -112,6 +137,7 @@ const css = {
     display: "flex",
     gap: "8px",
     flexWrap: "wrap",
+    justifyContent: "flex-end",
   },
   walletBtn: {
     padding: "8px 16px",
@@ -123,6 +149,7 @@ const css = {
     borderRadius: T.radius,
     cursor: "pointer",
     letterSpacing: "0.02em",
+    whiteSpace: "nowrap",
   },
   walletBtnSecondary: {
     padding: "8px 16px",
@@ -134,6 +161,7 @@ const css = {
     borderRadius: T.radius,
     cursor: "pointer",
     letterSpacing: "0.02em",
+    whiteSpace: "nowrap",
   },
   main: {
     maxWidth: "1160px",
@@ -1909,43 +1937,45 @@ function App() {
       <header style={css.header}>
         <div style={css.logo}>
           <img src="/veilshield-logo.png" alt="VeilShield logo" style={css.logoImage} />
-          <div>
+          <div style={css.logoCopy}>
             <div style={css.logoTextWrap}>
               <span style={css.logoText}>VeilShield</span>
               <span style={css.logoMeta}>live</span>
             </div>
-            <div style={css.logoMeta}>{APP_TAGLINE}</div>
+            <div style={css.logoTagline}>{APP_TAGLINE}</div>
           </div>
         </div>
 
-        <nav style={css.nav}>
-          {workspaces.map(([key, label]) => (
-            <button key={key} style={css.navItem(workspace === key)} onClick={() => setWorkspace(key)}>
-              {label}
-            </button>
-          ))}
-        </nav>
+        <div style={css.headerControls}>
+          <nav style={css.nav}>
+            {workspaces.map(([key, label]) => (
+              <button key={key} style={css.navItem(workspace === key)} onClick={() => setWorkspace(key)}>
+                {label}
+              </button>
+            ))}
+          </nav>
 
-        <div style={css.buttonRow}>
-          {!walletReady && (
-            <button style={css.walletBtn} onClick={() => connectWallet(false)} disabled={walletBusy}>
-              {walletBusy ? "Connecting..." : "Connect Wallet"}
-            </button>
-          )}
-          {walletReady && (
-            <>
-              <button
-                style={css.walletBtnSecondary}
-                onClick={() => refreshData(provider, account, true, signer, false)}
-                disabled={walletBusy}
-              >
-                {shortAddress(account)}
+          <div style={css.buttonRow}>
+            {!walletReady && (
+              <button style={css.walletBtn} onClick={() => connectWallet(false)} disabled={walletBusy}>
+                {walletBusy ? "Connecting..." : "Connect Wallet"}
               </button>
-              <button style={css.walletBtnSecondary} onClick={handlePermitRefresh}>
-                {permitState.ready ? "Refresh Permit" : "Request Permit"}
-              </button>
-            </>
-          )}
+            )}
+            {walletReady && (
+              <>
+                <button
+                  style={css.walletBtnSecondary}
+                  onClick={() => refreshData(provider, account, true, signer, false)}
+                  disabled={walletBusy}
+                >
+                  {shortAddress(account)}
+                </button>
+                <button style={css.walletBtnSecondary} onClick={handlePermitRefresh}>
+                  {permitState.ready ? "Refresh Permit" : "Request Permit"}
+                </button>
+              </>
+            )}
+          </div>
         </div>
       </header>
 
