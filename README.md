@@ -1,6 +1,8 @@
 # VeilShield
 
-VeilShield is a Fhenix CoFHE project for confidential cargo delay cover on Arbitrum Sepolia.
+VeilShield is a Fhenix CoFHE project on Arbitrum Sepolia.
+
+Confidential cargo delay cover for exporters: delay thresholds, claim logic, and role-scoped policy views stay private on-chain.
 
 The trigger path runs on encrypted state on-chain. Token settlement still uses a plain ERC-20 test asset, and the contract mirrors the token terms into encrypted handles where the privacy logic needs them.
 
@@ -28,6 +30,34 @@ The bar here is straightforward:
 - `veilshield-app.jsx`: the frontend entry point
 - `scripts/deploy.ts`: deploys both contracts and writes deployment metadata
 - `deployments/arb-sepolia.json`: the current Arbitrum Sepolia deployment
+
+## Quick framing
+
+VeilShield is not trying to hide every field on-chain.
+
+It hides the parts that matter for this use case:
+
+- shipment delay threshold
+- encrypted oracle reading
+- encrypted payout selection
+- user-scoped LP and policy views
+
+And it keeps the parts that still need visible token settlement public:
+
+- coverage amount
+- premium amount
+- beneficiary
+- expiry
+- pool token accounting
+
+That boundary is deliberate. It is written down in the docs instead of implied by marketing copy.
+
+## Docs for judges
+
+- [`ARCHITECTURE.md`](./ARCHITECTURE.md): contract, frontend, and live network layout
+- [`PRIVACY_MODEL.md`](./PRIVACY_MODEL.md): what is encrypted, what is public, and who can decrypt what
+- [`DEMO_FLOW.md`](./DEMO_FLOW.md): the fastest live demo path for a judge or video recording
+- [`WAVES.md`](./WAVES.md): what shipped, what is rough, and what the next steps are
 
 ## What the demo does
 
@@ -66,29 +96,6 @@ Current seeded state on the new deployment:
 - one second policy is already in `PendingDecision`
 - pool liquidity and encrypted handles are non-empty
 - once the threshold network returns the pending result, the seeded scenario can be finalized into settled claim history
-
-## Privacy model
-
-This repo uses a mixed model on purpose.
-
-Encrypted:
-
-- LP balances
-- policy coverage mirror
-- policy premium mirror
-- trigger threshold
-- oracle reading
-- pending payout
-
-Public:
-
-- beneficiary
-- oracle feed id
-- expiry
-- token addresses
-- token liquidity and reserved accounting
-
-That tradeoff keeps the project usable: the contract still runs encrypted logic, and the app can still move plain ERC-20 test tokens during deposit and settlement.
 
 ## Product framing
 
@@ -158,6 +165,8 @@ Seed the live exporter scenario with:
 ```bash
 npm run seed:arb-sepolia
 ```
+
+If the threshold network is slow, the seeded state may temporarily show one policy in `PendingDecision` until the async decrypt result arrives.
 
 ## Demo flow
 

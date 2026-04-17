@@ -643,6 +643,15 @@ function formatToken(value) {
   return BigInt(value).toString();
 }
 
+function formatUtilization(reserved, total) {
+  const reservedValue = BigInt(reserved || "0");
+  const totalValue = BigInt(total || "0");
+  if (totalValue === 0n) {
+    return "0%";
+  }
+  return `${Number((reservedValue * 10000n) / totalValue) / 100}%`;
+}
+
 function formatAllowanceDisplay(value) {
   const allowance = BigInt(value || "0");
   if (allowance >= ethers.MaxUint256 / 2n) {
@@ -909,7 +918,7 @@ async function decryptUint64(handle) {
 }
 
 function App() {
-  const [workspace, setWorkspace] = useState("policy");
+  const [workspace, setWorkspace] = useState("claims");
   const [provider, setProvider] = useState(PUBLIC_PROVIDER);
   const [signer, setSigner] = useState(null);
   const [account, setAccount] = useState("");
@@ -1859,6 +1868,11 @@ function App() {
   const currentMeta = workspaceMeta[workspace];
   const statusItems = [
     {
+      label: "Workspace",
+      value: currentMeta.eyebrow.replace(" Workspace", ""),
+      variant: "neutral",
+    },
+    {
       label: "Wallet",
       value: walletReady ? shortAddress(account) : "disconnected",
       variant: walletReady ? "good" : "bad",
@@ -1994,11 +2008,6 @@ function App() {
                 Token
               </a>
             )}
-            {(isOracle || isAuditor) && (
-              <button style={css.btnGhost} onClick={seedExporterDemo} disabled={txStates["seed-demo"]?.status === "loading"}>
-                {txStates["seed-demo"]?.status === "loading" ? "Seeding..." : "Seed Exporter Demo"}
-              </button>
-            )}
           </div>
         </div>
 
@@ -2030,6 +2039,7 @@ function App() {
             onSubmit={handleCreatePolicy}
             onApprove={handleTokenApprove}
             cofheReady={cofheReady}
+            permitState={permitState}
           />
         )}
 
@@ -2061,6 +2071,7 @@ function App() {
             txStates={txStates}
             pendingDecisions={pendingDecisions}
             isOracle={isOracle}
+            onSeedDemo={seedExporterDemo}
           />
         )}
 
@@ -2086,7 +2097,7 @@ function App() {
       </div>
 
       <footer style={css.footer}>
-        VeilShield — Confidential cargo delay cover for exporters — {shortAddress(CONTRACT_ADDRESS)} on Arbitrum Sepolia
+        VeilShield — Confidential cargo delay cover for exporters: delay thresholds, claim logic, and role-scoped policy views stay private on-chain. — {shortAddress(CONTRACT_ADDRESS)} on Arbitrum Sepolia
       </footer>
     </div>
   );
@@ -2163,40 +2174,6 @@ function PermitPanel({ permitState, onRefresh, walletReady, isAuditor, isOracle,
   );
 }
 
-function OverviewCards({ protocol, userState, walletReady }) {
-  const settledCount = protocol.policies.filter((policy) => policy.status === 3).length;
-  const activeCount = protocol.policies.filter((policy) => policy.status === 0).length;
-
-  return (
-    <div style={{ ...css.grid4, marginBottom: "20px" }}>
-      <div style={css.card}>
-        <div style={{ padding: "16px 20px" }}>
-          <div style={css.statLabel}>Pool TVL ({TOKEN_SYMBOL})</div>
-          <div style={css.statValue}>{protocol.pool ? formatToken(protocol.pool.tokenLiquidity) : "0"}</div>
-        </div>
-      </div>
-      <div style={css.card}>
-        <div style={{ padding: "16px 20px" }}>
-          <div style={css.statLabel}>Active Covers</div>
-          <div style={css.statValue}>{activeCount}</div>
-        </div>
-      </div>
-      <div style={css.card}>
-        <div style={{ padding: "16px 20px" }}>
-          <div style={css.statLabel}>Settled Claims</div>
-          <div style={css.statValue}>{settledCount}</div>
-        </div>
-      </div>
-      <div style={css.card}>
-        <div style={{ padding: "16px 20px" }}>
-          <div style={css.statLabel}>Your Wallet ({TOKEN_SYMBOL})</div>
-          <div style={css.statValue}>{walletReady ? userState.tokenBalance : "0"}</div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
 function PolicyWorkspace(props) {
   const {
     protocol,
@@ -2214,11 +2191,50 @@ function PolicyWorkspace(props) {
     onSubmit,
     onApprove,
     cofheReady,
+    permitState,
   } = props;
+  const myPolicies =
+    walletReady && account
+      ? protocol.policies.filter(
+          (policy) =>
+            policy.insured.toLowerCase() === account.toLowerCase() ||
+            policy.beneficiary.toLowerCase() === account.toLowerCase()
+        )
+      : [];
+  const pendingMine = myPolicies.filter((policy) => policy.status === 1).length;
+  const settledMine = myPolicies.filter((policy) => policy.status === 3).length;
+  const triggeredMine = myPolicies.filter((policy) => policy.status === 2).length;
 
   return (
     <div>
-      <OverviewCards protocol={protocol} userState={userState} walletReady={walletReady} />
+      <div style={{ ...css.grid4, marginBottom: "20px" }}>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>My Covers</div>
+            <div style={css.statValue}>{myPolicies.length}</div>
+          </div>
+        </div>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Awaiting Claim Decision</div>
+            <div style={css.statValue}>{pendingMine}</div>
+          </div>
+        </div>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Triggered / Settled</div>
+            <div style={css.statValue}>{triggeredMine + settledMine}</div>
+          </div>
+        </div>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Permit Scope</div>
+            <div style={css.heroMetaValue}>
+              {permitState.ready && permitState.valid ? "decrypt ready" : "issue permit"}
+            </div>
+          </div>
+        </div>
+      </div>
 
       <div style={css.grid2}>
         <CreatePolicyPage
@@ -2236,17 +2252,20 @@ function PolicyWorkspace(props) {
 
         <div style={css.card}>
           <div style={css.cardHeader}>
-            <span style={css.cardTitle}>Role-Scoped Decrypt Paths</span>
+            <span style={css.cardTitle}>Policy Holder Flow</span>
           </div>
           <div style={css.cardBody}>
             <div style={css.callout}>
-              Policy Holder: decrypt coverage, premium, threshold, and pending payout when you are the insured.
+              1. Buy cover with a public premium and an encrypted threshold.
             </div>
             <div style={{ ...css.callout, marginTop: "12px" }}>
-              Beneficiary: decrypt pending payout only. The claim amount becomes visible locally after the permit check.
+              2. Request a permit only when you need to inspect your own terms or payout state.
             </div>
             <div style={{ ...css.callout, marginTop: "12px" }}>
-              Public viewers still see ciphertext hashes and claim status only.
+              3. Track claim status here, while the claims desk handles evaluation and settlement flow.
+            </div>
+            <div style={{ ...css.callout, marginTop: "12px" }}>
+              Public viewers still see ciphertext handles and status only. Policy holder decrypt stays local to the wallet.
             </div>
           </div>
         </div>
@@ -2254,9 +2273,9 @@ function PolicyWorkspace(props) {
 
       <div style={{ marginTop: "20px" }}>
         <PolicyTable
-          title="Cargo Cover Book"
-          subtitle="Public policy state plus role-scoped decrypt actions"
-          policies={protocol.policies}
+          title="My Covers"
+          subtitle="Only policies where this wallet is the insured or beneficiary"
+          policies={myPolicies}
           account={account}
           onPolicyAction={onPolicyAction}
           onDecryptPolicy={onDecryptPolicy}
@@ -2264,6 +2283,8 @@ function PolicyWorkspace(props) {
           walletReady={walletReady}
           txStates={txStates}
           pendingDecisions={pendingDecisions}
+          showClaimActions={false}
+          emptyMessage={walletReady ? "No covers tied to this wallet yet." : "Connect a wallet to see your covers."}
         />
       </div>
     </div>
@@ -2340,10 +2361,10 @@ function CreatePolicyPage({
             {approveState?.status === "loading" ? `Approving ${TOKEN_SYMBOL}...` : `Approve ${TOKEN_SYMBOL}`}
           </button>
           <button style={css.btnSecondary} onClick={onPreview} disabled={createState?.status === "loading"}>
-            Preview Encryption
+            Preview Threshold
           </button>
           <button style={css.btnPrimary} onClick={onSubmit} disabled={createState?.status === "loading"}>
-            {createState?.status === "loading" ? "Submitting..." : "Encrypt & Submit"}
+            {createState?.status === "loading" ? "Submitting..." : "Buy Cover"}
           </button>
         </div>
 
@@ -2391,6 +2412,8 @@ function PolicyTable({
   walletReady,
   txStates = {},
   pendingDecisions = {},
+  showClaimActions = true,
+  emptyMessage = "No cargo cover policies on-chain yet.",
 }) {
   return (
     <div style={css.card}>
@@ -2418,7 +2441,7 @@ function PolicyTable({
           <tbody>
             {policies.length === 0 && (
               <tr>
-                <td colSpan="11" style={css.tdText}>No cargo cover policies on-chain yet.</td>
+                <td colSpan="11" style={css.tdText}>{emptyMessage}</td>
               </tr>
             )}
             {policies.map((policy) => {
@@ -2463,7 +2486,7 @@ function PolicyTable({
                   <td style={css.td}>{formatTimestamp(policy.expiryTimestamp)}</td>
                   <td style={css.tdText}>
                     <div style={css.buttonRow}>
-                      {walletReady && policy.status === 0 && (
+                      {showClaimActions && walletReady && policy.status === 0 && (
                         <button
                           style={css.btnGhost}
                           disabled={txStates[requestKey]?.status === "loading"}
@@ -2472,7 +2495,7 @@ function PolicyTable({
                           Evaluate
                         </button>
                       )}
-                      {walletReady && policy.status === 1 && (
+                      {showClaimActions && walletReady && policy.status === 1 && (
                         <button
                           style={css.btnGhost}
                           disabled={txStates[finalizeKey]?.status === "loading"}
@@ -2481,7 +2504,7 @@ function PolicyTable({
                           Finalize
                         </button>
                       )}
-                      {walletReady && policy.status === 2 && (
+                      {showClaimActions && walletReady && policy.status === 2 && (
                         <button
                           style={css.btnGhost}
                           disabled={txStates[settleKey]?.status === "loading"}
@@ -2551,12 +2574,23 @@ function LiquidityWorkspace({
   const decryptState = txStates["decrypt-lp-balance"];
   const faucetState = txStates["token-faucet"];
   const pool = protocol.pool;
+  const utilization = formatUtilization(pool?.tokenReserved, pool?.tokenLiquidity);
 
   return (
     <div>
-      <OverviewCards protocol={protocol} userState={userState} walletReady={walletReady} />
-
-      <div style={{ ...css.grid3, marginBottom: "20px" }}>
+      <div style={{ ...css.grid4, marginBottom: "20px" }}>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Pool TVL ({TOKEN_SYMBOL})</div>
+            <div style={css.statValue}>{pool ? formatToken(pool.tokenLiquidity) : "0"}</div>
+          </div>
+        </div>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Reserved Exposure ({TOKEN_SYMBOL})</div>
+            <div style={css.statValue}>{pool ? formatToken(pool.tokenReserved) : "0"}</div>
+          </div>
+        </div>
         <div style={css.card}>
           <div style={{ padding: "16px 20px" }}>
             <div style={css.statLabel}>Available ({TOKEN_SYMBOL})</div>
@@ -2565,22 +2599,8 @@ function LiquidityWorkspace({
         </div>
         <div style={css.card}>
           <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Encrypted TVL</div>
-            {pool ? (
-              <div style={css.statEncrypted}><LockIcon size={14} color={T.accent} /><span>{formatCipher(pool.encTotalDeposits)}</span></div>
-            ) : (
-              <div style={css.muted}>loading</div>
-            )}
-          </div>
-        </div>
-        <div style={css.card}>
-          <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Encrypted Reserved</div>
-            {pool ? (
-              <div style={css.statEncrypted}><LockIcon size={14} color={T.accent} /><span>{formatCipher(pool.encTotalReserved)}</span></div>
-            ) : (
-              <div style={css.muted}>loading</div>
-            )}
+            <div style={css.statLabel}>Pool Utilization</div>
+            <div style={css.statValue}>{utilization}</div>
           </div>
         </div>
       </div>
@@ -2589,6 +2609,7 @@ function LiquidityWorkspace({
         <div style={css.card}>
           <div style={css.cardHeader}>
             <span style={css.cardTitle}>Fund Exporter Risk Pool</span>
+            <span style={css.muted}>LP-only capital actions</span>
           </div>
           <div style={css.cardBody}>
             <div style={css.formGroup}>
@@ -2618,6 +2639,7 @@ function LiquidityWorkspace({
         <div style={css.card}>
           <div style={css.cardHeader}>
             <span style={css.cardTitle}>Withdraw Position</span>
+            <span style={css.muted}>No policy actions in LP workspace</span>
           </div>
           <div style={css.cardBody}>
             <div style={css.formGroup}>
@@ -2638,6 +2660,7 @@ function LiquidityWorkspace({
       <div style={{ ...css.card, marginTop: "20px" }}>
         <div style={css.cardHeader}>
           <span style={css.cardTitle}>Selective Disclosure: LP View</span>
+          <span style={css.muted}>Your position only</span>
         </div>
         <div style={css.cardBody}>
           {!walletReady && <div style={css.callout}>Connect a wallet to read and decrypt your LP position.</div>}
@@ -2678,9 +2701,15 @@ function ClaimsWorkspace({
   txStates = {},
   pendingDecisions = {},
   isOracle,
+  onSeedDemo,
 }) {
-  const oracleState = txStates["oracle-submit"];
   const claims = protocol.policies.filter((policy) => [0, 1, 2].includes(policy.status));
+  const history = protocol.policies.filter((policy) => [3, 4, 5].includes(policy.status));
+  const readyToFinalize = claims.filter((policy) => {
+    const pendingState = pendingDecisions[policy.id];
+    return policy.status === 1 && pendingState && ["triggered", "active"].includes(pendingState.kind);
+  }).length;
+  const seedState = txStates["seed-demo"];
 
   return (
     <div>
@@ -2699,7 +2728,7 @@ function ClaimsWorkspace({
 
         <div style={css.card}>
           <div style={css.cardHeader}>
-            <span style={css.cardTitle}>Claims Queue</span>
+            <span style={css.cardTitle}>Claims Monitor</span>
           </div>
           <div style={css.cardBody}>
             <div style={css.callout}>
@@ -2718,7 +2747,22 @@ function ClaimsWorkspace({
                 <div style={css.statLabel}>Triggered Claims</div>
                 <div style={css.heroMetaValue}>{claims.filter((policy) => policy.status === 2).length}</div>
               </div>
+              <div style={css.permitMetaCard}>
+                <div style={css.statLabel}>Ready To Finalize</div>
+                <div style={css.heroMetaValue}>{readyToFinalize}</div>
+              </div>
             </div>
+            <div style={{ ...css.callout, marginTop: "16px" }}>
+              Oracle / Claims is the only workspace that should submit readings or progress the evaluation queue.
+            </div>
+            {isOracle && (
+              <div style={{ ...css.buttonRow, marginTop: "12px" }}>
+                <button style={css.btnGhost} onClick={onSeedDemo} disabled={seedState?.status === "loading"}>
+                  {seedState?.status === "loading" ? "Seeding..." : "Seed Exporter Demo"}
+                </button>
+              </div>
+            )}
+            {seedState?.message && <div style={css.inlineStatus}>{seedState.message}</div>}
           </div>
         </div>
       </div>
@@ -2805,6 +2849,48 @@ function ClaimsWorkspace({
           </div>
         </div>
       </div>
+
+      <div style={{ marginTop: "20px" }}>
+        <div style={css.card}>
+          <div style={css.cardHeader}>
+            <span style={css.cardTitle}>Public Claim Trail</span>
+            <span style={css.muted}>Closed rows visible without decrypt scope</span>
+          </div>
+          <div style={css.tableWrap}>
+            <table style={css.table}>
+              <thead>
+                <tr>
+                  <th style={css.th}>Policy</th>
+                  <th style={css.th}>Feed</th>
+                  <th style={css.th}>Status</th>
+                  <th style={css.th}>Coverage</th>
+                  <th style={css.th}>Beneficiary</th>
+                </tr>
+              </thead>
+              <tbody>
+                {history.length === 0 && (
+                  <tr>
+                    <td colSpan="5" style={css.tdText}>No closed claim rows yet.</td>
+                  </tr>
+                )}
+                {history.map((policy) => (
+                  <tr key={policy.id}>
+                    <td style={css.td}>#{policy.id}</td>
+                    <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
+                    <td style={css.tdText}>
+                      <span style={css.badge(STATUS_LABELS[policy.status] || "active")}>
+                        {STATUS_LABELS[policy.status] || "unknown"}
+                      </span>
+                    </td>
+                    <td style={css.td}>{formatToken(policy.coverageAmount)}</td>
+                    <td style={css.td}>{shortAddress(policy.beneficiary)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      </div>
     </div>
   );
 }
@@ -2883,10 +2969,30 @@ function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletRea
 
 function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPolicy, userState, txStates = {} }) {
   const history = protocol.policies.filter((policy) => [3, 4, 5].includes(policy.status));
+  const pendingDisclosure = protocol.policies.filter((policy) => [1, 2].includes(policy.status)).length;
 
   return (
     <div>
-      <OverviewCards protocol={protocol} userState={userState} walletReady={walletReady} />
+      <div style={{ ...css.grid3, marginBottom: "20px" }}>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Policies In Scope</div>
+            <div style={css.statValue}>{protocol.policies.length}</div>
+          </div>
+        </div>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Pending Disclosure Rows</div>
+            <div style={css.statValue}>{pendingDisclosure}</div>
+          </div>
+        </div>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Closed Claims</div>
+            <div style={css.statValue}>{history.length}</div>
+          </div>
+        </div>
+      </div>
 
       <div style={css.card}>
         <div style={css.cardHeader}>
@@ -2910,7 +3016,7 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
 
       <div style={{ ...css.card, marginTop: "20px" }}>
         <div style={css.cardHeader}>
-          <span style={css.cardTitle}>Claim History</span>
+          <span style={css.cardTitle}>Selective Disclosure Queue</span>
         </div>
         <div style={css.tableWrap}>
           <table style={css.table}>

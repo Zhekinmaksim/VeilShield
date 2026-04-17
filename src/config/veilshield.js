@@ -16,7 +16,8 @@ export const TOKEN_FAUCET_AMOUNT = deployment.token?.faucetAmount ?? 100000;
 export const ARB_SEPOLIA_CHAIN_ID = 421614;
 export const ARB_SEPOLIA_HEX = "0x66eee";
 export const ARB_SEPOLIA_RPC = "https://sepolia-rollup.arbitrum.io/rpc";
-export const APP_TAGLINE = "Confidential cargo delay cover for exporters";
+export const APP_TAGLINE =
+  "Confidential cargo delay cover for exporters: delay thresholds, claim logic, and role-scoped policy views stay private on-chain.";
 export const EXPORTER_SCENARIO = {
   activePolicy: {
     feed: "shipment_delay_hours",

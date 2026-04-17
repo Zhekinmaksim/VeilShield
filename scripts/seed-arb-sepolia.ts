@@ -36,15 +36,36 @@ async function encryptUint64(value: bigint) {
   return encrypted.data[0];
 }
 
-async function waitForDecisionReady(contract: any, policyId: bigint) {
-  for (let attempt = 0; attempt < 60; attempt += 1) {
+async function createCancelledHistoryPolicy(contract: any, signerAddress: string, expiry: bigint) {
+  console.log("Creating cancelled fallback policy for non-empty public history...");
+  const policyId = await contract.policyCount();
+  await (
+    await contract.createPolicy(
+      600n,
+      40n,
+      await encryptUint64(96n),
+      makeFeedBytes32(SCENARIO.activePolicy.feed),
+      SCENARIO.activePolicy.direction,
+      expiry,
+      signerAddress
+    )
+  ).wait();
+
+  await (await contract.cancelPolicy(policyId)).wait();
+}
+
+async function waitForDecisionReady(contract: any, policyId: bigint, options?: { attempts?: number; delayMs?: number }) {
+  const attempts = options?.attempts ?? 60;
+  const delayMs = options?.delayMs ?? 5000;
+
+  for (let attempt = 0; attempt < attempts; attempt += 1) {
     const [ready] = await contract.finalizePolicyEvaluation.staticCall(policyId);
     if (ready) {
       return;
     }
 
     console.log(`Waiting for finalize readiness on policy ${policyId.toString()}...`);
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await new Promise((resolve) => setTimeout(resolve, delayMs));
   }
 
   throw new Error(`Policy ${policyId.toString()} did not become ready in time.`);
@@ -79,35 +100,51 @@ async function main() {
     throw new Error(`Seed script expects signer to be owner and oracle. signer=${signerAddress} owner=${owner} oracle=${oracle}`);
   }
 
-  const readStatuses = async () => {
+  const settledFeed = makeFeedBytes32(SCENARIO.settledPolicy.feed);
+
+  const readPolicies = async () => {
     const count = Number(await contract.policyCount());
-    const statuses: Array<{ id: bigint; status: number }> = [];
+    const statuses: Array<{ id: bigint; status: number; feed: string }> = [];
     for (let id = 0; id < count; id += 1) {
       const policy = await contract.policies(BigInt(id));
-      statuses.push({ id: BigInt(id), status: Number(policy.status) });
+      statuses.push({
+        id: BigInt(id),
+        status: Number(policy.status),
+        feed: policy.oracleFeedId,
+      });
     }
     return statuses;
   };
 
-  let statuses = await readStatuses();
+  let statuses = await readPolicies();
   let hasActive = statuses.some((entry) => entry.status === 0);
   let hasSettled = statuses.some((entry) => entry.status === 3);
+  let hasHistory = statuses.some((entry) => [3, 4, 5].includes(entry.status));
 
   for (const entry of statuses.filter((item) => item.status === 1)) {
     console.log(`Resuming pending decision for policy ${entry.id.toString()}...`);
-    await waitForDecisionReady(contract, entry.id);
-    await (await contract.finalizePolicyEvaluation(entry.id)).wait();
+    try {
+      await waitForDecisionReady(contract, entry.id, { attempts: 12, delayMs: 5000 });
+      await (await contract.finalizePolicyEvaluation(entry.id)).wait();
+    } catch (error) {
+      console.warn(`Pending policy ${entry.id.toString()} is still waiting on threshold decryption. Continuing seed flow.`);
+      console.warn(error);
+    }
   }
 
-  statuses = await readStatuses();
+  statuses = await readPolicies();
   for (const entry of statuses.filter((item) => item.status === 2)) {
     console.log(`Settling already-triggered policy ${entry.id.toString()}...`);
     await (await contract.settleTriggeredPolicy(entry.id)).wait();
   }
 
-  statuses = await readStatuses();
+  statuses = await readPolicies();
   hasActive = statuses.some((entry) => entry.status === 0);
   hasSettled = statuses.some((entry) => entry.status === 3);
+  hasHistory = statuses.some((entry) => [3, 4, 5].includes(entry.status));
+  const hasInFlightSettledCandidate = statuses.some(
+    (entry) => [1, 2].includes(entry.status) && entry.feed === settledFeed
+  );
 
   if (hasActive && hasSettled) {
     console.log("Live scenario already seeded with at least one active and one settled policy.");
@@ -154,7 +191,7 @@ async function main() {
     ).wait();
   }
 
-  if (!hasSettled) {
+  if (!hasSettled && !hasInFlightSettledCandidate) {
     const beforeCreate = Number(await contract.policyCount());
     console.log("Creating settled exporter policy...");
     await (
@@ -186,6 +223,13 @@ async function main() {
     console.log("Finalizing and settling triggered claim...");
     await (await contract.finalizePolicyEvaluation(settledPolicyId)).wait();
     await (await contract.settleTriggeredPolicy(settledPolicyId)).wait();
+  }
+
+  statuses = await readPolicies();
+  hasHistory = statuses.some((entry) => [3, 4, 5].includes(entry.status));
+
+  if (!hasHistory) {
+    await createCancelledHistoryPolicy(contract, signerAddress, expiry);
   }
 
   console.log("Exporter demo scenario seeded successfully.");
