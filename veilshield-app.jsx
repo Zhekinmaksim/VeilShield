@@ -938,6 +938,8 @@ async function decryptUint64(handle) {
   return unwrapResult(await cofhejs.decrypt(BigInt(handle), FheTypes.Uint64), "Decrypt failed");
 }
 
+const MANUAL_DISCONNECT_KEY = "veilshield.manualDisconnect";
+
 function App() {
   const [workspace, setWorkspace] = useState("claims");
   const [provider, setProvider] = useState(PUBLIC_PROVIDER);
@@ -991,6 +993,24 @@ function App() {
     reading: "",
   });
 
+  function isAutoReconnectBlocked() {
+    try {
+      return window.localStorage.getItem(MANUAL_DISCONNECT_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function setAutoReconnectBlocked(blocked) {
+    try {
+      if (blocked) {
+        window.localStorage.setItem(MANUAL_DISCONNECT_KEY, "1");
+      } else {
+        window.localStorage.removeItem(MANUAL_DISCONNECT_KEY);
+      }
+    } catch {}
+  }
+
   function pushToast(title, body, variant = "info", options = {}) {
     const id = `${Date.now()}-${Math.random().toString(16).slice(2)}`;
     const toast = { id, title, body, variant };
@@ -1026,6 +1046,46 @@ function App() {
 
   function refreshPermitState() {
     setPermitState(readPermitState());
+  }
+
+  function resetWalletSession(options = {}) {
+    const { manual = false } = options;
+
+    if (manual) {
+      setAutoReconnectBlocked(true);
+    }
+
+    try {
+      const allResult = cofhejs.getAllPermits ? cofhejs.getAllPermits() : { success: false };
+      if (allResult.success) {
+        Object.keys(allResult.data || {}).forEach((hash) => {
+          try {
+            cofhejs.removePermit(hash, true);
+          } catch {}
+        });
+      }
+    } catch {}
+
+    setProvider(PUBLIC_PROVIDER);
+    setSigner(null);
+    setAccount("");
+    setChainId(ARB_SEPOLIA_CHAIN_ID);
+    setWalletReady(false);
+    setCofheReady(false);
+    setWalletBusy(false);
+    setPermitState(defaultPermitState());
+    setTxStates({});
+    setPendingDecisions({});
+    setUserState({
+      tokenBalance: "0",
+      allowance: "0",
+      lpBalanceHandle: null,
+      lpBalancePlaintext: "",
+      lpTokenBalance: "0",
+      myPolicies: [],
+      decryptedPolicies: {},
+      auditorPolicies: {},
+    });
   }
 
   function getWriteContract() {
@@ -1220,19 +1280,20 @@ function App() {
 
     const handleAccountsChanged = async (accounts) => {
       if (!accounts.length) {
-        setSigner(null);
-        setAccount("");
-        setProvider(PUBLIC_PROVIDER);
-        setWalletReady(false);
-        setCofheReady(false);
-        setPermitState(defaultPermitState());
+        resetWalletSession();
         setRefreshTick((value) => value + 1);
+        return;
+      }
+      if (isAutoReconnectBlocked()) {
         return;
       }
       await connectWallet(true);
     };
 
     const handleChainChanged = async () => {
+      if (isAutoReconnectBlocked()) {
+        return;
+      }
       await connectWallet(true);
     };
 
@@ -1242,7 +1303,7 @@ function App() {
     window.ethereum
       .request({ method: "eth_accounts" })
       .then((accounts) => {
-        if (accounts.length) {
+        if (accounts.length && !isAutoReconnectBlocked()) {
           connectWallet(true).catch(() => {});
         }
       })
@@ -1284,6 +1345,8 @@ function App() {
       if (!silent) {
         await window.ethereum.request({ method: "eth_requestAccounts" });
       }
+
+      setAutoReconnectBlocked(false);
 
       await ensureArbitrumSepolia();
 
@@ -1334,6 +1397,15 @@ function App() {
     } finally {
       setWalletBusy(false);
     }
+  }
+
+  function handleDisconnect() {
+    resetWalletSession({ manual: true });
+    pushToast(
+      "Wallet disconnected",
+      "The app session was cleared. Browser wallets keep site authorization until you disconnect them in the wallet extension.",
+      "success"
+    );
   }
 
   async function runAction(key, label, action, options = {}) {
@@ -1980,6 +2052,9 @@ function App() {
               </button>
               <button style={css.walletBtnSecondary} onClick={handlePermitRefresh}>
                 {permitState.ready ? "Refresh Permit" : "Request Permit"}
+              </button>
+              <button style={css.walletBtnSecondary} onClick={handleDisconnect} disabled={walletBusy}>
+                Disconnect
               </button>
             </>
           )}
