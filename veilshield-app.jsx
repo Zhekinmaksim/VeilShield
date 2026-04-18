@@ -59,7 +59,7 @@ const css = {
   },
   header: {
     display: "grid",
-    gridTemplateColumns: "auto 1fr auto",
+    gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
     alignItems: "center",
     padding: "16px 32px",
     borderBottom: `1px solid ${T.border}`,
@@ -71,6 +71,7 @@ const css = {
     alignItems: "center",
     gap: "12px",
     minWidth: 0,
+    justifySelf: "start",
   },
   logoImage: {
     width: "36px",
@@ -110,6 +111,7 @@ const css = {
     alignItems: "center",
     justifyContent: "center",
     minWidth: 0,
+    justifySelf: "center",
   },
   nav: {
     display: "flex",
@@ -136,6 +138,8 @@ const css = {
     alignItems: "center",
     justifyContent: "flex-end",
     flexWrap: "wrap",
+    justifySelf: "end",
+    minWidth: 0,
   },
   buttonRow: {
     display: "flex",
@@ -2421,6 +2425,7 @@ function CreatePolicyPage({
   const previewState = txStates["preview-threshold"];
   const hasAllowance = BigInt(userState.allowance || "0") > 0n;
   const previewRef = useRef(null);
+  const [expiryInputActive, setExpiryInputActive] = useState(false);
 
   useEffect(() => {
     if (preview) {
@@ -2474,7 +2479,20 @@ function CreatePolicyPage({
 
         <div style={css.formGroup}>
           <label style={css.label}>Expiry Date</label>
-          <input style={css.input} type="date" value={form.expiry} onChange={(event) => setForm({ ...form, expiry: event.target.value })} />
+          <input
+            style={css.input}
+            type={expiryInputActive || form.expiry ? "date" : "text"}
+            lang="en-GB"
+            placeholder="dd / mm / yyyy"
+            value={form.expiry}
+            onFocus={() => setExpiryInputActive(true)}
+            onBlur={() => {
+              if (!form.expiry) {
+                setExpiryInputActive(false);
+              }
+            }}
+            onChange={(event) => setForm({ ...form, expiry: event.target.value })}
+          />
         </div>
 
         <div style={css.buttonRow}>
