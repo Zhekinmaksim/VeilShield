@@ -1115,8 +1115,9 @@ function App() {
     quiet = false
   ) {
     try {
-      const publicContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, currentProvider);
-      const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, currentProvider);
+      const rpcProvider = PUBLIC_PROVIDER;
+      const publicContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, rpcProvider);
+      const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, rpcProvider);
 
       const [pool, owner, oracle, asset, policyCountRaw, availableLiquidityTokens] = await Promise.all([
         publicContract.pool(),
@@ -1270,7 +1271,7 @@ function App() {
   }
 
   useEffect(() => {
-    refreshData(provider, account, walletReady && cofheReady && permitState.valid, signer, false);
+    refreshData(provider, account, walletReady && cofheReady && permitState.valid, signer, true);
   }, [refreshTick]);
 
   useEffect(() => {
