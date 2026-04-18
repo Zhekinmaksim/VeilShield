@@ -22,6 +22,21 @@ import {
 } from "./src/config/veilshield.js";
 
 const PUBLIC_PROVIDER = new ethers.JsonRpcProvider(ARB_SEPOLIA_RPC);
+const ENGLISH_MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
+const ENGLISH_WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 
 const T = {
   bg: "#F8F8F4",
@@ -507,6 +522,112 @@ const css = {
     outline: "none",
     cursor: "pointer",
   },
+  dateField: {
+    position: "relative",
+  },
+  dateInput: {
+    paddingRight: "48px",
+  },
+  dateButton: {
+    position: "absolute",
+    top: "50%",
+    right: "12px",
+    transform: "translateY(-50%)",
+    width: "24px",
+    height: "24px",
+    border: "none",
+    background: "transparent",
+    color: T.text,
+    cursor: "pointer",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    padding: 0,
+  },
+  datePopover: {
+    position: "absolute",
+    top: "calc(100% + 8px)",
+    right: 0,
+    width: "304px",
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    boxShadow: "0 12px 32px rgba(16, 58, 37, 0.12)",
+    zIndex: 20,
+    padding: "14px",
+  },
+  datePopoverHeader: {
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "space-between",
+    gap: "8px",
+    marginBottom: "12px",
+  },
+  dateMonthLabel: {
+    fontSize: "13px",
+    fontWeight: 600,
+    color: T.text,
+  },
+  dateNavButton: {
+    width: "28px",
+    height: "28px",
+    borderRadius: T.radius,
+    border: `1px solid ${T.border}`,
+    background: T.surfaceAlt,
+    color: T.text,
+    cursor: "pointer",
+    fontFamily: T.mono,
+    fontSize: "14px",
+  },
+  dateWeekdays: {
+    display: "grid",
+    gridTemplateColumns: "repeat(7, 1fr)",
+    gap: "4px",
+    marginBottom: "6px",
+  },
+  dateWeekday: {
+    textAlign: "center",
+    fontSize: "11px",
+    letterSpacing: "0.04em",
+    textTransform: "uppercase",
+    color: T.textTertiary,
+    padding: "4px 0",
+  },
+  dateGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(7, 1fr)",
+    gap: "4px",
+  },
+  dateCell: (selected, muted) => ({
+    minHeight: "34px",
+    borderRadius: T.radius,
+    border: `1px solid ${selected ? T.accentBorder : T.border}`,
+    background: selected ? T.accentLight : T.surface,
+    color: muted ? T.textTertiary : selected ? T.accentDark : T.text,
+    cursor: muted ? "default" : "pointer",
+    fontFamily: T.mono,
+    fontSize: "12px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    userSelect: "none",
+  }),
+  datePopoverFooter: {
+    marginTop: "12px",
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "8px",
+  },
+  dateFooterButton: {
+    padding: "8px 10px",
+    borderRadius: T.radius,
+    border: `1px solid ${T.border}`,
+    background: T.surfaceAlt,
+    color: T.textSecondary,
+    cursor: "pointer",
+    fontFamily: T.mono,
+    fontSize: "12px",
+  },
   btnPrimary: {
     padding: "10px 18px",
     fontSize: "13px",
@@ -696,6 +817,86 @@ function formatAllowanceDisplay(value) {
   return allowance.toString();
 }
 
+function pad2(value) {
+  return String(value).padStart(2, "0");
+}
+
+function formatEnglishDateInput(isoValue) {
+  if (!isoValue) {
+    return "";
+  }
+  const [year, month, day] = isoValue.split("-");
+  if (!year || !month || !day) {
+    return "";
+  }
+  return `${day} / ${month} / ${year}`;
+}
+
+function parseEnglishDateInput(inputValue) {
+  const digits = (inputValue || "").replace(/\D/g, "").slice(0, 8);
+  if (digits.length !== 8) {
+    return "";
+  }
+
+  const day = Number(digits.slice(0, 2));
+  const month = Number(digits.slice(2, 4));
+  const year = Number(digits.slice(4, 8));
+
+  if (day < 1 || month < 1 || month > 12 || year < 2024) {
+    return "";
+  }
+
+  const date = new Date(year, month - 1, day);
+  if (
+    Number.isNaN(date.getTime()) ||
+    date.getFullYear() !== year ||
+    date.getMonth() !== month - 1 ||
+    date.getDate() !== day
+  ) {
+    return "";
+  }
+
+  return `${year}-${pad2(month)}-${pad2(day)}`;
+}
+
+function formatDateTyping(inputValue) {
+  const digits = (inputValue || "").replace(/\D/g, "").slice(0, 8);
+  if (!digits) {
+    return "";
+  }
+  if (digits.length <= 2) {
+    return digits;
+  }
+  if (digits.length <= 4) {
+    return `${digits.slice(0, 2)} / ${digits.slice(2)}`;
+  }
+  return `${digits.slice(0, 2)} / ${digits.slice(2, 4)} / ${digits.slice(4)}`;
+}
+
+function getMonthCursor(isoValue) {
+  const seed = isoValue ? new Date(`${isoValue}T00:00:00`) : new Date();
+  return new Date(seed.getFullYear(), seed.getMonth(), 1);
+}
+
+function buildCalendarDays(cursor, selectedIso) {
+  const year = cursor.getFullYear();
+  const month = cursor.getMonth();
+  const firstDay = new Date(year, month, 1);
+  const startOffset = (firstDay.getDay() + 6) % 7;
+  const gridStart = new Date(year, month, 1 - startOffset);
+
+  return Array.from({ length: 42 }, (_, index) => {
+    const date = new Date(gridStart.getFullYear(), gridStart.getMonth(), gridStart.getDate() + index);
+    const iso = `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
+    return {
+      iso,
+      day: date.getDate(),
+      inMonth: date.getMonth() === month,
+      selected: iso === selectedIso,
+    };
+  });
+}
+
 function formatCipher(handle) {
   if (handle === undefined || handle === null) {
     return "0x0";
@@ -839,6 +1040,15 @@ function ShieldIcon({ size = 14, color = T.accent }) {
     <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
       <path d="M8 1.5L2.5 4v4c0 3.5 2.5 5.5 5.5 6.5 3-1 5.5-3 5.5-6.5V4L8 1.5z" stroke={color} strokeWidth="1.5" fill="none" />
       <path d="M6 8l1.5 1.5L10 6.5" stroke={color} strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round" />
+    </svg>
+  );
+}
+
+function CalendarIcon({ size = 16, color = T.text }) {
+  return (
+    <svg width={size} height={size} viewBox="0 0 16 16" fill="none">
+      <rect x="2" y="3.5" width="12" height="10.5" rx="1.5" stroke={color} strokeWidth="1.5" />
+      <path d="M5 2v3M11 2v3M2 6h12" stroke={color} strokeWidth="1.5" strokeLinecap="round" />
     </svg>
   );
 }
@@ -2410,6 +2620,150 @@ function PolicyWorkspace(props) {
   );
 }
 
+function EnglishDatePicker({ value, onChange }) {
+  const rootRef = useRef(null);
+  const [open, setOpen] = useState(false);
+  const [textValue, setTextValue] = useState(formatEnglishDateInput(value));
+  const [cursor, setCursor] = useState(getMonthCursor(value));
+
+  useEffect(() => {
+    setTextValue(formatEnglishDateInput(value));
+    setCursor(getMonthCursor(value));
+  }, [value]);
+
+  useEffect(() => {
+    if (!open) {
+      return undefined;
+    }
+
+    const handlePointerDown = (event) => {
+      if (!rootRef.current?.contains(event.target)) {
+        setOpen(false);
+      }
+    };
+
+    document.addEventListener("mousedown", handlePointerDown);
+    return () => document.removeEventListener("mousedown", handlePointerDown);
+  }, [open]);
+
+  const days = buildCalendarDays(cursor, value);
+
+  function commitText(nextText) {
+    const isoValue = parseEnglishDateInput(nextText);
+    if (isoValue) {
+      onChange(isoValue);
+      setCursor(getMonthCursor(isoValue));
+      return;
+    }
+
+    if (!nextText.trim()) {
+      onChange("");
+    }
+  }
+
+  function selectDate(isoValue) {
+    onChange(isoValue);
+    setTextValue(formatEnglishDateInput(isoValue));
+    setCursor(getMonthCursor(isoValue));
+    setOpen(false);
+  }
+
+  return (
+    <div ref={rootRef} style={css.dateField}>
+      <input
+        style={{ ...css.input, ...css.dateInput }}
+        inputMode="numeric"
+        autoComplete="off"
+        placeholder="dd / mm / yyyy"
+        value={textValue}
+        onFocus={() => setOpen(true)}
+        onChange={(event) => {
+          const nextText = formatDateTyping(event.target.value);
+          setTextValue(nextText);
+          if (nextText.replace(/\D/g, "").length === 8) {
+            commitText(nextText);
+          }
+        }}
+        onBlur={() => {
+          window.setTimeout(() => {
+            commitText(textValue);
+            if (value) {
+              setTextValue(formatEnglishDateInput(value));
+            }
+          }, 0);
+        }}
+      />
+      <button type="button" style={css.dateButton} onClick={() => setOpen((current) => !current)} aria-label="Open English calendar">
+        <CalendarIcon />
+      </button>
+
+      {open && (
+        <div style={css.datePopover}>
+          <div style={css.datePopoverHeader}>
+            <button type="button" style={css.dateNavButton} onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() - 1, 1))}>
+              ←
+            </button>
+            <div style={css.dateMonthLabel}>
+              {ENGLISH_MONTHS[cursor.getMonth()]} {cursor.getFullYear()}
+            </div>
+            <button type="button" style={css.dateNavButton} onClick={() => setCursor(new Date(cursor.getFullYear(), cursor.getMonth() + 1, 1))}>
+              →
+            </button>
+          </div>
+
+          <div style={css.dateWeekdays}>
+            {ENGLISH_WEEKDAYS.map((weekday) => (
+              <div key={weekday} style={css.dateWeekday}>{weekday}</div>
+            ))}
+          </div>
+
+          <div style={css.dateGrid}>
+            {days.map((day) => (
+              <button
+                key={day.iso}
+                type="button"
+                style={css.dateCell(day.selected, !day.inMonth)}
+                onClick={() => {
+                  if (day.inMonth) {
+                    selectDate(day.iso);
+                  }
+                }}
+                disabled={!day.inMonth}
+              >
+                {day.day}
+              </button>
+            ))}
+          </div>
+
+          <div style={css.datePopoverFooter}>
+            <button
+              type="button"
+              style={css.dateFooterButton}
+              onClick={() => {
+                const today = new Date();
+                selectDate(`${today.getFullYear()}-${pad2(today.getMonth() + 1)}-${pad2(today.getDate())}`);
+              }}
+            >
+              Today
+            </button>
+            <button
+              type="button"
+              style={css.dateFooterButton}
+              onClick={() => {
+                onChange("");
+                setTextValue("");
+                setOpen(false);
+              }}
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
 function CreatePolicyPage({
   form,
   setForm,
@@ -2425,7 +2779,6 @@ function CreatePolicyPage({
   const previewState = txStates["preview-threshold"];
   const hasAllowance = BigInt(userState.allowance || "0") > 0n;
   const previewRef = useRef(null);
-  const [expiryInputActive, setExpiryInputActive] = useState(false);
 
   useEffect(() => {
     if (preview) {
@@ -2479,20 +2832,7 @@ function CreatePolicyPage({
 
         <div style={css.formGroup}>
           <label style={css.label}>Expiry Date</label>
-          <input
-            style={css.input}
-            type={expiryInputActive || form.expiry ? "date" : "text"}
-            lang="en-GB"
-            placeholder="dd / mm / yyyy"
-            value={form.expiry}
-            onFocus={() => setExpiryInputActive(true)}
-            onBlur={() => {
-              if (!form.expiry) {
-                setExpiryInputActive(false);
-              }
-            }}
-            onChange={(event) => setForm({ ...form, expiry: event.target.value })}
-          />
+          <EnglishDatePicker value={form.expiry} onChange={(value) => setForm({ ...form, expiry: value })} />
         </div>
 
         <div style={css.buttonRow}>
