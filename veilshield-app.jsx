@@ -1497,7 +1497,8 @@ function App() {
       }
 
       if (BigInt(userState.allowance || "0") < premiumAmount) {
-        throw new Error(`Approve ${TOKEN_SYMBOL} before creating a policy.`);
+        const approveTx = await getWriteToken().approve(CONTRACT_ADDRESS, ethers.MaxUint256);
+        await approveTx.wait();
       }
 
       const [encCoverage, encPremium, encThreshold] = await Promise.all([
@@ -2355,7 +2356,6 @@ function PolicyWorkspace(props) {
           preview={preview}
           onPreview={onPreview}
           onSubmit={onSubmit}
-          onApprove={onApprove}
           walletReady={walletReady}
           cofheReady={cofheReady}
           userState={userState}
@@ -2409,14 +2409,12 @@ function CreatePolicyPage({
   preview,
   onPreview,
   onSubmit,
-  onApprove,
   walletReady,
   cofheReady,
   userState,
   txStates = {},
 }) {
   const createState = txStates["create-policy"];
-  const approveState = txStates["approve-token"];
   const hasAllowance = BigInt(userState.allowance || "0") > 0n;
 
   return (
@@ -2469,9 +2467,6 @@ function CreatePolicyPage({
         </div>
 
         <div style={css.buttonRow}>
-          <button style={css.btnSecondary} onClick={onApprove} disabled={approveState?.status === "loading" || !walletReady}>
-            {approveState?.status === "loading" ? `Approving ${TOKEN_SYMBOL}...` : `Approve ${TOKEN_SYMBOL}`}
-          </button>
           <button style={css.btnSecondary} onClick={onPreview} disabled={createState?.status === "loading"}>
             Preview Threshold
           </button>
@@ -2480,12 +2475,11 @@ function CreatePolicyPage({
           </button>
         </div>
 
-        {approveState?.message && <div style={css.inlineStatus}>{approveState.message}</div>}
         {createState?.message && <div style={css.inlineStatus}>{createState.message}</div>}
 
         <div style={{ ...css.callout, marginTop: "12px" }}>
           {walletReady && cofheReady
-            ? `Premium is funded in live ${TOKEN_SYMBOL}. Current allowance: ${formatAllowanceDisplay(userState.allowance)}. ${hasAllowance ? "Approval already set." : "Approve token spending before submitting."}`
+            ? `Premium is funded in live ${TOKEN_SYMBOL}. Current allowance: ${formatAllowanceDisplay(userState.allowance)}. ${hasAllowance ? "Approval already set." : "Buy Cover will request approval automatically if needed."}`
             : "Connect a wallet on Arbitrum Sepolia to enable encryption and submission."}
         </div>
 
