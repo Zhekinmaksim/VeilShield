@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { ethers } from "ethers";
 import { cofhejs, Encryptable, FheTypes } from "cofhejs/web";
 
@@ -1458,11 +1458,13 @@ function App() {
 
   async function previewPolicyEncryption() {
     if (!walletReady || !cofheReady) {
+      setTxStatus("preview-threshold", "error", "Connect wallet before generating encrypted preview.");
       pushToast("Encryption preview unavailable", "Connect wallet before generating encrypted preview.", "error");
       return;
     }
 
     try {
+      setTxStatus("preview-threshold", "loading", "Generating encrypted threshold preview...");
       const [coverage, premium, threshold] = await Promise.all([
         encryptUint64(policyForm.coverage || "0"),
         encryptUint64(policyForm.premium || "0"),
@@ -1470,13 +1472,16 @@ function App() {
       ]);
 
       setPolicyPreview({ coverage, premium, threshold });
+      setTxStatus("preview-threshold", "success", "Threshold preview ready below.");
       pushToast(
         "Encryption preview ready",
         "Threshold is sent encrypted. Coverage and premium previews show the mirrored handles used in the policy view.",
         "success"
       );
     } catch (previewError) {
-      pushToast("Encryption preview failed", getErrorMessage(previewError, "Failed to generate encryption preview."), "error");
+      const message = getErrorMessage(previewError, "Failed to generate encryption preview.");
+      setTxStatus("preview-threshold", "error", message);
+      pushToast("Encryption preview failed", message, "error");
     }
   }
 
@@ -2052,9 +2057,6 @@ function App() {
               >
                 {shortAddress(account)}
               </button>
-              <button style={css.walletBtnSecondary} onClick={handlePermitRefresh}>
-                {permitState.ready ? "Refresh Permit" : "Request Permit"}
-              </button>
               <button style={css.walletBtnSecondary} onClick={handleDisconnect} disabled={walletBusy}>
                 Disconnect
               </button>
@@ -2416,7 +2418,15 @@ function CreatePolicyPage({
   txStates = {},
 }) {
   const createState = txStates["create-policy"];
+  const previewState = txStates["preview-threshold"];
   const hasAllowance = BigInt(userState.allowance || "0") > 0n;
+  const previewRef = useRef(null);
+
+  useEffect(() => {
+    if (preview) {
+      previewRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+  }, [preview]);
 
   return (
     <div style={css.card}>
@@ -2468,14 +2478,19 @@ function CreatePolicyPage({
         </div>
 
         <div style={css.buttonRow}>
-          <button style={css.btnSecondary} onClick={onPreview} disabled={createState?.status === "loading"}>
-            Preview Threshold
+          <button
+            style={css.btnSecondary}
+            onClick={onPreview}
+            disabled={createState?.status === "loading" || previewState?.status === "loading"}
+          >
+            {previewState?.status === "loading" ? "Previewing..." : "Preview Threshold"}
           </button>
           <button style={css.btnPrimary} onClick={onSubmit} disabled={createState?.status === "loading"}>
             {createState?.status === "loading" ? "Submitting..." : "Buy Cover"}
           </button>
         </div>
 
+        {previewState?.message && <div style={css.inlineStatus}>{previewState.message}</div>}
         {createState?.message && <div style={css.inlineStatus}>{createState.message}</div>}
 
         <div style={{ ...css.callout, marginTop: "12px" }}>
@@ -2484,7 +2499,15 @@ function CreatePolicyPage({
             : "Connect a wallet on Arbitrum Sepolia to enable encryption and submission."}
         </div>
 
-        <div style={{ ...css.card, marginTop: "16px" }}>
+        <div
+          ref={previewRef}
+          style={{
+            ...css.card,
+            marginTop: "16px",
+            borderColor: preview ? T.accentBorder : T.border,
+            background: preview ? T.accentMuted : T.surface,
+          }}
+        >
           <div style={css.cardHeader}>
             <span style={css.cardTitle}>Encryption Preview</span>
           </div>
