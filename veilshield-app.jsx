@@ -1115,16 +1115,16 @@ function App() {
     quiet = false
   ) {
     try {
-      const contract = getReadContract(currentProvider, currentSigner);
+      const publicContract = new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, currentProvider);
       const tokenContract = new ethers.Contract(TOKEN_ADDRESS, TOKEN_ABI, currentProvider);
 
       const [pool, owner, oracle, asset, policyCountRaw, availableLiquidityTokens] = await Promise.all([
-        contract.pool(),
-        contract.owner(),
-        contract.oracle(),
-        contract.asset(),
-        contract.policyCount(),
-        contract.getAvailableLiquidityTokens(),
+        publicContract.pool(),
+        publicContract.owner(),
+        publicContract.oracle(),
+        publicContract.asset(),
+        publicContract.policyCount(),
+        publicContract.getAvailableLiquidityTokens(),
       ]);
 
       const policyCount = Number(policyCountRaw);
@@ -1136,8 +1136,8 @@ function App() {
       const policies = await Promise.all(
         ids.map(async (id) => {
           const [policy, tokenTerms] = await Promise.all([
-            contract.policies(id),
-            contract.getPolicyTokenTerms(id),
+            publicContract.policies(id),
+            publicContract.getPolicyTokenTerms(id),
           ]);
           return {
             id: Number(id),
@@ -1161,8 +1161,8 @@ function App() {
       const feeds = await Promise.all(
         FEEDS.map(async (feed) => {
           const [initialized, value] = await Promise.all([
-            contract.oracleFeedInitialized(feed.bytes32),
-            contract.oracleValues(feed.bytes32),
+            publicContract.oracleFeedInitialized(feed.bytes32),
+            publicContract.oracleValues(feed.bytes32),
           ]);
           return { ...feed, initialized, value };
         })
@@ -1173,7 +1173,7 @@ function App() {
           .filter((policy) => policy.status === 1)
           .map(async (policy) => {
             try {
-              const [ready, triggered] = await contract.finalizePolicyEvaluation.staticCall(policy.id);
+              const [ready, triggered] = await publicContract.finalizePolicyEvaluation.staticCall(policy.id);
               return [policy.id, classifyFinalizeResult({ ready, triggered })];
             } catch (error) {
               return [policy.id, { kind: "error", message: getErrorMessage(error, "Decision probe failed.") }];
@@ -1209,10 +1209,10 @@ function App() {
         let allowance = "0";
 
         try {
-          const reader = getReadContract(currentProvider, currentSigner);
+          const reader = currentSigner ? new ethers.Contract(CONTRACT_ADDRESS, CONTRACT_ABI, currentSigner) : null;
           const results = await Promise.allSettled([
-            reader.getMyLpBalance(),
-            reader.getMyLpTokenBalance(),
+            reader ? reader.getMyLpBalance() : Promise.reject(new Error("No signer available.")),
+            reader ? reader.getMyLpTokenBalance() : Promise.reject(new Error("No signer available.")),
             tokenContract.balanceOf(currentAccount),
             tokenContract.allowance(currentAccount, CONTRACT_ADDRESS),
           ]);
