@@ -887,21 +887,10 @@ async function initializeCofhe(browserProvider, signer) {
       ethersProvider: browserProvider,
       ethersSigner: signer,
       environment: "TESTNET",
-      generatePermit: true,
+      generatePermit: false,
     }),
     "CoFHE initialize"
   );
-
-  const existingPermit = cofhejs.getPermit();
-  if (!existingPermit.success) {
-    unwrapResult(
-      await cofhejs.createPermit({
-        name: "VeilShield live access",
-        expiration: Math.floor(Date.now() / 1000) + 60 * 60 * 12,
-      }),
-      "Permit creation"
-    );
-  }
 }
 
 function readPermitState() {
@@ -1288,7 +1277,8 @@ function App() {
     }
 
     setWalletBusy(true);
-    const toastId = pushToast("Wallet", "Connecting wallet and initializing CoFHE...", "loading", { persist: true });
+    const toastId = pushToast("Wallet", "Connecting wallet...", "loading", { persist: true });
+    let connected = false;
 
     try {
       if (!silent) {
@@ -1306,26 +1296,39 @@ function App() {
         throw new Error("Wallet is not connected to Arbitrum Sepolia.");
       }
 
-      await initializeCofhe(browserProvider, walletSigner);
-
       setProvider(browserProvider);
       setSigner(walletSigner);
       setAccount(address);
       setChainId(Number(network.chainId));
       setWalletReady(true);
-      setCofheReady(true);
+      setCofheReady(false);
+      connected = true;
       refreshPermitState();
 
       updateToast(toastId, {
         title: "Wallet connected",
-        body: "CoFHE encryption, permit signing, and local decrypt flows are ready.",
+        body: "Wallet is ready. Initializing CoFHE in the background...",
+        variant: "loading",
+      });
+      await refreshData(browserProvider, address, false, walletSigner, true);
+
+      await initializeCofhe(browserProvider, walletSigner);
+      setCofheReady(true);
+      refreshPermitState();
+
+      updateToast(toastId, {
+        title: "CoFHE ready",
+        body: "Encryption is ready. Request a permit only when you need local decrypt.",
         variant: "success",
       });
-      await refreshData(browserProvider, address, true, walletSigner, true);
+      await refreshData(browserProvider, address, false, walletSigner, true);
     } catch (connectError) {
       updateToast(toastId, {
-        title: "Wallet connection failed",
-        body: getErrorMessage(connectError, "Failed to connect wallet."),
+        title: connected ? "CoFHE initialization failed" : "Wallet connection failed",
+        body: getErrorMessage(
+          connectError,
+          connected ? "Wallet connected, but CoFHE did not finish initializing." : "Failed to connect wallet."
+        ),
         variant: "error",
       });
     } finally {
