@@ -1,7 +1,7 @@
 import { ethers } from "ethers";
 
-import contractArtifact from "../../artifacts/contracts/VeilShield.sol/VeilShield.json";
-import tokenArtifact from "../../artifacts/contracts/VeilShieldDemoToken.sol/VeilShieldDemoToken.json";
+import contractArtifact from "../abi/VeilShield.json";
+import tokenArtifact from "../abi/VeilShieldDemoToken.json";
 import deployment from "../../deployments/arb-sepolia.json";
 
 export const CONTRACT_ADDRESS = deployment.address;
