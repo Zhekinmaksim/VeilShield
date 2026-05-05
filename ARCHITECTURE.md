@@ -47,10 +47,11 @@ The frontend handles:
 - wallet connection
 - network checks
 - CoFHE initialization
-- permit issuance
+- private view access issuance
 - local decrypt for role-scoped views
 - polling for async claim readiness
 - a claims-first default screen with public claim trail and live queue state
+- canonical seeded demo values that keep the first screen non-empty for judges
 
 ### Privacy flow
 
@@ -59,7 +60,16 @@ The frontend handles:
 3. The contract compares encrypted values with `FHE.gte` or `FHE.lte`.
 4. The contract computes payout routing with `FHE.select`.
 5. The trigger decision becomes available through async `FHE.decrypt`.
-6. Role-scoped users decrypt only their own permitted view locally.
+6. Role-scoped users decrypt only their own private view locally after requesting access.
+
+## Canonical Wave 3 demo scenario
+
+- LP deposit: `50000 vUSD`
+- active policy: threshold `48h`, coverage `1800`, premium `120`
+- history policy: threshold `60h`, coverage `2200`, premium `180`, oracle reading `72`
+- first screen target: one active row, one pending row, one public history row
+
+This is the scenario the seeded flow, demo recording, and judge-facing docs should keep using unless the contract changes force a real update.
 
 ## FHE operations in the contract
 
@@ -83,3 +93,10 @@ Exporters do not need every field hidden equally. What matters most is keeping t
 - pending payout reveals claim direction before settlement
 
 That is the part VeilShield keeps inside encrypted computation.
+
+## Known current limits
+
+- the claims queue is still tied to live testnet threshold decryption timing
+- token settlement is public even though trigger logic is encrypted
+- oracle submission is still a manual operator flow
+- the current demo is optimized for one exporter use case, not broad insurance coverage

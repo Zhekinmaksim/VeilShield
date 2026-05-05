@@ -12,7 +12,7 @@ Confidential cargo delay cover for exporters: delay thresholds, claim logic, and
 - token-backed deposit, premium, and payout flow
 - encrypted threshold evaluation with CoFHE
 - role-based workspaces
-- permit-based local decrypt
+- private-view local decrypt
 - auditor-scoped selective disclosure path
 
 ## What matters for the next wave
@@ -23,6 +23,8 @@ Confidential cargo delay cover for exporters: delay thresholds, claim logic, and
 - keep claims-first default impression useful even when finalize is delayed
 - reduce `PendingDecision` friction in judge flows
 - tighten the oracle claim path for recording
+- keep background refresh problems and noisy toasts out of the demo path
+- disable dead-end actions when the threshold network is still busy
 
 ### 2. Product clarity
 
@@ -33,8 +35,16 @@ Confidential cargo delay cover for exporters: delay thresholds, claim logic, and
 ### 3. Operational visibility
 
 - stronger claim history
-- clearer pending / ready / settled status copy
+- clearer `waiting on threshold` / `ready to finalize` / `settled` status copy
 - cleaner role-specific dashboards
+
+## Wave 3 working focus
+
+- stabilize the claims workspace first, because it is the default first impression
+- make pending threshold results read like part of the product instead of a broken state
+- keep selective disclosure explicit and easy to demo
+- collect small but real usage signals instead of inflating traction claims
+- keep the seeded exporter scenario fixed so the site, docs, and demo video do not drift
 
 ## What we are not doing right now
 

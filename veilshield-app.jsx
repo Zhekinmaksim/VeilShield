@@ -37,6 +37,7 @@ const ENGLISH_MONTHS = [
   "December",
 ];
 const ENGLISH_WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
+const METRICS_STORAGE_KEY = "veilshield.wave3.metrics";
 
 const T = {
   bg: "#F8F8F4",
@@ -964,7 +965,7 @@ function classifyDecryptError(error) {
   if (normalized.includes("permit")) {
     return {
       kind: "permit",
-      message: "Decrypt permit is missing or stale. Issue a fresh permit and retry.",
+      message: "Private view access is missing or stale. Refresh it and retry.",
     };
   }
 
@@ -992,7 +993,7 @@ function classifyFinalizeResult(result) {
   if (!result.ready) {
     return {
       kind: "pending",
-      message: "Policy decision is still in threshold decryption.",
+      message: "Waiting on threshold decryption. The claims queue will refresh automatically.",
     };
   }
 
@@ -1002,6 +1003,93 @@ function classifyFinalizeResult(result) {
       ? "Ready to finalize into a triggered claim."
       : "Ready to finalize back into active state.",
   };
+}
+
+function getDecisionBadge(pendingState) {
+  if (!pendingState) {
+    return null;
+  }
+  if (pendingState.kind === "triggered" || pendingState.kind === "active") {
+    return { variant: "ready", label: "ready to finalize" };
+  }
+  return { variant: "pending", label: "waiting on threshold" };
+}
+
+function getClaimStage(policy, feedState, pendingState) {
+  const decisionBadge = getDecisionBadge(pendingState);
+  const oracleLive = Boolean(feedState?.initialized);
+
+  if (policy.status === 0) {
+    if (!oracleLive) {
+      return {
+        badgeVariant: "pending",
+        badgeLabel: "pending oracle input",
+        timeline: "created → pending oracle input",
+      };
+    }
+    return {
+      badgeVariant: "neutral",
+      badgeLabel: "oracle submitted",
+      timeline: "created → oracle submitted",
+    };
+  }
+
+  if (policy.status === 1) {
+    if (decisionBadge?.variant === "ready") {
+      return {
+        badgeVariant: "ready",
+        badgeLabel: "ready to finalize",
+        timeline: "created → oracle submitted → evaluation requested → ready to finalize",
+      };
+    }
+    return {
+      badgeVariant: "pending",
+      badgeLabel: "waiting on threshold",
+      timeline: "created → oracle submitted → evaluation requested → waiting on threshold",
+    };
+  }
+
+  if (policy.status === 2) {
+    return {
+      badgeVariant: "ready",
+      badgeLabel: "ready to settle",
+      timeline: "created → oracle submitted → evaluation requested → finalized → ready to settle",
+    };
+  }
+
+  if (policy.status === 3) {
+    return {
+      badgeVariant: "good",
+      badgeLabel: "finalized",
+      timeline: "created → oracle submitted → evaluation requested → finalized → settled",
+    };
+  }
+
+  if (policy.status === 4) {
+    return {
+      badgeVariant: "warn",
+      badgeLabel: "expired",
+      timeline: "created → expired",
+    };
+  }
+
+  return {
+    badgeVariant: "bad",
+    badgeLabel: "cancelled",
+    timeline: "created → cancelled",
+  };
+}
+
+function formatLastChecked(value) {
+  if (!value) {
+    return "Waiting for the first decision probe.";
+  }
+  return `Last checked ${new Date(value).toLocaleTimeString("en-GB", {
+    hour: "2-digit",
+    minute: "2-digit",
+    second: "2-digit",
+    hour12: false,
+  })}`;
 }
 
 function formatPermitExpiry(value) {
@@ -1022,8 +1110,31 @@ function defaultPermitState() {
     hash: "",
     expiration: 0,
     count: 0,
-    error: "Permit not issued.",
+    error: "Access not issued.",
   };
+}
+
+function trackMetric(name) {
+  if (typeof window === "undefined") {
+    return;
+  }
+
+  try {
+    const snapshot = JSON.parse(window.localStorage.getItem(METRICS_STORAGE_KEY) || "{}");
+    snapshot[name] = Number(snapshot[name] || 0) + 1;
+    snapshot.lastUpdatedAt = new Date().toISOString();
+    window.localStorage.setItem(METRICS_STORAGE_KEY, JSON.stringify(snapshot));
+  } catch {
+    // metrics are best-effort only
+  }
+
+  if (typeof window.va === "function") {
+    try {
+      window.va("event", { name });
+    } catch {
+      // analytics dispatch should never break the app
+    }
+  }
 }
 
 function LockIcon({ size = 14, color = T.accent }) {
@@ -1117,7 +1228,7 @@ function readPermitState() {
       return {
         ...defaultPermitState(),
         count: allPermits.length,
-        error: "No active permit. Issue one to decrypt local views.",
+        error: "No active access grant. Request one before decrypting local views.",
       };
     }
 
@@ -1135,7 +1246,7 @@ function readPermitState() {
   } catch (error) {
     return {
       ...defaultPermitState(),
-      error: getErrorMessage(error, "Unable to read permit state."),
+      error: getErrorMessage(error, "Unable to read access state."),
     };
   }
 }
@@ -1168,6 +1279,7 @@ function App() {
   const [txStates, setTxStates] = useState({});
   const [permitState, setPermitState] = useState(defaultPermitState());
   const [pendingDecisions, setPendingDecisions] = useState({});
+  const [decisionCheckedAt, setDecisionCheckedAt] = useState("");
   const [protocol, setProtocol] = useState({
     pool: null,
     owner: "",
@@ -1290,6 +1402,7 @@ function App() {
     setPermitState(defaultPermitState());
     setTxStates({});
     setPendingDecisions({});
+    setDecisionCheckedAt("");
     setUserState({
       tokenBalance: "0",
       allowance: "0",
@@ -1391,12 +1504,15 @@ function App() {
               const [ready, triggered] = await publicContract.finalizePolicyEvaluation.staticCall(policy.id);
               return [policy.id, classifyFinalizeResult({ ready, triggered })];
             } catch (error) {
-              return [policy.id, { kind: "error", message: getErrorMessage(error, "Decision probe failed.") }];
+              return [policy.id, { kind: "pending", message: "Threshold probe will retry on the next refresh." }];
             }
           })
       );
 
       setPendingDecisions(Object.fromEntries(decisionEntries));
+      if (decisionEntries.length > 0) {
+        setDecisionCheckedAt(new Date().toISOString());
+      }
 
       setProtocol({
         pool,
@@ -1535,6 +1651,10 @@ function App() {
     Object.values(txStates).some((state) => state.status === "loading" || state.status === "pending");
 
   useEffect(() => {
+    trackMetric(window.location.hostname.includes("veilshield.xyz") ? "live_domain_view" : "demo_view");
+  }, []);
+
+  useEffect(() => {
     if (!shouldPoll) {
       return undefined;
     }
@@ -1581,6 +1701,7 @@ function App() {
       setWalletReady(true);
       setCofheReady(false);
       connected = true;
+      trackMetric("wallet_connect");
       refreshPermitState();
 
       updateToast(toastId, {
@@ -1596,7 +1717,7 @@ function App() {
 
       updateToast(toastId, {
         title: "CoFHE ready",
-        body: "Encryption is ready. Request a permit only when you need local decrypt.",
+        body: "Encryption is ready. Request private view access only when you need local decrypt.",
         variant: "success",
       });
       await refreshData(browserProvider, address, false, walletSigner, true);
@@ -1635,6 +1756,9 @@ function App() {
         body: options.successMessage || `${label} confirmed on Arbitrum Sepolia.`,
         variant: "success",
       });
+      if (options.metric) {
+        trackMetric(options.metric);
+      }
       refreshPermitState();
       setRefreshTick((value) => value + 1);
       return outcome;
@@ -1653,7 +1777,7 @@ function App() {
   async function handlePermitRefresh() {
     await runAction(
       "refresh-permit",
-      permitState.ready ? "Refresh permit" : "Request permit",
+      permitState.ready ? "Refresh access" : "Request access",
       async () => {
         unwrapResult(
           await cofhejs.createPermit({
@@ -1665,7 +1789,8 @@ function App() {
         refreshPermitState();
       },
       {
-        successMessage: "Fresh EIP-712 decrypt permit signed. Plaintext stays in the browser.",
+        successMessage: "Private view access refreshed. Plaintext stays in the browser.",
+        metric: "permit_request",
       }
     );
   }
@@ -1687,6 +1812,7 @@ function App() {
 
       setPolicyPreview({ coverage, premium, threshold });
       setTxStatus("preview-threshold", "success", "Threshold preview ready below.");
+      trackMetric("preview_threshold");
       pushToast(
         "Encryption preview ready",
         "Threshold is sent encrypted. Coverage and premium previews show the mirrored handles used in the policy view.",
@@ -1754,6 +1880,7 @@ function App() {
       });
     }, {
       successMessage: "Cargo delay cover created. Threshold stays encrypted during on-chain evaluation.",
+      metric: "create_policy",
     });
   }
 
@@ -1770,6 +1897,8 @@ function App() {
       const tx = await getWriteContract().depositLiquidity(amount);
       await tx.wait();
       setPoolForm((current) => ({ ...current, deposit: "" }));
+    }, {
+      metric: "deposit_liquidity",
     });
   }
 
@@ -1796,6 +1925,7 @@ function App() {
       },
       {
         successMessage: `${TOKEN_SYMBOL} allowance updated for the live VeilShield contract.`,
+        metric: "approve_token",
       }
     );
   }
@@ -1811,6 +1941,7 @@ function App() {
       },
       {
         successMessage: `${TOKEN_FAUCET_AMOUNT.toLocaleString()} ${TOKEN_SYMBOL} minted to the connected wallet.`,
+        metric: "mint_token",
       }
     );
   }
@@ -1823,6 +1954,7 @@ function App() {
       setOracleForm((current) => ({ ...current, reading: "" }));
     }, {
       successMessage: "Encrypted exporter feed reading submitted to the live oracle slot.",
+      metric: "oracle_submit",
     });
   }
 
@@ -1871,7 +2003,7 @@ function App() {
     }, {
       successMessage:
         actionName === "Request evaluation"
-          ? "Evaluation requested. Status rail and claim queue will auto-refresh until finalize is ready."
+          ? "Evaluation requested. The claims workspace will keep polling until finalize is ready."
           : undefined,
     });
   }
@@ -1884,7 +2016,7 @@ function App() {
         throw new Error("Connect wallet before decrypting.");
       }
       if (!permitState.ready || !permitState.valid) {
-        throw new Error("Permit missing or stale.");
+        throw new Error("Private view access is missing or stale.");
       }
       const handle = await getWriteContract().getMyLpBalance();
       const plaintext = await decryptUint64(handle);
@@ -1894,6 +2026,7 @@ function App() {
         lpBalancePlaintext: String(plaintext),
       }));
       setTxStatus("decrypt-lp-balance", "success", "LP balance decrypted.");
+      trackMetric("decrypt_lp_view");
       updateToast(toastId, {
         title: "LP balance decrypted",
         body: "LP principal unsealed locally in the connected browser session.",
@@ -1919,7 +2052,7 @@ function App() {
         throw new Error("Connect wallet before decrypting.");
       }
       if (!permitState.ready || !permitState.valid) {
-        throw new Error("Permit missing or stale.");
+        throw new Error("Private view access is missing or stale.");
       }
 
       const writeContract = getWriteContract();
@@ -1968,6 +2101,7 @@ function App() {
         },
       }));
       setTxStatus(stateKey, "success", `Policy ${policyId} decrypted.`);
+      trackMetric("decrypt_policy_view");
       updateToast(toastId, {
         title: "Policy decrypted",
         body: `Role-scoped policy data unsealed locally for policy #${policyId}.`,
@@ -1993,7 +2127,7 @@ function App() {
         throw new Error("Connect wallet before decrypting.");
       }
       if (!permitState.ready || !permitState.valid) {
-        throw new Error("Permit missing or stale.");
+        throw new Error("Private view access is missing or stale.");
       }
       const [coverageHandle, premiumHandle, thresholdHandle, payoutHandle] =
         await getWriteContract().getAuditorPolicyView(policyId);
@@ -2023,6 +2157,7 @@ function App() {
         },
       }));
       setTxStatus(stateKey, "success", `Auditor view for policy ${policyId} decrypted.`);
+      trackMetric("decrypt_auditor_view");
       updateToast(toastId, {
         title: "Auditor view decrypted",
         body: `Owner-scoped encrypted mirrors and payout state loaded for policy #${policyId}.`,
@@ -2155,7 +2290,7 @@ function App() {
       bullets: [
         "Threshold stays encrypted during trigger evaluation.",
         "Coverage and premium settle in live vUSD on Arbitrum Sepolia.",
-        "Policy and beneficiary views use permit-scoped local decrypt.",
+        "Policy and beneficiary views decrypt locally for the connected role only.",
       ],
     },
     lp: {
@@ -2165,7 +2300,7 @@ function App() {
         "LP capital backs active cargo covers while balances remain available as encrypted handles for the connected provider.",
       bullets: [
         "Mint vUSD, approve once, and deposit into the live pool.",
-        "Decrypt your own LP principal with a local permit.",
+        "Decrypt your own LP principal locally from the connected wallet.",
         "Watch available versus reserved capacity in real time.",
       ],
     },
@@ -2173,7 +2308,7 @@ function App() {
       eyebrow: "Oracle / Claims Workspace",
       title: "Submit sealed delay signals and finalize claims",
       body:
-        "The claims desk works off encrypted feed updates. Pending policies auto-refresh until the threshold network makes finalize ready.",
+        "The claims desk works off encrypted feed updates. Pending policies auto-refresh until the threshold network returns a finalizable result.",
       bullets: [
         "Oracle readings are encrypted before submission.",
         "Pending claims auto-refresh instead of requiring manual reloads.",
@@ -2187,7 +2322,7 @@ function App() {
         "The contract owner can decrypt the encrypted policy mirrors and pending payout state without exposing them to the public chain view.",
       bullets: [
         "Owner-scoped auditor view is enforced in the contract.",
-        "Decrypt happens locally with a wallet-signed permit.",
+        "Private review stays local to the connected owner wallet.",
         "Claim history remains public while risk terms stay role-scoped.",
       ],
     },
@@ -2216,7 +2351,7 @@ function App() {
       variant: cofheReady ? "good" : "warn",
     },
     {
-      label: "Permit",
+      label: "Access",
       value: permitState.ready ? `${permitState.valid ? "active" : permitState.error} ${shortAddress(permitState.hash)}` : "missing",
       variant: permitState.ready && permitState.valid ? "good" : permitState.ready ? "warn" : "bad",
     },
@@ -2400,6 +2535,7 @@ function App() {
             onPolicyAction={handlePolicyAction}
             txStates={txStates}
             pendingDecisions={pendingDecisions}
+            decisionCheckedAt={decisionCheckedAt}
             isOracle={isOracle}
             onSeedDemo={seedExporterDemo}
           />
@@ -2451,21 +2587,21 @@ function PermitPanel({ permitState, onRefresh, walletReady, isAuditor, isOracle,
 
   return (
     <div style={css.permitPanel}>
-      <div style={{ ...css.cardTitle, marginBottom: "10px" }}>Permit-Based Selective Disclosure</div>
+      <div style={{ ...css.cardTitle, marginBottom: "10px" }}>Private View Access</div>
       <div style={css.permitGrid}>
         <div>
           <div style={{ fontSize: "13px", color: T.textSecondary }}>
-            The live app uses wallet-signed CoFHE permits for local unsealing. Public chain readers still see ciphertext handles only. Role-scoped decrypt flows now cover policy holder, beneficiary, LP, and auditor views.
+            The live app uses wallet-signed CoFHE access grants for local unsealing. Public chain readers still see ciphertext handles only. Private views now cover policy holder, beneficiary, LP, and auditor roles.
           </div>
           <div style={css.permitMetaGrid}>
             <div style={css.permitMetaCard}>
-              <div style={css.statLabel}>Active Permit</div>
+              <div style={css.statLabel}>Active Access</div>
               <div style={{ ...css.heroMetaValue, color: permitState.ready ? T.textSecondary : T.warning }}>
                 {permitState.ready ? shortAddress(permitState.hash) : "missing"}
               </div>
             </div>
             <div style={css.permitMetaCard}>
-              <div style={css.statLabel}>Validity</div>
+              <div style={css.statLabel}>Access Status</div>
               <div style={{ ...css.heroMetaValue, color: permitState.valid ? T.accentDark : T.warning }}>
                 {permitState.ready ? (permitState.valid ? "valid" : permitState.error) : "not issued"}
               </div>
@@ -2475,7 +2611,7 @@ function PermitPanel({ permitState, onRefresh, walletReady, isAuditor, isOracle,
               <div style={css.heroMetaValue}>{formatPermitExpiry(permitState.expiration)}</div>
             </div>
             <div style={css.permitMetaCard}>
-              <div style={css.statLabel}>Stored Permits</div>
+              <div style={css.statLabel}>Stored Grants</div>
               <div style={css.heroMetaValue}>{permitState.count}</div>
             </div>
           </div>
@@ -2493,10 +2629,15 @@ function PermitPanel({ permitState, onRefresh, walletReady, isAuditor, isOracle,
               {permitAction?.status === "loading"
                 ? "Signing..."
                 : permitState.ready
-                  ? "Refresh Permit"
-                  : "Request Permit"}
+                  ? "Refresh Access"
+                  : "Request Access"}
             </button>
           </div>
+          {walletReady && !permitState.ready && (
+            <div style={{ ...css.inlineStatus, marginTop: "10px" }}>
+              Request access only before a decrypt action. Normal reads and claim polling do not need it.
+            </div>
+          )}
           {permitAction?.message && <div style={css.inlineStatus}>{permitAction.message}</div>}
         </div>
       </div>
@@ -2558,9 +2699,9 @@ function PolicyWorkspace(props) {
         </div>
         <div style={css.card}>
           <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Permit Scope</div>
+            <div style={css.statLabel}>Private View Access</div>
             <div style={css.heroMetaValue}>
-              {permitState.ready && permitState.valid ? "decrypt ready" : "issue permit"}
+              {permitState.ready && permitState.valid ? "decrypt ready" : "request access"}
             </div>
           </div>
         </div>
@@ -2587,15 +2728,18 @@ function PolicyWorkspace(props) {
             <div style={css.callout}>
               1. Buy cover with a public premium and an encrypted threshold.
             </div>
-            <div style={{ ...css.callout, marginTop: "12px" }}>
-              2. Request a permit only when you need to inspect your own terms or payout state.
-            </div>
-            <div style={{ ...css.callout, marginTop: "12px" }}>
-              3. Track claim status here, while the claims desk handles evaluation and settlement flow.
-            </div>
-            <div style={{ ...css.callout, marginTop: "12px" }}>
-              Public viewers still see ciphertext handles and status only. Policy holder decrypt stays local to the wallet.
-            </div>
+          <div style={{ ...css.callout, marginTop: "12px" }}>
+            2. Request private view access only when you need to inspect your own terms or payout state.
+          </div>
+          <div style={{ ...css.callout, marginTop: "12px" }}>
+            3. Track claim status here while the Oracle / Claims desk handles evaluation, finalize readiness, and settlement.
+          </div>
+          <div style={{ ...css.callout, marginTop: "12px" }}>
+            You are buying cover against shipment delay exceeding your private threshold.
+          </div>
+          <div style={{ ...css.callout, marginTop: "12px" }}>
+            Public viewers still see ciphertext handles and status only. Policy holder decrypt stays local to the wallet session.
+          </div>
           </div>
         </div>
       </div>
@@ -2606,6 +2750,7 @@ function PolicyWorkspace(props) {
           subtitle="Only policies where this wallet is the insured or beneficiary"
           policies={myPolicies}
           account={account}
+          feeds={protocol.feeds}
           onPolicyAction={onPolicyAction}
           onDecryptPolicy={onDecryptPolicy}
           userState={userState}
@@ -2852,9 +2997,11 @@ function CreatePolicyPage({
         {createState?.message && <div style={css.inlineStatus}>{createState.message}</div>}
 
         <div style={{ ...css.callout, marginTop: "12px" }}>
-          {walletReady && cofheReady
-            ? `Premium is funded in live ${TOKEN_SYMBOL}. Current allowance: ${formatAllowanceDisplay(userState.allowance)}. ${hasAllowance ? "Approval already set." : "Buy Cover will request approval automatically if needed."}`
-            : "Connect a wallet on Arbitrum Sepolia to enable encryption and submission."}
+          {!walletReady
+            ? "Connect a wallet on Arbitrum Sepolia to enable encryption and submission."
+            : !cofheReady
+              ? "Wallet connected. CoFHE is still initializing before threshold preview and policy submission."
+              : `Premium is funded in live ${TOKEN_SYMBOL}. Current allowance: ${formatAllowanceDisplay(userState.allowance)}. ${hasAllowance ? "Approval already set." : "Buy Cover will request approval automatically if needed."}`}
         </div>
 
         <div
@@ -2894,6 +3041,7 @@ function PolicyTable({
   subtitle,
   policies,
   account,
+  feeds = [],
   onPolicyAction,
   onDecryptPolicy,
   userState,
@@ -2921,7 +3069,7 @@ function PolicyTable({
               <th style={css.th}>Premium Handle</th>
               <th style={css.th}>Threshold</th>
               <th style={css.th}>Status</th>
-              <th style={css.th}>Decision</th>
+              <th style={css.th}>Claim Stage</th>
               <th style={css.th}>Expiry</th>
               <th style={css.th}>Actions</th>
             </tr>
@@ -2949,6 +3097,10 @@ function PolicyTable({
                 txStates[settleKey] ||
                 txStates[decryptKey];
               const pendingState = pendingDecisions[policy.id];
+              const decisionBadge = getDecisionBadge(pendingState);
+              const finalizeReady = decisionBadge?.variant === "ready";
+              const feedState = feeds.find((feed) => feed.bytes32 === policy.oracleFeedId);
+              const claimStage = getClaimStage(policy, feedState, pendingState);
 
               return (
                 <tr key={policy.id}>
@@ -2961,15 +3113,8 @@ function PolicyTable({
                   <td style={css.td}><EncryptedValue value={policy.encThreshold} /></td>
                   <td style={css.tdText}><span style={css.badge(status)}>{status}</span></td>
                   <td style={css.tdText}>
-                    {policy.status === 1 && pendingState ? (
-                      <span style={css.badge(pendingState.kind === "triggered" || pendingState.kind === "active" ? "ready" : "pending")}>
-                        {pendingState.kind === "triggered" || pendingState.kind === "active"
-                          ? "ready to finalize"
-                          : "decrypt pending"}
-                      </span>
-                    ) : (
-                      <span style={css.muted}>-</span>
-                    )}
+                    <span style={css.badge(claimStage.badgeVariant)}>{claimStage.badgeLabel}</span>
+                    <div style={{ ...css.inlineStatus, marginTop: "8px" }}>{claimStage.timeline}</div>
                   </td>
                   <td style={css.td}>{formatTimestamp(policy.expiryTimestamp)}</td>
                   <td style={css.tdText}>
@@ -2984,13 +3129,18 @@ function PolicyTable({
                         </button>
                       )}
                       {showClaimActions && walletReady && policy.status === 1 && (
-                        <button
-                          style={css.btnGhost}
-                          disabled={txStates[finalizeKey]?.status === "loading"}
-                          onClick={() => onPolicyAction("Finalize evaluation", policy.id)}
-                        >
-                          Finalize
-                        </button>
+                        <div>
+                          <button
+                            style={css.btnGhost}
+                            disabled={txStates[finalizeKey]?.status === "loading" || !finalizeReady}
+                            onClick={() => onPolicyAction("Finalize evaluation", policy.id)}
+                          >
+                            {finalizeReady ? "Finalize" : "Finalize pending"}
+                          </button>
+                          {!finalizeReady && (
+                            <div style={{ ...css.inlineStatus, marginTop: "8px" }}>No action needed yet.</div>
+                          )}
+                        </div>
                       )}
                       {showClaimActions && walletReady && policy.status === 2 && (
                         <button
@@ -3002,13 +3152,18 @@ function PolicyTable({
                         </button>
                       )}
                       {walletReady && isMine && (
-                        <button
-                          style={css.btnGhost}
-                          disabled={txStates[decryptKey]?.status === "loading"}
-                          onClick={() => onDecryptPolicy(policy.id)}
-                        >
-                          Decrypt My View
-                        </button>
+                        <div>
+                          <button
+                            style={css.btnGhost}
+                            disabled={txStates[decryptKey]?.status === "loading"}
+                            onClick={() => onDecryptPolicy(policy.id)}
+                          >
+                            Decrypt My View
+                          </button>
+                          <div style={{ ...css.inlineStatus, marginTop: "8px" }}>
+                            Decrypt your role-scoped policy terms locally.
+                          </div>
+                        </div>
                       )}
                     </div>
                     {inlineState?.message && <div style={css.inlineStatus}>{inlineState.message}</div>}
@@ -3118,6 +3273,12 @@ function LiquidityWorkspace({
             {faucetState?.message && <div style={css.inlineStatus}>{faucetState.message}</div>}
             {approveState?.message && <div style={css.inlineStatus}>{approveState.message}</div>}
             {depositState?.message && <div style={css.inlineStatus}>{depositState.message}</div>}
+            <div style={{ ...css.callout, marginTop: "12px" }}>
+              LP capital here is funding exporter delay risk, not just sitting in a generic demo pool.
+            </div>
+            <div style={{ ...css.callout, marginTop: "12px" }}>
+              LP views decrypt locally under private view access. Public pool readers still see totals, utilization, and ciphertext handles only.
+            </div>
             <div style={{ fontSize: "11px", color: T.textTertiary, marginTop: "8px" }}>
               Wallet balance {userState.tokenBalance} {TOKEN_SYMBOL} | allowance {formatAllowanceDisplay(userState.allowance)}.
             </div>
@@ -3188,11 +3349,13 @@ function ClaimsWorkspace({
   onPolicyAction,
   txStates = {},
   pendingDecisions = {},
+  decisionCheckedAt,
   isOracle,
   onSeedDemo,
 }) {
   const claims = protocol.policies.filter((policy) => [0, 1, 2].includes(policy.status));
   const history = protocol.policies.filter((policy) => [3, 4, 5].includes(policy.status));
+  const pendingClaims = claims.filter((policy) => policy.status === 1);
   const readyToFinalize = claims.filter((policy) => {
     const pendingState = pendingDecisions[policy.id];
     return policy.status === 1 && pendingState && ["triggered", "active"].includes(pendingState.kind);
@@ -3210,6 +3373,7 @@ function ClaimsWorkspace({
           setForm={setForm}
           onSubmit={onSubmit}
           walletReady={walletReady}
+          cofheReady={cofheReady}
           txStates={txStates}
           isOracle={isOracle}
         />
@@ -3239,10 +3403,37 @@ function ClaimsWorkspace({
                 <div style={css.statLabel}>Ready To Finalize</div>
                 <div style={css.heroMetaValue}>{readyToFinalize}</div>
               </div>
+              <div style={css.permitMetaCard}>
+                <div style={css.statLabel}>Public History</div>
+                <div style={css.heroMetaValue}>{history.length}</div>
+              </div>
             </div>
             <div style={{ ...css.callout, marginTop: "16px" }}>
               Oracle / Claims is the only workspace that should submit readings or progress the evaluation queue.
             </div>
+            <div style={{ ...css.grid3, marginTop: "12px" }}>
+              <div style={css.callout}>
+                <strong>Encrypted:</strong> threshold, oracle reading, pending payout
+              </div>
+              <div style={css.callout}>
+                <strong>Public:</strong> premium, coverage, beneficiary, expiry
+              </div>
+              <div style={css.callout}>
+                <strong>Why it matters:</strong> exporters should not reveal operating thresholds or claim posture
+              </div>
+            </div>
+            <div style={{ ...css.inlineStatus, marginTop: "12px" }}>{formatLastChecked(decisionCheckedAt)}</div>
+            <div style={{ ...css.callout, marginTop: "12px" }}>
+              Claim path: create policy → submit oracle reading → request evaluation → wait on threshold decryption → finalize → settle if triggered.
+            </div>
+            <div style={{ ...css.callout, marginTop: "12px" }}>
+              Canonical demo seed: deposit {EXPORTER_SCENARIO.liquidityDeposit} {TOKEN_SYMBOL} → active threshold {EXPORTER_SCENARIO.activePolicy.threshold}h / coverage {EXPORTER_SCENARIO.activePolicy.coverage} / premium {EXPORTER_SCENARIO.activePolicy.premium} → history threshold {EXPORTER_SCENARIO.settledPolicy.threshold}h / oracle reading {EXPORTER_SCENARIO.settledPolicy.oracleReading}.
+            </div>
+            {pendingClaims.length > 0 && (
+              <div style={{ ...css.callout, marginTop: "12px" }}>
+                Pending rows are live testnet claims that are waiting on the threshold network. This is part of the current CoFHE async flow, not a broken state.
+              </div>
+            )}
             {isOracle && (
               <div style={{ ...css.buttonRow, marginTop: "12px" }}>
                 <button style={css.btnGhost} onClick={onSeedDemo} disabled={seedState?.status === "loading"}>
@@ -3268,7 +3459,7 @@ function ClaimsWorkspace({
                   <th style={css.th}>Policy</th>
                   <th style={css.th}>Feed</th>
                   <th style={css.th}>Status</th>
-                  <th style={css.th}>Decision State</th>
+                  <th style={css.th}>Claim Stage</th>
                   <th style={css.th}>Expiry</th>
                   <th style={css.th}>Actions</th>
                 </tr>
@@ -3282,6 +3473,9 @@ function ClaimsWorkspace({
                 {claims.map((policy) => {
                   const status = STATUS_LABELS[policy.status] || "unknown";
                   const pendingState = pendingDecisions[policy.id];
+                  const decisionBadge = getDecisionBadge(pendingState);
+                  const feedState = protocol.feeds.find((feed) => feed.bytes32 === policy.oracleFeedId);
+                  const claimStage = getClaimStage(policy, feedState, pendingState);
                   const requestKey = `request-evaluation-${policy.id}`;
                   const finalizeKey = `finalize-evaluation-${policy.id}`;
                   const settleKey = `settle-policy-${policy.id}`;
@@ -3289,21 +3483,15 @@ function ClaimsWorkspace({
                     txStates[requestKey] ||
                     txStates[finalizeKey] ||
                     txStates[settleKey];
+                  const finalizeReady = decisionBadge?.variant === "ready";
                   return (
                     <tr key={policy.id}>
                       <td style={css.td}>#{policy.id}</td>
                       <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
                       <td style={css.tdText}><span style={css.badge(status)}>{status}</span></td>
                       <td style={css.tdText}>
-                        {policy.status === 1 && pendingState ? (
-                          <span style={css.badge(pendingState.kind === "triggered" || pendingState.kind === "active" ? "ready" : "pending")}>
-                            {pendingState.kind === "triggered" || pendingState.kind === "active"
-                              ? "ready to finalize"
-                              : "threshold pending"}
-                          </span>
-                        ) : (
-                          <span style={css.muted}>-</span>
-                        )}
+                        <span style={css.badge(claimStage.badgeVariant)}>{claimStage.badgeLabel}</span>
+                        <div style={{ ...css.inlineStatus, marginTop: "8px" }}>{claimStage.timeline}</div>
                       </td>
                       <td style={css.td}>{formatTimestamp(policy.expiryTimestamp)}</td>
                       <td style={css.tdText}>
@@ -3314,9 +3502,18 @@ function ClaimsWorkspace({
                             </button>
                           )}
                           {walletReady && policy.status === 1 && (
-                            <button style={css.btnGhost} disabled={txStates[finalizeKey]?.status === "loading"} onClick={() => onPolicyAction("Finalize evaluation", policy.id)}>
-                              Finalize
-                            </button>
+                            <div>
+                              <button
+                                style={css.btnGhost}
+                                disabled={txStates[finalizeKey]?.status === "loading" || !finalizeReady}
+                                onClick={() => onPolicyAction("Finalize evaluation", policy.id)}
+                              >
+                                {finalizeReady ? "Finalize" : "Finalize pending"}
+                              </button>
+                              {!finalizeReady && (
+                                <div style={{ ...css.inlineStatus, marginTop: "8px" }}>No action needed yet.</div>
+                              )}
+                            </div>
                           )}
                           {walletReady && policy.status === 2 && (
                             <button style={css.btnGhost} disabled={txStates[settleKey]?.status === "loading"} onClick={() => onPolicyAction("Settle policy", policy.id)}>
@@ -3383,7 +3580,7 @@ function ClaimsWorkspace({
   );
 }
 
-function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletReady, txStates = {}, isOracle }) {
+function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletReady, cofheReady, txStates = {}, isOracle }) {
   const oracleState = txStates["oracle-submit"];
 
   return (
@@ -3424,12 +3621,17 @@ function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletRea
 
         <div style={{ marginTop: "16px" }}>
           {!walletReady && <div style={css.callout}>Connect a wallet to submit encrypted oracle readings.</div>}
+          {walletReady && !cofheReady && (
+            <div style={css.callout}>
+              Wallet connected. CoFHE is still initializing before encrypted oracle submission becomes available.
+            </div>
+          )}
           {walletReady && !isOracle && (
             <div style={css.callout}>
               This wallet is not the configured oracle. Current oracle: <span style={{ fontFamily: T.mono }}>{oracle}</span>
             </div>
           )}
-          {isOracle && (
+          {isOracle && cofheReady && (
             <>
               <div style={css.formGroup}>
                 <label style={css.label}>Feed</label>
@@ -3496,7 +3698,7 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
           )}
           {walletReady && isAuditor && (
             <div style={css.callout}>
-              Auditor scope can decrypt encrypted policy mirrors plus pending payout. This is separate from the policy holder and beneficiary views.
+              Auditor does not get full protocol transparency. Auditor gets bounded review access only: encrypted policy mirrors plus pending payout.
             </div>
           )}
         </div>
@@ -3566,7 +3768,7 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
             <div style={css.callout}>No settled, expired, or cancelled cargo claims yet. Use the seeded exporter scenario to open the history trail.</div>
           ) : (
             <div style={{ fontSize: "13px", color: T.textSecondary }}>
-              Claim history is public on purpose. Private terms and payout mirrors stay role-scoped and decrypt only under permit.
+              Claim history is public on purpose. Private terms and payout mirrors stay role-scoped and decrypt only with private view access.
             </div>
           )}
         </div>

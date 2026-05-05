@@ -8,7 +8,7 @@ Keep cargo delay claim logic private without pretending the whole protocol is op
 
 | Field | Why it is encrypted | Who can decrypt it |
 | --- | --- | --- |
-| Policy threshold | Reveals exporter delay tolerance | Insured, owner via permit-scoped view |
+| Policy threshold | Reveals exporter delay tolerance | Insured, owner via private-view access |
 | Oracle reading | Reveals live signal used for claim logic | Oracle during submission, contract during evaluation |
 | Pending payout | Reveals likely claim outcome before settlement | Insured, beneficiary, owner |
 | LP balance handle | Keeps provider position private from public readers | Connected LP |
@@ -35,6 +35,14 @@ VeilShield uses selective disclosure, not blanket transparency.
 - `Liquidity Provider`: can decrypt only their own LP balance view
 - `Auditor`: owner-scoped path can decrypt policy mirrors and pending payout
 - Public chain reader: sees ciphertext handles, events, and public token state only
+
+## Short reference table
+
+| Question | Current answer |
+| --- | --- |
+| What is encrypted? | threshold, oracle reading, payout mirror, LP balance handle, policy mirrors |
+| What is public? | token terms, beneficiary, expiry, feed id, pool totals |
+| Who can decrypt what? | policy holder, beneficiary, LP, and owner each get a narrower role-scoped view |
 
 ## Why this is useful for exporters
 
