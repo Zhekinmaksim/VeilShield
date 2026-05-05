@@ -2528,6 +2528,7 @@ function App() {
           <ClaimsWorkspace
             protocol={protocol}
             walletReady={walletReady}
+            cofheReady={cofheReady}
             account={account}
             form={oracleForm}
             setForm={setOracleForm}
@@ -3342,6 +3343,7 @@ function LiquidityWorkspace({
 function ClaimsWorkspace({
   protocol,
   walletReady,
+  cofheReady,
   account,
   form,
   setForm,
