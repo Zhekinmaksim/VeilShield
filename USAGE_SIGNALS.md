@@ -1,4 +1,4 @@
-# Wave 3 Usage Signals
+# Buildathon Usage Signals
 
 Use this file to record real, small-scope signals without inflating traction claims.
 
@@ -8,6 +8,7 @@ Use this file to record real, small-scope signals without inflating traction cla
 - demo video views
 - wallet connects
 - policy previews
+- policy template selections
 - policy creations
 - oracle submissions
 - decrypt actions
@@ -22,6 +23,7 @@ The frontend now records best-effort local counters for:
 - `mint_token`
 - `approve_token`
 - `deposit_liquidity`
+- `policy_template_select`
 - `preview_threshold`
 - `create_policy`
 - `oracle_submit`
@@ -40,5 +42,14 @@ When real numbers are available, keep them narrow and factual:
 - `Y` wallet connects
 - `Z` demo video views
 - `N` external testers completed the flow
+- `M` template selections if local counters are available
 
 Do not estimate adoption beyond what can be checked.
+
+## Wave 4 feedback target
+
+For Wave 4, collect enough signal to support a narrow claim:
+
+- judges can understand the exporter flow faster with templates
+- LP exposure is easier to read
+- auditor disclosure is clearer than a generic private dashboard

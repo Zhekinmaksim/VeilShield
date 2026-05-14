@@ -30,7 +30,7 @@ That path shows privacy architecture faster than recording the whole lifecycle f
 4. Approve `vUSD`
 5. Deposit liquidity
 6. Go to `Policy Holder`
-7. Create a cargo delay policy
+7. Choose the `Shipment delay` or `Delivery SLA delay` template
 8. Preview the encrypted threshold
 9. Submit the policy
 10. Go to `Oracle / Claims`
@@ -51,6 +51,11 @@ That path shows privacy architecture faster than recording the whole lifecycle f
 - Premium: `120`
 - Oracle reading for trigger: `72`
 
+## Wave 4 template values
+
+- `Shipment delay`: threshold `48`, coverage `1800`, premium `120`
+- `Delivery SLA delay`: threshold `72`, coverage `2400`, premium `180`
+
 ## What to point at during the demo
 
 - encrypted ciphertext handles instead of fake numbers
@@ -58,6 +63,9 @@ That path shows privacy architecture faster than recording the whole lifecycle f
 - role-separated workspaces
 - private view access status
 - async claim status
+- claims pipeline stages
+- LP exposure summary
+- auditor disclosure summary
 - public claim history versus private policy terms
 
 ## One sentence per role

@@ -36,6 +36,31 @@ export const EXPORTER_SCENARIO = {
   liquidityDeposit: 50000,
 };
 
+export const POLICY_TEMPLATES = [
+  {
+    id: "shipment_delay",
+    label: "Shipment delay",
+    description: "Container route delay above the exporter threshold.",
+    feed: "shipment_delay_hours",
+    direction: 0,
+    threshold: 48,
+    coverage: 1800,
+    premium: 120,
+    expiryDays: 14,
+  },
+  {
+    id: "delivery_sla_delay",
+    label: "Delivery SLA delay",
+    description: "Late delivery against a customer SLA window.",
+    feed: "shipment_delay_hours",
+    direction: 0,
+    threshold: 72,
+    coverage: 2400,
+    premium: 180,
+    expiryDays: 21,
+  },
+];
+
 export const STATUS_LABELS = {
   0: "active",
   1: "pending",

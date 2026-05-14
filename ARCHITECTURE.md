@@ -52,6 +52,8 @@ The frontend handles:
 - polling for async claim readiness
 - a claims-first default screen with public claim trail and live queue state
 - canonical seeded demo values that keep the first screen non-empty for judges
+- frontend policy templates for shipment delay and delivery SLA delay
+- LP exposure and auditor disclosure summaries for Wave 4 review
 
 ### Privacy flow
 
@@ -70,6 +72,16 @@ The frontend handles:
 - first screen target: one active row, one pending row, one public history row
 
 This is the scenario the seeded flow, demo recording, and judge-facing docs should keep using unless the contract changes force a real update.
+
+## Wave 4 product layer
+
+Wave 4 keeps the smart contract stable and improves the product surface around it.
+
+- `Shipment delay` template: standard 48-hour delay cover for exporter route risk
+- `Delivery SLA delay` template: 72-hour delay cover for missed delivery commitments
+- Claims pipeline: explicit stages from policy creation to ready-to-settle state
+- LP workspace: reserved capital, open cover count, pending claim count, and decryptable LP view
+- Auditor workspace: public fields, encrypted fields, and owner-scoped disclosure summary
 
 ## FHE operations in the contract
 

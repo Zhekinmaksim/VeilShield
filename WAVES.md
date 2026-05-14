@@ -46,6 +46,15 @@ Confidential cargo delay cover for exporters: delay thresholds, claim logic, and
 - collect small but real usage signals instead of inflating traction claims
 - keep the seeded exporter scenario fixed so the site, docs, and demo video do not drift
 
+## Wave 4 working focus
+
+- make the exporter flow easier to evaluate without changing the contract
+- add two policy templates instead of expanding into many insurance categories
+- make the claims pipeline visible as a staged operational flow
+- improve LP exposure context around reserved capital, open covers, and pending claims
+- make auditor disclosure more explicit: public fields, encrypted mirrors, and bounded owner review
+- keep usage and tester notes factual, small, and tied to actual demo behavior
+
 ## What we are not doing right now
 
 - broad multi-product insurance platform

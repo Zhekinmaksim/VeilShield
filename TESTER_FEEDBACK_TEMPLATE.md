@@ -1,4 +1,4 @@
-# Wave 3 Tester Feedback Template
+# Buildathon Tester Feedback Template
 
 Use one copy of this block per tester.
 
@@ -12,6 +12,7 @@ Use one copy of this block per tester.
 
 - Connect wallet
 - Mint / deposit
+- Choose a policy template
 - Create policy
 - Submit oracle reading
 - Request access
@@ -38,6 +39,13 @@ Use one copy of this block per tester.
 ## Weakest part
 
 -
+
+## Wave 4 checks
+
+- Did the policy templates make the exporter use case clearer?
+- Did the claims pipeline look like an expected async process?
+- Did the LP exposure summary explain what capital is backing?
+- Did the auditor view feel bounded instead of fully transparent?
 
 ## Quote
 

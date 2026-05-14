@@ -16,6 +16,7 @@ import {
   ARB_SEPOLIA_RPC,
   STATUS_LABELS,
   FEEDS,
+  POLICY_TEMPLATES,
   deployment,
   APP_TAGLINE,
   EXPORTER_SCENARIO,
@@ -38,6 +39,14 @@ const ENGLISH_MONTHS = [
 ];
 const ENGLISH_WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
 const METRICS_STORAGE_KEY = "veilshield.wave3.metrics";
+const CLAIM_PIPELINE_STAGES = [
+  "Created",
+  "Oracle submitted",
+  "Evaluation requested",
+  "Waiting on threshold",
+  "Ready to finalize",
+  "Ready to settle",
+];
 
 const T = {
   bg: "#F8F8F4",
@@ -820,6 +829,12 @@ function formatAllowanceDisplay(value) {
 
 function pad2(value) {
   return String(value).padStart(2, "0");
+}
+
+function isoDateAfterDays(days) {
+  const date = new Date();
+  date.setDate(date.getDate() + days);
+  return `${date.getFullYear()}-${pad2(date.getMonth() + 1)}-${pad2(date.getDate())}`;
 }
 
 function formatEnglishDateInput(isoValue) {
@@ -2925,6 +2940,18 @@ function CreatePolicyPage({
   const previewState = txStates["preview-threshold"];
   const hasAllowance = BigInt(userState.allowance || "0") > 0n;
   const previewRef = useRef(null);
+  const applyTemplate = (template) => {
+    trackMetric("policy_template_select");
+    setForm({
+      ...form,
+      feed: template.feed,
+      direction: String(template.direction),
+      threshold: String(template.threshold),
+      coverage: String(template.coverage),
+      premium: String(template.premium),
+      expiry: isoDateAfterDays(template.expiryDays),
+    });
+  };
 
   useEffect(() => {
     if (preview) {
@@ -2938,6 +2965,25 @@ function CreatePolicyPage({
         <span style={css.cardTitle}>Create Exporter Policy</span>
       </div>
       <div style={css.cardBody}>
+        <div style={{ ...css.grid2, marginBottom: "16px" }}>
+          {POLICY_TEMPLATES.map((template) => (
+            <button
+              key={template.id}
+              type="button"
+              style={{ ...css.btnSecondary, textAlign: "left", padding: "12px 14px" }}
+              onClick={() => applyTemplate(template)}
+            >
+              <div style={{ fontWeight: 700, marginBottom: "4px" }}>{template.label}</div>
+              <div style={{ fontSize: "12px", color: T.textSecondary, fontWeight: 400 }}>
+                {template.description}
+              </div>
+              <div style={{ marginTop: "8px", fontFamily: T.mono, fontSize: "11px", color: T.textTertiary }}>
+                {template.threshold}h threshold / {template.coverage} cover / {template.premium} premium
+              </div>
+            </button>
+          ))}
+        </div>
+
         <div style={css.formGroup}>
           <label style={css.label}>Delay Feed</label>
           <select style={css.select} value={form.feed} onChange={(event) => setForm({ ...form, feed: event.target.value })}>
@@ -3219,6 +3265,8 @@ function LiquidityWorkspace({
   const faucetState = txStates["token-faucet"];
   const pool = protocol.pool;
   const utilization = formatUtilization(pool?.tokenReserved, pool?.tokenLiquidity);
+  const openCoverCount = protocol.policies.filter((policy) => [0, 1, 2].includes(policy.status)).length;
+  const pendingClaimCount = protocol.policies.filter((policy) => policy.status === 1).length;
 
   return (
     <div>
@@ -3231,7 +3279,7 @@ function LiquidityWorkspace({
         </div>
         <div style={css.card}>
           <div style={{ padding: "16px 20px" }}>
-            <div style={css.statLabel}>Reserved Exposure ({TOKEN_SYMBOL})</div>
+            <div style={css.statLabel}>Reserved Capital ({TOKEN_SYMBOL})</div>
             <div style={css.statValue}>{pool ? formatToken(pool.tokenReserved) : "0"}</div>
           </div>
         </div>
@@ -3246,6 +3294,18 @@ function LiquidityWorkspace({
             <div style={css.statLabel}>Pool Utilization</div>
             <div style={css.statValue}>{utilization}</div>
           </div>
+        </div>
+      </div>
+
+      <div style={{ ...css.grid3, marginBottom: "20px" }}>
+        <div style={css.callout}>
+          <strong>Exposure:</strong> {pool ? formatToken(pool.tokenReserved) : "0"} {TOKEN_SYMBOL} is reserved against active or pending exporter cover.
+        </div>
+        <div style={css.callout}>
+          <strong>Open covers:</strong> {openCoverCount} policies can still affect LP capacity.
+        </div>
+        <div style={css.callout}>
+          <strong>Pending claims:</strong> {pendingClaimCount} rows are waiting for encrypted decision flow.
         </div>
       </div>
 
@@ -3388,6 +3448,23 @@ function ClaimsWorkspace({
             <div style={css.callout}>
               Pending claim statuses auto-refresh every few seconds. When threshold decryption finishes, rows move to “ready to finalize” without a manual reload.
             </div>
+            <div style={{ ...css.grid3, marginTop: "12px" }}>
+              {CLAIM_PIPELINE_STAGES.map((stage, index) => (
+                <div
+                  key={stage}
+                  style={{
+                    ...css.permitMetaCard,
+                    background: stage === "Ready to finalize" && readyToFinalize > 0 ? T.accentLight : T.surfaceAlt,
+                    borderColor: stage === "Ready to finalize" && readyToFinalize > 0 ? T.accentBorder : T.border,
+                  }}
+                >
+                  <div style={css.statLabel}>Step {index + 1}</div>
+                  <div style={{ ...css.heroMetaValue, color: stage === "Ready to finalize" && readyToFinalize > 0 ? T.accentDark : T.textSecondary }}>
+                    {stage}
+                  </div>
+                </div>
+              ))}
+            </div>
             <div style={{ ...css.grid3, marginTop: "16px" }}>
               <div style={css.permitMetaCard}>
                 <div style={css.statLabel}>Active Claims</div>
@@ -3403,7 +3480,9 @@ function ClaimsWorkspace({
               </div>
               <div style={css.permitMetaCard}>
                 <div style={css.statLabel}>Ready To Finalize</div>
-                <div style={css.heroMetaValue}>{readyToFinalize}</div>
+                <div style={{ ...css.heroMetaValue, color: readyToFinalize > 0 ? T.accentDark : T.textSecondary }}>
+                  {readyToFinalize}
+                </div>
               </div>
               <div style={css.permitMetaCard}>
                 <div style={css.statLabel}>Public History</div>
@@ -3433,7 +3512,7 @@ function ClaimsWorkspace({
             </div>
             {pendingClaims.length > 0 && (
               <div style={{ ...css.callout, marginTop: "12px" }}>
-                Pending rows are live testnet claims that are waiting on the threshold network. This is part of the current CoFHE async flow, not a broken state.
+                Pending rows are live testnet claims that are waiting on the threshold network. No action is needed until a row becomes ready to finalize.
               </div>
             )}
             {isOracle && (
@@ -3703,6 +3782,17 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
               Auditor does not get full protocol transparency. Auditor gets bounded review access only: encrypted policy mirrors plus pending payout.
             </div>
           )}
+          <div style={{ ...css.grid3, marginTop: "12px" }}>
+            <div style={css.callout}>
+              <strong>Public:</strong> policy id, feed, status, coverage, beneficiary, expiry.
+            </div>
+            <div style={css.callout}>
+              <strong>Encrypted:</strong> threshold mirror, premium mirror, coverage mirror, pending payout.
+            </div>
+            <div style={css.callout}>
+              <strong>Auditor view:</strong> bounded decrypt for policy mirrors and payout review only.
+            </div>
+          </div>
         </div>
       </div>
 
@@ -3739,6 +3829,9 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
                     <td style={css.td}>{formatToken(policy.coverageAmount)}</td>
                     <td style={css.td}>{shortAddress(policy.beneficiary)}</td>
                     <td style={css.tdText}>
+                      <div style={css.disclosureCard}>
+                        Public row stays visible. Encrypted mirrors require owner-scoped private view access.
+                      </div>
                       {isAuditor ? (
                         <button style={css.btnGhost} disabled={txStates[decryptKey]?.status === "loading"} onClick={() => onDecryptAuditorPolicy(policy.id)}>
                           {txStates[decryptKey]?.status === "loading" ? "Decrypting..." : "Decrypt Auditor View"}

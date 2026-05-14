@@ -36,6 +36,14 @@ VeilShield uses selective disclosure, not blanket transparency.
 - `Auditor`: owner-scoped path can decrypt policy mirrors and pending payout
 - Public chain reader: sees ciphertext handles, events, and public token state only
 
+## Wave 4 disclosure summaries
+
+The frontend now shows the same boundary in the role workspaces:
+
+- `LP`: public pool totals and reserved capital stay visible, while the connected LP balance is a private view
+- `Auditor`: public policy fields are shown separately from encrypted mirrors and pending payout review data
+- `Claims`: threshold, oracle reading, and pending payout are labeled as encrypted while premium, coverage, beneficiary, and expiry remain public
+
 ## Short reference table
 
 | Question | Current answer |

@@ -81,6 +81,8 @@ That boundary is deliberate. It is written down in the docs instead of implied b
 - explicit private-view access flow for local decrypts in the frontend
 - seeded exporter demo path for a non-empty live first screen
 - clearer claim pipeline states for `waiting on threshold` versus `ready to finalize`
+- Wave 4 policy templates for shipment delay and delivery SLA delay
+- LP exposure and auditor disclosure summaries in the role workspaces
 
 ## Why this fits the buildathon
 
@@ -119,6 +121,13 @@ Canonical Wave 3 demo scenario:
 - history cover threshold: `60h`
 - history cover: `2200 coverage / 180 premium`
 - oracle reading used for seeded trigger path: `72`
+
+Wave 4 policy templates in the frontend:
+
+- `Shipment delay`: threshold `48h`, coverage `1800`, premium `120`, expiry hint `14 days`
+- `Delivery SLA delay`: threshold `72h`, coverage `2400`, premium `180`, expiry hint `21 days`
+
+These templates are frontend-level shortcuts. They keep the contract unchanged and make the exporter flow easier to evaluate.
 
 ## Product framing
 
@@ -212,6 +221,15 @@ If the threshold network is slow, the seeded state may keep one or more policies
 - fewer dead-end clicks by disabling finalize actions until the threshold result is ready
 - seeded claims-first screen with public history and non-empty live state
 - repo-local ABI imports so Git-based Vercel deploys do not depend on local Hardhat artifacts
+
+## What changed in Wave 4
+
+- added two exporter policy templates: shipment delay and delivery SLA delay
+- made the claims pipeline visible as a staged flow from creation to settlement
+- strengthened the `ready to finalize` marker in the claims workspace
+- added LP exposure context for reserved capital, open covers, and pending claims
+- added auditor disclosure summaries that separate public fields, encrypted fields, and owner-scoped review data
+- added `policy_template_select` to the local usage event taxonomy
 
 ## Known current limits
 
