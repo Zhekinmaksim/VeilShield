@@ -10,13 +10,18 @@ Use one copy of this block per tester.
 
 ## Flow used
 
+- Open Overview / landing
+- Click Open Live App
 - Connect wallet
 - Mint / deposit
 - Choose a policy template
+- Preview private threshold
 - Create policy
 - Submit oracle reading
+- Inspect public claim trail
 - Request access
 - Decrypt view
+- Review auditor screen
 
 ## Answers
 
@@ -40,12 +45,21 @@ Use one copy of this block per tester.
 
 -
 
-## Wave 4 checks
+## Wave 5 checks
 
-- Did the policy templates make the exporter use case clearer?
-- Did the claims pipeline look like an expected async process?
-- Did the LP exposure summary explain what capital is backing?
+- Did the Overview explain VeilShield before wallet connection?
+- Did the replayable seed make the judge path easy to follow?
+- Did the public claim trail read as lifecycle history rather than a raw table?
+- Did the policy holder flow make private threshold selection clear?
+- Did local decrypt access feel like a scoped action instead of a login step?
 - Did the auditor view feel bounded instead of fully transparent?
+
+## Usage signal notes
+
+- Was this a fresh visit?
+- Did the tester connect a wallet?
+- Did the tester open the app from Overview?
+- Did the tester complete a decrypt action?
 
 ## Quote
 

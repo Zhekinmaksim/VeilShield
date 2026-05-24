@@ -66,7 +66,7 @@ That boundary is deliberate. It is written down in the docs instead of implied b
 - [`PRIVACY_MODEL.md`](./PRIVACY_MODEL.md): what is encrypted, what is public, and who can decrypt what
 - [`DEMO_FLOW.md`](./DEMO_FLOW.md): the fastest live demo path for a judge or video recording
 - [`WAVES.md`](./WAVES.md): what shipped, what is rough, and what the next steps are
-- [`USAGE_SIGNALS.md`](./USAGE_SIGNALS.md): event names and a factual format for Wave 3 usage reporting
+- [`USAGE_SIGNALS.md`](./USAGE_SIGNALS.md): event names and a factual format for Wave 5 usage reporting
 - [`TESTER_FEEDBACK_TEMPLATE.md`](./TESTER_FEEDBACK_TEMPLATE.md): short template for 2-3 real tester interviews
 
 ## What the demo does
@@ -80,6 +80,7 @@ That boundary is deliberate. It is written down in the docs instead of implied b
 - role-based workspaces for policy holder, LP, oracle / claims, and auditor
 - explicit private-view access flow for local decrypts in the frontend
 - seeded exporter demo path for a non-empty live first screen
+- embedded Wave 5 landing page inside the React app
 - clearer claim pipeline states for `waiting on threshold` versus `ready to finalize`
 - Wave 4 policy templates for shipment delay and delivery SLA delay
 - LP exposure and auditor disclosure summaries in the role workspaces
@@ -230,6 +231,14 @@ If the threshold network is slow, the seeded state may keep one or more policies
 - added LP exposure context for reserved capital, open covers, and pending claims
 - added auditor disclosure summaries that separate public fields, encrypted fields, and owner-scoped review data
 - added `policy_template_select` to the local usage event taxonomy
+
+## What changed in Wave 5
+
+- embedded the landing page into the live React app as the `Overview` workspace
+- folded final presentation and evaluation readiness into Wave 5 instead of splitting it into a separate wave
+- added first-screen product framing for the exporter wedge, privacy boundary, FHE flow, roles, demo link, contract links, and live deployment proof
+- kept direct navigation from the landing into claims, policy, liquidity, and auditor workspaces
+- kept upcoming Wave 5 work focused on replayable seeded demo state, claim history, auditor review, tester notes, and private threshold selection
 
 ## Known current limits
 

@@ -38,7 +38,7 @@ const ENGLISH_MONTHS = [
   "December",
 ];
 const ENGLISH_WEEKDAYS = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
-const METRICS_STORAGE_KEY = "veilshield.wave3.metrics";
+const METRICS_STORAGE_KEY = "veilshield.wave5.metrics";
 const CLAIM_PIPELINE_STAGES = [
   "Created",
   "Oracle submitted",
@@ -83,9 +83,10 @@ const css = {
     WebkitFontSmoothing: "antialiased",
   },
   header: {
-    display: "grid",
-    gridTemplateColumns: "minmax(0, 1fr) auto minmax(0, 1fr)",
+    display: "flex",
     alignItems: "center",
+    justifyContent: "space-between",
+    flexWrap: "wrap",
     padding: "16px 32px",
     borderBottom: `1px solid ${T.border}`,
     background: T.surface,
@@ -95,8 +96,8 @@ const css = {
     display: "flex",
     alignItems: "center",
     gap: "12px",
-    minWidth: 0,
-    justifySelf: "start",
+    minWidth: "220px",
+    flex: "0 1 320px",
   },
   logoImage: {
     width: "36px",
@@ -136,12 +137,12 @@ const css = {
     alignItems: "center",
     justifyContent: "center",
     minWidth: 0,
-    justifySelf: "center",
+    flex: "2 1 520px",
   },
   nav: {
     display: "flex",
     gap: "4px",
-    flexWrap: "nowrap",
+    flexWrap: "wrap",
     justifyContent: "center",
     alignItems: "center",
   },
@@ -163,8 +164,8 @@ const css = {
     alignItems: "center",
     justifyContent: "flex-end",
     flexWrap: "wrap",
-    justifySelf: "end",
     minWidth: 0,
+    flex: "0 1 180px",
   },
   buttonRow: {
     display: "flex",
@@ -776,6 +777,167 @@ const css = {
     color: T.textTertiary,
     background: T.surface,
   },
+  landingShell: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "24px",
+  },
+  landingHero: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 360px), 1fr))",
+    gap: "24px",
+    alignItems: "stretch",
+  },
+  landingHeroCopy: {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    padding: "32px",
+  },
+  landingEyebrow: {
+    display: "inline-flex",
+    flexWrap: "wrap",
+    gap: "8px",
+    alignItems: "center",
+    padding: "5px 10px",
+    background: T.accentMuted,
+    border: `1px solid ${T.accentBorder}`,
+    borderRadius: T.radius,
+    color: T.accentDark,
+    fontFamily: T.mono,
+    fontSize: "11px",
+    textTransform: "uppercase",
+  },
+  landingTitle: {
+    margin: "20px 0 14px",
+    maxWidth: "760px",
+    fontSize: "clamp(34px, 5vw, 58px)",
+    lineHeight: 1.05,
+    fontWeight: 700,
+    letterSpacing: 0,
+  },
+  landingBody: {
+    margin: 0,
+    maxWidth: "68ch",
+    color: T.textSecondary,
+    fontSize: "16px",
+    lineHeight: 1.6,
+  },
+  landingActions: {
+    display: "flex",
+    gap: "10px",
+    alignItems: "center",
+    flexWrap: "wrap",
+    marginTop: "26px",
+  },
+  landingPolicyCard: {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    overflow: "hidden",
+  },
+  landingPolicyHead: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "12px",
+    padding: "16px 18px",
+    borderBottom: `1px solid ${T.border}`,
+    fontFamily: T.mono,
+    fontSize: "12px",
+  },
+  landingPolicyRow: {
+    display: "grid",
+    gridTemplateColumns: "120px minmax(0, 1fr)",
+    gap: "12px",
+    padding: "13px 18px",
+    borderBottom: `1px solid ${T.border}`,
+    fontSize: "13px",
+  },
+  landingRail: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+    gap: "10px",
+  },
+  landingSection: {
+    background: T.surface,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    overflow: "hidden",
+  },
+  landingSectionHeader: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+    gap: "18px",
+    padding: "22px 24px",
+    borderBottom: `1px solid ${T.border}`,
+  },
+  landingSectionNumber: {
+    fontFamily: T.mono,
+    fontSize: "11px",
+    color: T.accent,
+    textTransform: "uppercase",
+    marginBottom: "8px",
+  },
+  landingSectionTitle: {
+    margin: 0,
+    fontSize: "22px",
+    lineHeight: 1.2,
+    letterSpacing: 0,
+  },
+  landingSectionText: {
+    margin: 0,
+    color: T.textSecondary,
+    fontSize: "13px",
+  },
+  landingTable: {
+    width: "100%",
+    borderCollapse: "collapse",
+  },
+  landingCards: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(220px, 1fr))",
+    gap: "14px",
+    padding: "20px",
+  },
+  landingMiniCard: {
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+    padding: "16px",
+    background: T.surfaceAlt,
+  },
+  landingMiniTitle: {
+    margin: "8px 0 8px",
+    fontSize: "15px",
+    fontWeight: 700,
+  },
+  landingMiniText: {
+    margin: 0,
+    color: T.textSecondary,
+    fontSize: "13px",
+  },
+  landingWaveGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(190px, 1fr))",
+    gap: "12px",
+    padding: "20px",
+  },
+  landingWave: (current) => ({
+    border: `1px solid ${current ? T.accentBorder : T.border}`,
+    background: current ? T.accentMuted : T.surfaceAlt,
+    borderRadius: T.radius,
+    padding: "14px",
+  }),
+  landingCta: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 280px), 1fr))",
+    gap: "18px",
+    alignItems: "center",
+    padding: "22px 24px",
+    background: T.surface,
+    color: T.text,
+    border: `1px solid ${T.border}`,
+    borderRadius: T.radius,
+  },
 };
 
 function makeFeedBytes32(id) {
@@ -825,6 +987,45 @@ function formatAllowanceDisplay(value) {
     return "unlimited";
   }
   return allowance.toString();
+}
+
+function stringifyChainValue(value) {
+  if (value === undefined || value === null) {
+    return "0";
+  }
+  return value.toString();
+}
+
+function normalizePool(pool) {
+  if (!pool) {
+    return null;
+  }
+  return {
+    encTotalDeposits: stringifyChainValue(pool.encTotalDeposits),
+    encTotalReserved: stringifyChainValue(pool.encTotalReserved),
+    tokenLiquidity: stringifyChainValue(pool.tokenLiquidity),
+    tokenReserved: stringifyChainValue(pool.tokenReserved),
+    totalLpShares: stringifyChainValue(pool.totalLpShares),
+    lpCount: stringifyChainValue(pool.lpCount),
+    active: Boolean(pool.active),
+  };
+}
+
+function matchesExporterScenarioPolicy(policy, scenario, statuses, accountAddress) {
+  const normalizedAccount = accountAddress ? accountAddress.toLowerCase() : null;
+  return (
+    statuses.includes(policy.status) &&
+    (!normalizedAccount || policy.insured.toLowerCase() === normalizedAccount) &&
+    (!normalizedAccount || policy.beneficiary.toLowerCase() === normalizedAccount) &&
+    policy.oracleFeedId === makeFeedBytes32(scenario.feed) &&
+    policy.direction === scenario.direction &&
+    BigInt(policy.coverageAmount || "0") === BigInt(scenario.coverage) &&
+    BigInt(policy.premiumAmount || "0") === BigInt(scenario.premium)
+  );
+}
+
+function findExporterScenarioPolicy(policies, scenario, statuses, accountAddress) {
+  return policies.find((policy) => matchesExporterScenarioPolicy(policy, scenario, statuses, accountAddress)) || null;
 }
 
 function pad2(value) {
@@ -938,9 +1139,9 @@ function decodeFeed(bytes32Value) {
 
 function normalizeEncryptedInput(input) {
   return {
-    ctHash: input.ctHash,
-    securityZone: input.securityZone,
-    utype: input.utype,
+    ctHash: stringifyChainValue(input.ctHash),
+    securityZone: stringifyChainValue(input.securityZone),
+    utype: stringifyChainValue(input.utype),
     signature: input.signature,
   };
 }
@@ -1281,7 +1482,7 @@ async function decryptUint64(handle) {
 const MANUAL_DISCONNECT_KEY = "veilshield.manualDisconnect";
 
 function App() {
-  const [workspace, setWorkspace] = useState("claims");
+  const [workspace, setWorkspace] = useState("overview");
   const [provider, setProvider] = useState(PUBLIC_PROVIDER);
   const [signer, setSigner] = useState(null);
   const [account, setAccount] = useState("");
@@ -1486,17 +1687,17 @@ function App() {
             id: Number(id),
             insured: policy.insured,
             beneficiary: policy.beneficiary,
-            encCoverage: policy.encCoverage,
-            encPremium: policy.encPremium,
-            encThreshold: policy.encThreshold,
+            encCoverage: stringifyChainValue(policy.encCoverage),
+            encPremium: stringifyChainValue(policy.encPremium),
+            encThreshold: stringifyChainValue(policy.encThreshold),
             oracleFeedId: policy.oracleFeedId,
             direction: Number(policy.direction),
-            expiryTimestamp: policy.expiryTimestamp,
+            expiryTimestamp: stringifyChainValue(policy.expiryTimestamp),
             status: Number(policy.status),
-            createdAt: policy.createdAt,
-            pendingPayout: policy.pendingPayout,
-            coverageAmount: tokenTerms[0],
-            premiumAmount: tokenTerms[1],
+            createdAt: stringifyChainValue(policy.createdAt),
+            pendingPayout: stringifyChainValue(policy.pendingPayout),
+            coverageAmount: stringifyChainValue(tokenTerms[0]),
+            premiumAmount: stringifyChainValue(tokenTerms[1]),
           };
         })
       );
@@ -1507,7 +1708,7 @@ function App() {
             publicContract.oracleFeedInitialized(feed.bytes32),
             publicContract.oracleValues(feed.bytes32),
           ]);
-          return { ...feed, initialized, value };
+          return { ...feed, initialized, value: stringifyChainValue(value) };
         })
       );
 
@@ -1530,7 +1731,7 @@ function App() {
       }
 
       setProtocol({
-        pool,
+        pool: normalizePool(pool),
         owner,
         oracle,
         asset,
@@ -1564,7 +1765,7 @@ function App() {
           ]);
 
           if (results[0].status === "fulfilled") {
-            lpBalanceHandle = results[0].value;
+            lpBalanceHandle = stringifyChainValue(results[0].value);
             if (decryptUser && cofheReady && permitState.ready && permitState.valid) {
               lpBalancePlaintext = String(await decryptUint64(lpBalanceHandle));
             }
@@ -2037,7 +2238,7 @@ function App() {
       const plaintext = await decryptUint64(handle);
       setUserState((current) => ({
         ...current,
-        lpBalanceHandle: handle,
+        lpBalanceHandle: stringifyChainValue(handle),
         lpBalancePlaintext: String(plaintext),
       }));
       setTxStatus("decrypt-lp-balance", "success", "LP balance decrypted.");
@@ -2203,13 +2404,6 @@ function App() {
         throw new Error("Only the oracle / owner wallet can seed the live exporter scenario.");
       }
 
-      const alreadySeeded =
-        protocol.policies.some((policy) => policy.status === 0) &&
-        protocol.policies.some((policy) => policy.status === 3);
-      if (alreadySeeded) {
-        throw new Error("Live scenario already contains at least one active and one settled policy.");
-      }
-
       const token = getWriteToken();
       const contract = getWriteContract();
       const requiredCapital =
@@ -2234,47 +2428,71 @@ function App() {
       }
 
       const expiry = BigInt(Math.floor(Date.now() / 1000) + 60 * 60 * 24 * 14);
-      const activePolicyId = Number(await contract.policyCount());
-      const activeThreshold = await encryptUint64(EXPORTER_SCENARIO.activePolicy.threshold);
-      await (
-        await contract.createPolicy(
-          BigInt(EXPORTER_SCENARIO.activePolicy.coverage),
-          BigInt(EXPORTER_SCENARIO.activePolicy.premium),
-          activeThreshold,
-          makeFeedBytes32(EXPORTER_SCENARIO.activePolicy.feed),
-          EXPORTER_SCENARIO.activePolicy.direction,
-          expiry,
-          account
-        )
-      ).wait();
+      const canonicalActivePolicy = findExporterScenarioPolicy(protocol.policies, EXPORTER_SCENARIO.activePolicy, [0], account);
+      const canonicalSettledPolicy = findExporterScenarioPolicy(protocol.policies, EXPORTER_SCENARIO.settledPolicy, [3], account);
+      const canonicalPendingSettledPolicy = findExporterScenarioPolicy(protocol.policies, EXPORTER_SCENARIO.settledPolicy, [1], account);
+      const canonicalTriggeredSettledPolicy = findExporterScenarioPolicy(protocol.policies, EXPORTER_SCENARIO.settledPolicy, [2], account);
+      const hasCanonicalActive = Boolean(canonicalActivePolicy);
+      const hasCanonicalSettled = Boolean(canonicalSettledPolicy);
+      const hasInFlightSettled = Boolean(canonicalPendingSettledPolicy || canonicalTriggeredSettledPolicy);
 
-      const settledPolicyId = activePolicyId + 1;
-      const settledThreshold = await encryptUint64(EXPORTER_SCENARIO.settledPolicy.threshold);
-      await (
-        await contract.createPolicy(
-          BigInt(EXPORTER_SCENARIO.settledPolicy.coverage),
-          BigInt(EXPORTER_SCENARIO.settledPolicy.premium),
-          settledThreshold,
-          makeFeedBytes32(EXPORTER_SCENARIO.settledPolicy.feed),
-          EXPORTER_SCENARIO.settledPolicy.direction,
-          expiry,
-          account
-        )
-      ).wait();
+      if (hasCanonicalActive && hasCanonicalSettled) {
+        return;
+      }
 
-      const encryptedReading = await encryptUint64(EXPORTER_SCENARIO.settledPolicy.oracleReading);
-      await (
-        await contract.submitOracleReading(
-          makeFeedBytes32(EXPORTER_SCENARIO.settledPolicy.feed),
-          encryptedReading
-        )
-      ).wait();
-      await (await contract.requestPolicyEvaluation(BigInt(settledPolicyId))).wait();
-      await waitForDecisionReady(contract, BigInt(settledPolicyId));
-      await (await contract.finalizePolicyEvaluation(BigInt(settledPolicyId))).wait();
-      await (await contract.settleTriggeredPolicy(BigInt(settledPolicyId))).wait();
+      if (!hasCanonicalActive) {
+        const activeThreshold = await encryptUint64(EXPORTER_SCENARIO.activePolicy.threshold);
+        await (
+          await contract.createPolicy(
+            BigInt(EXPORTER_SCENARIO.activePolicy.coverage),
+            BigInt(EXPORTER_SCENARIO.activePolicy.premium),
+            activeThreshold,
+            makeFeedBytes32(EXPORTER_SCENARIO.activePolicy.feed),
+            EXPORTER_SCENARIO.activePolicy.direction,
+            expiry,
+            account
+          )
+        ).wait();
+      }
+
+      if (!hasCanonicalSettled && !hasInFlightSettled) {
+        const settledPolicyId = Number(await contract.policyCount());
+        const settledThreshold = await encryptUint64(EXPORTER_SCENARIO.settledPolicy.threshold);
+        await (
+          await contract.createPolicy(
+            BigInt(EXPORTER_SCENARIO.settledPolicy.coverage),
+            BigInt(EXPORTER_SCENARIO.settledPolicy.premium),
+            settledThreshold,
+            makeFeedBytes32(EXPORTER_SCENARIO.settledPolicy.feed),
+            EXPORTER_SCENARIO.settledPolicy.direction,
+            expiry,
+            account
+          )
+        ).wait();
+
+        const encryptedReading = await encryptUint64(EXPORTER_SCENARIO.settledPolicy.oracleReading);
+        await (
+          await contract.submitOracleReading(
+            makeFeedBytes32(EXPORTER_SCENARIO.settledPolicy.feed),
+            encryptedReading
+          )
+        ).wait();
+        await (await contract.requestPolicyEvaluation(BigInt(settledPolicyId))).wait();
+        await waitForDecisionReady(contract, BigInt(settledPolicyId));
+        await (await contract.finalizePolicyEvaluation(BigInt(settledPolicyId))).wait();
+        await (await contract.settleTriggeredPolicy(BigInt(settledPolicyId))).wait();
+      } else if (canonicalPendingSettledPolicy || canonicalTriggeredSettledPolicy) {
+        const settledPolicyId = BigInt((canonicalPendingSettledPolicy || canonicalTriggeredSettledPolicy).id);
+
+        if (canonicalPendingSettledPolicy) {
+          await waitForDecisionReady(contract, settledPolicyId);
+          await (await contract.finalizePolicyEvaluation(settledPolicyId)).wait();
+        }
+
+        await (await contract.settleTriggeredPolicy(settledPolicyId)).wait();
+      }
     }, {
-      successMessage: "Seeded one active cargo policy and one settled claim for the live exporter demo.",
+      successMessage: "Canonical exporter demo seed is ready. Refresh claims to replay the judge path.",
     });
   }
 
@@ -2290,6 +2508,7 @@ function App() {
     protocol.owner.toLowerCase() === account.toLowerCase();
 
   const workspaces = [
+    ["overview", "Overview"],
     ["policy", "Policy Holder"],
     ["lp", "Liquidity Provider"],
     ["claims", "Oracle / Claims"],
@@ -2297,6 +2516,17 @@ function App() {
   ];
 
   const workspaceMeta = {
+    overview: {
+      eyebrow: "Wave 5 Landing",
+      title: "Cargo delay cover where the threshold stays encrypted",
+      body:
+        "VeilShield combines the live app and the public landing surface in one build: privacy boundary, FHE flow, role workspaces, deployment proof, and the Wave 5 roadmap.",
+      bullets: [
+        "Landing and app share the same live contract context.",
+        "Wave 5 is the single current wave, folding the landing work into the product surface.",
+        "Claims, policy, LP, and auditor workspaces remain one click away.",
+      ],
+    },
     policy: {
       eyebrow: "Policy Holder Workspace",
       title: "Confidential shipment delay cover for exporters",
@@ -2381,6 +2611,13 @@ function App() {
       variant: "good",
     },
   ];
+  const landingStats = {
+    activePolicies: protocol.policies.filter((policy) => policy.status === 0).length,
+    pendingPolicies: protocol.policies.filter((policy) => policy.status === 1).length,
+    settledPolicies: protocol.policies.filter((policy) => policy.status === 3).length,
+    poolLiquidity: protocol.pool ? formatToken(protocol.pool.tokenLiquidity) : "0",
+    oracleAddress: protocol.oracle || deployment.oracle,
+  };
 
   return (
     <div style={css.root}>
@@ -2430,77 +2667,86 @@ function App() {
       </header>
 
       <main style={css.main}>
-        <div style={css.hero}>
-          <div style={css.heroPrimary}>
-            <div style={css.heroEyebrow}>{currentMeta.eyebrow}</div>
-            <h1 style={css.heroTitle}>{currentMeta.title}</h1>
-            <p style={css.heroBody}>{currentMeta.body}</p>
-            <div style={css.heroMeta}>
-              <div style={css.heroMetaCard}>
-                <div style={css.heroMetaLabel}>Live Network</div>
-                <div style={css.heroMetaValue}>Arbitrum Sepolia</div>
+        {workspace === "overview" ? (
+          <LandingPage
+            stats={landingStats}
+            onOpenWorkspace={setWorkspace}
+          />
+        ) : (
+          <>
+            <div style={css.hero}>
+              <div style={css.heroPrimary}>
+                <div style={css.heroEyebrow}>{currentMeta.eyebrow}</div>
+                <h1 style={css.heroTitle}>{currentMeta.title}</h1>
+                <p style={css.heroBody}>{currentMeta.body}</p>
+                <div style={css.heroMeta}>
+                  <div style={css.heroMetaCard}>
+                    <div style={css.heroMetaLabel}>Live Network</div>
+                    <div style={css.heroMetaValue}>Arbitrum Sepolia</div>
+                  </div>
+                  <div style={css.heroMetaCard}>
+                    <div style={css.heroMetaLabel}>Live Contract</div>
+                    <div style={css.heroMetaValue}>{shortAddress(CONTRACT_ADDRESS)}</div>
+                  </div>
+                  <div style={css.heroMetaCard}>
+                    <div style={css.heroMetaLabel}>Cargo Policies</div>
+                    <div style={css.heroMetaValue}>{protocol.policyCount}</div>
+                  </div>
+                  <div style={css.heroMetaCard}>
+                    <div style={css.heroMetaLabel}>Pool TVL</div>
+                    <div style={css.heroMetaValue}>{protocol.pool ? formatToken(protocol.pool.tokenLiquidity) : "0"} {TOKEN_SYMBOL}</div>
+                  </div>
+                </div>
               </div>
-              <div style={css.heroMetaCard}>
-                <div style={css.heroMetaLabel}>Live Contract</div>
-                <div style={css.heroMetaValue}>{shortAddress(CONTRACT_ADDRESS)}</div>
-              </div>
-              <div style={css.heroMetaCard}>
-                <div style={css.heroMetaLabel}>Cargo Policies</div>
-                <div style={css.heroMetaValue}>{protocol.policyCount}</div>
-              </div>
-              <div style={css.heroMetaCard}>
-                <div style={css.heroMetaLabel}>Pool TVL</div>
-                <div style={css.heroMetaValue}>{protocol.pool ? formatToken(protocol.pool.tokenLiquidity) : "0"} {TOKEN_SYMBOL}</div>
+              <div style={css.heroSecondary}>
+                <div style={css.cardTitle}>Why This Workspace Exists</div>
+                <ul style={css.heroList}>
+                  {currentMeta.bullets.map((item) => (
+                    <li key={item}>{item}</li>
+                  ))}
+                </ul>
+                <div style={css.callout}>
+                  Built for exporters who need to hedge cargo delay exposure without publishing thresholds, payout intent, or LP positions on transparent rails.
+                </div>
               </div>
             </div>
-          </div>
-          <div style={css.heroSecondary}>
-            <div style={css.cardTitle}>Why This Workspace Exists</div>
-            <ul style={css.heroList}>
-              {currentMeta.bullets.map((item) => (
-                <li key={item}>{item}</li>
-              ))}
-            </ul>
-            <div style={css.callout}>
-              Built for exporters who need to hedge cargo delay exposure without publishing thresholds, payout intent, or LP positions on transparent rails.
+
+            <div style={css.deploymentBar}>
+              <div style={css.deploymentMeta}>
+                <span style={css.deploymentLabel}>Live Deployment</span>
+                <span style={css.deploymentPill}>
+                  <ShieldIcon size={12} color={T.accent} />
+                  Arbitrum Sepolia
+                </span>
+                <span style={css.deploymentValue}>Contract {shortAddress(CONTRACT_ADDRESS)}</span>
+                <span style={css.deploymentValue}>{TOKEN_SYMBOL} {shortAddress(TOKEN_ADDRESS)}</span>
+                <span style={css.deploymentValue}>Oracle {shortAddress(protocol.oracle || deployment.oracle)}</span>
+                <span style={css.deploymentValue}>Policies {protocol.policyCount}</span>
+              </div>
+              <div style={css.buttonRow}>
+                <a href={EXPLORER_URL} target="_blank" rel="noreferrer" style={css.link}>
+                  Contract
+                </a>
+                {TOKEN_EXPLORER_URL && (
+                  <a href={TOKEN_EXPLORER_URL} target="_blank" rel="noreferrer" style={css.link}>
+                    Token
+                  </a>
+                )}
+              </div>
             </div>
-          </div>
-        </div>
 
-        <div style={css.deploymentBar}>
-          <div style={css.deploymentMeta}>
-            <span style={css.deploymentLabel}>Live Deployment</span>
-            <span style={css.deploymentPill}>
-              <ShieldIcon size={12} color={T.accent} />
-              Arbitrum Sepolia
-            </span>
-            <span style={css.deploymentValue}>Contract {shortAddress(CONTRACT_ADDRESS)}</span>
-            <span style={css.deploymentValue}>{TOKEN_SYMBOL} {shortAddress(TOKEN_ADDRESS)}</span>
-            <span style={css.deploymentValue}>Oracle {shortAddress(protocol.oracle || deployment.oracle)}</span>
-            <span style={css.deploymentValue}>Policies {protocol.policyCount}</span>
-          </div>
-          <div style={css.buttonRow}>
-            <a href={EXPLORER_URL} target="_blank" rel="noreferrer" style={css.link}>
-              Contract
-            </a>
-            {TOKEN_EXPLORER_URL && (
-              <a href={TOKEN_EXPLORER_URL} target="_blank" rel="noreferrer" style={css.link}>
-                Token
-              </a>
-            )}
-          </div>
-        </div>
+            <StatusRail items={statusItems} />
 
-        <StatusRail items={statusItems} />
-
-        <PermitPanel
-          permitState={permitState}
-          onRefresh={handlePermitRefresh}
-          walletReady={walletReady}
-          isAuditor={isAuditor}
-          isOracle={isOracle}
-          txStates={txStates}
-        />
+            <PermitPanel
+              permitState={permitState}
+              onRefresh={handlePermitRefresh}
+              walletReady={walletReady}
+              isAuditor={isAuditor}
+              isOracle={isOracle}
+              txStates={txStates}
+            />
+          </>
+        )}
 
         {workspace === "policy" && (
           <PolicyWorkspace
@@ -2595,6 +2841,290 @@ function StatusRail({ items }) {
         </div>
       ))}
     </div>
+  );
+}
+
+function LandingPage({ stats, onOpenWorkspace }) {
+  const activePolicies = stats.activePolicies;
+  const pendingPolicies = stats.pendingPolicies;
+  const settledPolicies = stats.settledPolicies;
+  const poolLiquidity = stats.poolLiquidity;
+  const oracleAddress = stats.oracleAddress;
+  const activeFeed = FEEDS.find((feed) => feed.id === EXPORTER_SCENARIO.activePolicy.feed) || FEEDS[0];
+
+  const privacyRows = [
+    ["Delay threshold", "encrypted", "Policy holder decrypts locally with private view access."],
+    ["Oracle reading", "encrypted", "Used inside FHE comparisons without public plaintext."],
+    ["Payout selection", "encrypted", "Finalized asynchronously, then beneficiary can inspect their payout."],
+    ["LP balance handle", "encrypted", "Only the connected liquidity provider can decrypt their own balance."],
+    ["Coverage, premium, expiry", "public", "Visible because ERC-20 settlement and lifecycle checks need concrete values."],
+    ["Auditor disclosure", "bounded", "Owner-scoped review exposes encrypted mirrors without full protocol transparency."],
+  ];
+
+  const roleCards = [
+    ["Policy holder", "Create cargo delay cover, encrypt the threshold, and decrypt only your own policy terms."],
+    ["Liquidity provider", "Back exporter risk, monitor reserved capital, and keep LP balance views wallet-scoped."],
+    ["Oracle / Claims", "Submit sealed delay readings and move pending policies through request, finalize, and settle."],
+    ["Auditor", "Review bounded encrypted mirrors and claim history without turning private terms public."],
+  ];
+
+  const fheOps = [
+    ["FHE.asEuint64", "Convert threshold and feed input into encrypted contract state."],
+    ["FHE.gte / FHE.lte", "Evaluate delay trigger direction while the compared values stay sealed."],
+    ["FHE.select", "Choose pending payout branch without exposing the trigger branch publicly."],
+    ["FHE.decrypt", "Request async finalization only after the encrypted decision is ready."],
+  ];
+
+  const waves = [
+    ["Wave 1", "Foundations", "token-backed demo flow, encrypted policy lifecycle, live frontend"],
+    ["Wave 2", "Wallet and oracle UX", "cleaner permit handling, oracle tooling, realistic feed direction"],
+    ["Wave 3", "Claims reliability", "claims-first state, pending decision copy, usage signal taxonomy"],
+    ["Wave 4", "Disclosure and ops", "auditor view, policy templates, LP exposure, staged claims pipeline"],
+    ["Wave 5", "Evaluation-ready product surface", "embedded landing, replayable seed, claim history, auditor review, tester notes, private threshold flow"],
+  ];
+
+  return (
+    <div style={css.landingShell}>
+      <section style={css.landingHero}>
+        <div style={css.landingHeroCopy}>
+          <div style={css.landingEyebrow}>
+            <span>Fhenix CoFHE</span>
+            <span>Arbitrum Sepolia</span>
+            <span>Wave 5</span>
+          </div>
+          <h1 style={css.landingTitle}>
+            Cargo delay cover where the threshold stays encrypted on-chain.
+          </h1>
+          <p style={css.landingBody}>
+            Exporters do not want to reveal logistics tolerance, shipment value, or payout intent.
+            VeilShield keeps the delay threshold, oracle reading, payout selection, and role-scoped
+            views inside encrypted contract state while ERC-20 settlement remains auditable.
+          </p>
+          <div style={css.landingActions}>
+            <button
+              style={css.btnPrimary}
+              onClick={() => {
+                trackMetric("overview_open_live_app");
+                onOpenWorkspace("claims");
+              }}
+            >
+              Open Live App
+            </button>
+            <button
+              style={css.btnSecondary}
+              onClick={() => {
+                trackMetric("overview_create_policy");
+                onOpenWorkspace("policy");
+              }}
+            >
+              Create Policy
+            </button>
+            <a href={EXPLORER_URL} target="_blank" rel="noreferrer" style={css.link} onClick={() => trackMetric("overview_contract_click")}>
+              View Contract
+            </a>
+          </div>
+        </div>
+
+        <aside style={css.landingPolicyCard} aria-label="Example encrypted policy">
+          <div style={css.landingPolicyHead}>
+            <span>Exporter Policy</span>
+            <span style={{ color: T.textTertiary }}>live preview</span>
+          </div>
+          {[
+            ["feed", activeFeed.name],
+            ["threshold", <EncryptedValue value="0xA1f3000000009c20" />],
+            ["oracle reading", <EncryptedValue value="0x47e800000000b104" />],
+            ["coverage", `${EXPORTER_SCENARIO.activePolicy.coverage} ${TOKEN_SYMBOL}`],
+            ["premium", `${EXPORTER_SCENARIO.activePolicy.premium} ${TOKEN_SYMBOL}`],
+            ["status", <span style={css.badge(pendingPolicies > 0 ? "pending" : "active")}>{pendingPolicies > 0 ? "waiting on threshold" : "active"}</span>],
+          ].map(([label, value]) => (
+            <div key={label} style={css.landingPolicyRow}>
+              <span style={{ color: T.textTertiary, fontSize: "11px", textTransform: "uppercase" }}>{label}</span>
+              <span>{value}</span>
+            </div>
+          ))}
+        </aside>
+      </section>
+
+      <div style={css.landingRail}>
+        <div style={css.statusCard("good")}>
+          <div style={css.statusLabel}>Network</div>
+          <div style={css.statusValue}>Arbitrum Sepolia</div>
+        </div>
+        <div style={css.statusCard("good")}>
+          <div style={css.statusLabel}>Pool Liquidity</div>
+          <div style={css.statusValue}>{poolLiquidity} {TOKEN_SYMBOL}</div>
+        </div>
+        <div style={css.statusCard(pendingPolicies > 0 ? "warn" : "good")}>
+          <div style={css.statusLabel}>Policies</div>
+          <div style={css.statusValue}>{activePolicies} active / {pendingPolicies} pending / {settledPolicies} settled</div>
+        </div>
+        <div style={css.statusCard("neutral")}>
+          <div style={css.statusLabel}>Contract</div>
+          <div style={css.statusValue}>{shortAddress(CONTRACT_ADDRESS)}</div>
+        </div>
+      </div>
+
+      <LandingSection
+        number="01"
+        title="Privacy boundary"
+        text="VeilShield does not claim full on-chain invisibility. It encrypts the fields that matter for cargo-delay underwriting and keeps settlement-critical fields public."
+      >
+        <div style={css.tableWrap}>
+          <table style={css.landingTable}>
+            <thead>
+              <tr>
+                <th style={css.th}>Field</th>
+                <th style={css.th}>State</th>
+                <th style={css.th}>Disclosure</th>
+              </tr>
+            </thead>
+            <tbody>
+              {privacyRows.map(([field, state, disclosure]) => (
+                <tr key={field}>
+                  <td style={css.tdText}>{field}</td>
+                  <td style={css.tdText}><span style={css.badge(state === "public" ? "settled" : state === "bounded" ? "ready" : "active")}>{state}</span></td>
+                  <td style={css.tdText}>{disclosure}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </LandingSection>
+
+      <LandingSection
+        number="02"
+        title="How the encrypted claim flow works"
+        text="The app is not a mock-only landing page. The same build opens the live claims, policy, LP, and auditor workspaces against the deployed Arbitrum Sepolia contracts."
+      >
+        <div style={css.landingCards}>
+          {[
+            ["1", "Create", "Policy holder pays a public premium and submits an encrypted delay threshold."],
+            ["2", "Submit", "Oracle wallet submits an encrypted reading for the configured cargo delay feed."],
+            ["3", "Evaluate", "The contract compares sealed values and records a pending payout handle."],
+            ["4", "Settle", "Once async finalization is ready, the claim can be settled into visible vUSD flow."],
+          ].map(([step, title, text]) => (
+            <article key={step} style={css.landingMiniCard}>
+              <div style={css.cardTitle}>Step {step}</div>
+              <h3 style={css.landingMiniTitle}>{title}</h3>
+              <p style={css.landingMiniText}>{text}</p>
+            </article>
+          ))}
+        </div>
+      </LandingSection>
+
+      <LandingSection
+        number="03"
+        title="Roles"
+        text="Each role gets a different operational surface. Private view access is requested only when a role needs local decrypt."
+      >
+        <div style={css.landingCards}>
+          {roleCards.map(([title, text]) => (
+            <article key={title} style={css.landingMiniCard}>
+              <div style={css.cardTitle}>{title}</div>
+              <p style={{ ...css.landingMiniText, marginTop: "10px" }}>{text}</p>
+            </article>
+          ))}
+        </div>
+      </LandingSection>
+
+      <LandingSection
+        number="04"
+        title="FHE operations"
+        text="The product claim stays narrow: encrypted threshold evaluation and role-scoped views, not generic privacy infrastructure."
+      >
+        <div style={css.tableWrap}>
+          <table style={css.landingTable}>
+            <tbody>
+              {fheOps.map(([op, purpose]) => (
+                <tr key={op}>
+                  <td style={{ ...css.td, width: "220px" }}>{op}</td>
+                  <td style={css.tdText}>{purpose}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </LandingSection>
+
+      <LandingSection
+        number="05"
+        title="Live deployment"
+        text="The landing uses the same deployment metadata as the application, so judges can go from product framing to live contract proof without switching sites."
+      >
+        <div style={css.landingCards}>
+          {[
+            ["VeilShield", CONTRACT_ADDRESS, EXPLORER_URL],
+            [TOKEN_SYMBOL, TOKEN_ADDRESS, TOKEN_EXPLORER_URL],
+            ["Oracle", oracleAddress, `https://sepolia.arbiscan.io/address/${oracleAddress}`],
+          ].map(([label, address, href]) => (
+            <article key={label} style={css.landingMiniCard}>
+              <div style={css.cardTitle}>{label}</div>
+              <div style={{ ...css.heroMetaValue, margin: "8px 0 12px" }}>{address}</div>
+              {href && (
+                <a href={href} target="_blank" rel="noreferrer" style={css.link}>
+                  Arbiscan
+                </a>
+              )}
+            </article>
+          ))}
+        </div>
+      </LandingSection>
+
+      <LandingSection
+        number="06"
+        title="Wave roadmap"
+        text="Wave 5 is the current wave. It combines the exporter flow polish and final presentation path into one evaluation-ready product surface."
+      >
+        <div style={css.landingWaveGrid}>
+          {waves.map(([wave, title, text]) => {
+            const current = wave === "Wave 5";
+            return (
+              <article key={wave} style={css.landingWave(current)}>
+                <div style={css.cardTitle}>
+                  {wave} {current ? "· current" : ""}
+                </div>
+                <h3 style={css.landingMiniTitle}>{title}</h3>
+                <p style={css.landingMiniText}>{text}</p>
+              </article>
+            );
+          })}
+        </div>
+      </LandingSection>
+
+      <section style={css.landingCta}>
+        <div>
+          <h2 style={{ margin: "0 0 6px", fontSize: "22px", letterSpacing: 0 }}>Try the encrypted claim flow.</h2>
+          <p style={{ margin: 0, color: T.textSecondary }}>
+            Start in the claims workspace, then move through policy creation, LP capital, and auditor review from the same app shell.
+          </p>
+        </div>
+        <button
+          style={css.btnPrimary}
+          onClick={() => {
+            trackMetric("overview_open_live_app");
+            onOpenWorkspace("claims");
+          }}
+        >
+          Launch App
+        </button>
+      </section>
+    </div>
+  );
+}
+
+function LandingSection({ number, title, text, children }) {
+  return (
+    <section style={css.landingSection}>
+      <div style={css.landingSectionHeader}>
+        <div>
+          <div style={css.landingSectionNumber}>{number} - Wave 5</div>
+          <h2 style={css.landingSectionTitle}>{title}</h2>
+        </div>
+        <p style={css.landingSectionText}>{text}</p>
+      </div>
+      {children}
+    </section>
   );
 }
 
@@ -2734,6 +3264,7 @@ function PolicyWorkspace(props) {
           cofheReady={cofheReady}
           userState={userState}
           txStates={txStates}
+          permitState={permitState}
         />
 
         <div style={css.card}>
@@ -2935,10 +3466,19 @@ function CreatePolicyPage({
   cofheReady,
   userState,
   txStates = {},
+  permitState,
 }) {
   const createState = txStates["create-policy"];
   const previewState = txStates["preview-threshold"];
   const hasAllowance = BigInt(userState.allowance || "0") > 0n;
+  const selectedTemplate = POLICY_TEMPLATES.find(
+    (template) =>
+      template.feed === form.feed &&
+      String(template.direction) === String(form.direction) &&
+      String(template.threshold) === String(form.threshold) &&
+      String(template.coverage) === String(form.coverage) &&
+      String(template.premium) === String(form.premium)
+  );
   const previewRef = useRef(null);
   const applyTemplate = (template) => {
     trackMetric("policy_template_select");
@@ -2970,7 +3510,13 @@ function CreatePolicyPage({
             <button
               key={template.id}
               type="button"
-              style={{ ...css.btnSecondary, textAlign: "left", padding: "12px 14px" }}
+              style={{
+                ...css.btnSecondary,
+                textAlign: "left",
+                padding: "12px 14px",
+                borderColor: selectedTemplate?.id === template.id ? T.accentBorder : T.borderStrong,
+                background: selectedTemplate?.id === template.id ? T.accentMuted : "transparent",
+              }}
               onClick={() => applyTemplate(template)}
             >
               <div style={{ fontWeight: 700, marginBottom: "4px" }}>{template.label}</div>
@@ -2982,6 +3528,18 @@ function CreatePolicyPage({
               </div>
             </button>
           ))}
+        </div>
+
+        <div style={{ ...css.grid3, marginBottom: "16px" }}>
+          <div style={css.callout}>
+            <strong>Private threshold:</strong> {form.threshold ? `${form.threshold}h selected` : "choose a threshold"}; this value is encrypted in-browser before policy creation.
+          </div>
+          <div style={css.callout}>
+            <strong>Access timing:</strong> creating cover does not require private view access. Request access later only when decrypting local policy views.
+          </div>
+          <div style={css.callout}>
+            <strong>Demo default:</strong> Shipment delay / 48h / 1800 coverage / 120 premium is the replay-ready policy holder path.
+          </div>
         </div>
 
         <div style={css.formGroup}>
@@ -3002,7 +3560,7 @@ function CreatePolicyPage({
         </div>
 
         <div style={css.formGroup}>
-          <label style={css.label}>Encrypted Delay Threshold (hours)</label>
+          <label style={css.label}>Private Delay Threshold (encrypted, hours)</label>
           <input style={css.input} type="number" placeholder="e.g. 48" value={form.threshold} onChange={(event) => setForm({ ...form, threshold: event.target.value })} />
         </div>
 
@@ -3048,7 +3606,7 @@ function CreatePolicyPage({
             ? "Connect a wallet on Arbitrum Sepolia to enable encryption and submission."
             : !cofheReady
               ? "Wallet connected. CoFHE is still initializing before threshold preview and policy submission."
-              : `Premium is funded in live ${TOKEN_SYMBOL}. Current allowance: ${formatAllowanceDisplay(userState.allowance)}. ${hasAllowance ? "Approval already set." : "Buy Cover will request approval automatically if needed."}`}
+              : `Premium is funded in live ${TOKEN_SYMBOL}. Current allowance: ${formatAllowanceDisplay(userState.allowance)}. ${hasAllowance ? "Approval already set." : "Buy Cover will request approval automatically if needed."} Private view access is ${permitState?.ready && permitState?.valid ? "ready for later decrypts" : "not required until decrypt"}.`}
         </div>
 
         <div
@@ -3422,6 +3980,19 @@ function ClaimsWorkspace({
     const pendingState = pendingDecisions[policy.id];
     return policy.status === 1 && pendingState && ["triggered", "active"].includes(pendingState.kind);
   }).length;
+  const canonicalActive = protocol.policies.find((policy) =>
+    matchesExporterScenarioPolicy(policy, EXPORTER_SCENARIO.activePolicy, [0], account)
+  );
+  const canonicalSettled = protocol.policies.find((policy) =>
+    matchesExporterScenarioPolicy(policy, EXPORTER_SCENARIO.settledPolicy, [3], account)
+  );
+  const canonicalInFlight = protocol.policies.find((policy) =>
+    matchesExporterScenarioPolicy(policy, EXPORTER_SCENARIO.settledPolicy, [1, 2], account)
+  );
+  const replayReady = Boolean(canonicalActive && canonicalSettled);
+  const settledHistory = history.filter((policy) => policy.status === 3).length;
+  const cancelledHistory = history.filter((policy) => policy.status === 5).length;
+  const expiredHistory = history.filter((policy) => policy.status === 4).length;
   const seedState = txStates["seed-demo"];
 
   return (
@@ -3507,8 +4078,29 @@ function ClaimsWorkspace({
             <div style={{ ...css.callout, marginTop: "12px" }}>
               Claim path: create policy → submit oracle reading → request evaluation → wait on threshold decryption → finalize → settle if triggered.
             </div>
-            <div style={{ ...css.callout, marginTop: "12px" }}>
-              Canonical demo seed: deposit {EXPORTER_SCENARIO.liquidityDeposit} {TOKEN_SYMBOL} → active threshold {EXPORTER_SCENARIO.activePolicy.threshold}h / coverage {EXPORTER_SCENARIO.activePolicy.coverage} / premium {EXPORTER_SCENARIO.activePolicy.premium} → history threshold {EXPORTER_SCENARIO.settledPolicy.threshold}h / oracle reading {EXPORTER_SCENARIO.settledPolicy.oracleReading}.
+            <div style={{ ...css.card, marginTop: "12px" }}>
+              <div style={css.cardHeader}>
+                <span style={css.cardTitle}>Replayable Demo Seed</span>
+                <span style={css.badge(replayReady ? "ready" : canonicalInFlight ? "pending" : "active")}>
+                  {replayReady ? "ready" : canonicalInFlight ? "in flight" : "needs seed"}
+                </span>
+              </div>
+              <div style={css.cardBody}>
+                <div style={css.grid3}>
+                  <div style={css.callout}>
+                    <strong>Pool:</strong> target {EXPORTER_SCENARIO.liquidityDeposit} {TOKEN_SYMBOL}
+                  </div>
+                  <div style={css.callout}>
+                    <strong>Active cover:</strong> {canonicalActive ? `#${canonicalActive.id}` : "missing"} · {EXPORTER_SCENARIO.activePolicy.threshold}h threshold · {EXPORTER_SCENARIO.activePolicy.coverage}/{EXPORTER_SCENARIO.activePolicy.premium} {TOKEN_SYMBOL}
+                  </div>
+                  <div style={css.callout}>
+                    <strong>History claim:</strong> {canonicalSettled ? `#${canonicalSettled.id} settled` : canonicalInFlight ? `#${canonicalInFlight.id} ${STATUS_LABELS[canonicalInFlight.status]}` : "missing"} · reading {EXPORTER_SCENARIO.settledPolicy.oracleReading}h
+                  </div>
+                </div>
+                <div style={{ ...css.inlineStatus, marginTop: "12px" }}>
+                  Replay path: Overview → Open Live App → Claims Monitor → Public Claim Trail → Policy Holder private decrypt → Auditor review.
+                </div>
+              </div>
             </div>
             {pendingClaims.length > 0 && (
               <div style={{ ...css.callout, marginTop: "12px" }}>
@@ -3620,7 +4212,26 @@ function ClaimsWorkspace({
         <div style={css.card}>
           <div style={css.cardHeader}>
             <span style={css.cardTitle}>Public Claim Trail</span>
-            <span style={css.muted}>Closed rows visible without decrypt scope</span>
+            <span style={css.muted}>Closed lifecycle rows visible without decrypt scope</span>
+          </div>
+          <div style={css.cardBody}>
+            <div style={css.grid3}>
+              <div style={css.permitMetaCard}>
+                <div style={css.statLabel}>Settled</div>
+                <div style={css.heroMetaValue}>{settledHistory}</div>
+              </div>
+              <div style={css.permitMetaCard}>
+                <div style={css.statLabel}>Cancelled</div>
+                <div style={css.heroMetaValue}>{cancelledHistory}</div>
+              </div>
+              <div style={css.permitMetaCard}>
+                <div style={css.statLabel}>Expired</div>
+                <div style={css.heroMetaValue}>{expiredHistory}</div>
+              </div>
+            </div>
+            <div style={{ ...css.inlineStatus, marginTop: "12px" }}>
+              Public trail proves lifecycle progress. Thresholds, payout mirrors, and role-scoped terms still require private view access.
+            </div>
           </div>
           <div style={css.tableWrap}>
             <table style={css.table}>
@@ -3628,30 +4239,43 @@ function ClaimsWorkspace({
                 <tr>
                   <th style={css.th}>Policy</th>
                   <th style={css.th}>Feed</th>
-                  <th style={css.th}>Status</th>
-                  <th style={css.th}>Coverage</th>
+                  <th style={css.th}>Outcome</th>
+                  <th style={css.th}>Public Amounts</th>
                   <th style={css.th}>Beneficiary</th>
+                  <th style={css.th}>Privacy Boundary</th>
                 </tr>
               </thead>
               <tbody>
                 {history.length === 0 && (
                   <tr>
-                    <td colSpan="5" style={css.tdText}>No closed claim rows yet.</td>
+                    <td colSpan="6" style={css.tdText}>No closed claim rows yet. Seed or settle the canonical exporter scenario to open the public history trail.</td>
                   </tr>
                 )}
-                {history.map((policy) => (
-                  <tr key={policy.id}>
-                    <td style={css.td}>#{policy.id}</td>
-                    <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
-                    <td style={css.tdText}>
-                      <span style={css.badge(STATUS_LABELS[policy.status] || "active")}>
-                        {STATUS_LABELS[policy.status] || "unknown"}
-                      </span>
-                    </td>
-                    <td style={css.td}>{formatToken(policy.coverageAmount)}</td>
-                    <td style={css.td}>{shortAddress(policy.beneficiary)}</td>
-                  </tr>
-                ))}
+                {history.map((policy) => {
+                  const status = STATUS_LABELS[policy.status] || "unknown";
+                  const claimStage = getClaimStage(policy);
+                  return (
+                    <tr key={policy.id}>
+                      <td style={css.td}>#{policy.id}</td>
+                      <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
+                      <td style={css.tdText}>
+                        <span style={css.badge(status)}>{status}</span>
+                        <div style={{ ...css.inlineStatus, marginTop: "8px" }}>{claimStage.timeline}</div>
+                      </td>
+                      <td style={css.td}>
+                        coverage {formatToken(policy.coverageAmount)}
+                        <div style={{ color: T.textTertiary }}>premium {formatToken(policy.premiumAmount)}</div>
+                      </td>
+                      <td style={css.td}>{shortAddress(policy.beneficiary)}</td>
+                      <td style={css.tdText}>
+                        <span style={css.badge(claimStage.badgeVariant)}>{claimStage.badgeLabel}</span>
+                        <div style={{ ...css.inlineStatus, marginTop: "8px" }}>
+                          Public row stays inspectable; private threshold and payout details stay role-scoped.
+                        </div>
+                      </td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>
@@ -3741,6 +4365,7 @@ function OraclePage({ feeds, oracle, account, form, setForm, onSubmit, walletRea
 function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPolicy, userState, txStates = {} }) {
   const history = protocol.policies.filter((policy) => [3, 4, 5].includes(policy.status));
   const pendingDisclosure = protocol.policies.filter((policy) => [1, 2].includes(policy.status)).length;
+  const decryptedDisclosureCount = Object.keys(userState.auditorPolicies || {}).length;
 
   return (
     <div>
@@ -3761,6 +4386,12 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
           <div style={{ padding: "16px 20px" }}>
             <div style={css.statLabel}>Closed Claims</div>
             <div style={css.statValue}>{history.length}</div>
+          </div>
+        </div>
+        <div style={css.card}>
+          <div style={{ padding: "16px 20px" }}>
+            <div style={css.statLabel}>Locally Reviewed</div>
+            <div style={css.statValue}>{decryptedDisclosureCount}</div>
           </div>
         </div>
       </div>
@@ -3784,14 +4415,17 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
           )}
           <div style={{ ...css.grid3, marginTop: "12px" }}>
             <div style={css.callout}>
-              <strong>Public:</strong> policy id, feed, status, coverage, beneficiary, expiry.
+              <strong>Public review:</strong> policy id, feed, status, token amounts, beneficiary, expiry, and claim history stay visible without decrypt scope.
             </div>
             <div style={css.callout}>
-              <strong>Encrypted:</strong> threshold mirror, premium mirror, coverage mirror, pending payout.
+              <strong>Encrypted mirrors:</strong> threshold, premium, coverage, and pending payout are shown as ciphertext handles until owner-scoped decrypt.
             </div>
             <div style={css.callout}>
-              <strong>Auditor view:</strong> bounded decrypt for policy mirrors and payout review only.
+              <strong>Bounded auditor view:</strong> decrypt reveals only the policy mirrors and payout state needed for review; it does not grant LP balances or all user views.
             </div>
+          </div>
+          <div style={{ ...css.inlineStatus, marginTop: "12px" }}>
+            Review order: inspect public row → request private view access → decrypt one policy → compare mirrors against public token terms and claim status.
           </div>
         </div>
       </div>
@@ -3799,23 +4433,23 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
       <div style={{ ...css.card, marginTop: "20px" }}>
         <div style={css.cardHeader}>
           <span style={css.cardTitle}>Selective Disclosure Queue</span>
+          <span style={css.muted}>Public facts first, bounded decrypt second</span>
         </div>
         <div style={css.tableWrap}>
           <table style={css.table}>
             <thead>
               <tr>
                 <th style={css.th}>Policy</th>
-                <th style={css.th}>Feed</th>
-                <th style={css.th}>Status</th>
-                <th style={css.th}>Coverage</th>
+                <th style={css.th}>Public Facts</th>
+                <th style={css.th}>Encrypted Mirrors</th>
                 <th style={css.th}>Beneficiary</th>
-                <th style={css.th}>Auditor View</th>
+                <th style={css.th}>Review State</th>
               </tr>
             </thead>
             <tbody>
               {protocol.policies.length === 0 && (
                 <tr>
-                  <td colSpan="6" style={css.tdText}>No policy history on-chain yet.</td>
+                  <td colSpan="5" style={css.tdText}>No policy history on-chain yet.</td>
                 </tr>
               )}
               {protocol.policies.map((policy) => {
@@ -3824,13 +4458,25 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
                 return (
                   <tr key={policy.id}>
                     <td style={css.td}>#{policy.id}</td>
-                    <td style={css.tdText}>{decodeFeed(policy.oracleFeedId)}</td>
-                    <td style={css.tdText}><span style={css.badge(STATUS_LABELS[policy.status] || "active")}>{STATUS_LABELS[policy.status] || "unknown"}</span></td>
-                    <td style={css.td}>{formatToken(policy.coverageAmount)}</td>
+                    <td style={css.tdText}>
+                      <span style={css.badge(STATUS_LABELS[policy.status] || "active")}>{STATUS_LABELS[policy.status] || "unknown"}</span>
+                      <div style={{ marginTop: "8px" }}>{decodeFeed(policy.oracleFeedId)}</div>
+                      <div style={{ ...css.inlineStatus, marginTop: "8px" }}>
+                        coverage {formatToken(policy.coverageAmount)} / premium {formatToken(policy.premiumAmount)} / expiry {formatTimestamp(policy.expiryTimestamp)}
+                      </div>
+                    </td>
+                    <td style={css.tdText}>
+                      <div>coverage <EncryptedValue value={policy.encCoverage} /></div>
+                      <div style={{ marginTop: "6px" }}>premium <EncryptedValue value={policy.encPremium} /></div>
+                      <div style={{ marginTop: "6px" }}>threshold <EncryptedValue value={policy.encThreshold} /></div>
+                      <div style={{ ...css.inlineStatus, marginTop: "8px" }}>payout mirror is available after decrypt.</div>
+                    </td>
                     <td style={css.td}>{shortAddress(policy.beneficiary)}</td>
                     <td style={css.tdText}>
                       <div style={css.disclosureCard}>
-                        Public row stays visible. Encrypted mirrors require owner-scoped private view access.
+                        {decrypted
+                          ? "Owner-scoped review loaded locally for this policy."
+                          : "Encrypted mirrors require owner-scoped private view access."}
                       </div>
                       {isAuditor ? (
                         <button style={css.btnGhost} disabled={txStates[decryptKey]?.status === "loading"} onClick={() => onDecryptAuditorPolicy(policy.id)}>
@@ -3857,13 +4503,14 @@ function AuditorWorkspace({ protocol, walletReady, isAuditor, onDecryptAuditorPo
       <div style={{ ...css.card, marginTop: "20px" }}>
         <div style={css.cardHeader}>
           <span style={css.cardTitle}>Public Claim Trail</span>
+          <span style={css.muted}>{history.length} closed rows</span>
         </div>
         <div style={css.cardBody}>
           {history.length === 0 ? (
             <div style={css.callout}>No settled, expired, or cancelled cargo claims yet. Use the seeded exporter scenario to open the history trail.</div>
           ) : (
-            <div style={{ fontSize: "13px", color: T.textSecondary }}>
-              Claim history is public on purpose. Private terms and payout mirrors stay role-scoped and decrypt only with private view access.
+            <div style={css.callout}>
+              Claim history is public on purpose. Auditor review uses that public trail as context, then decrypts only bounded policy mirrors and payout state when the owner wallet grants access.
             </div>
           )}
         </div>

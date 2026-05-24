@@ -147,6 +147,6 @@ What is still rough:
 
 ### Wave 5
 
+- embedded landing page inside the live app
 - more complete product surface
-- governance and reporting
-- better capital management primitives
+- governance, reporting, and capital management staged as next product work

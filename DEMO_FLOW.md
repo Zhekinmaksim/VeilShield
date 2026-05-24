@@ -6,21 +6,64 @@ VeilShield lets an exporter buy cargo delay cover where the threshold, trigger e
 
 ## Fastest judge flow
 
+Start on `Overview`, then click `Open Live App`.
+
 ### If the seeded state is already live
 
 Show this order:
 
 1. `Oracle / Claims` workspace
-2. status rail: wallet, network, CoFHE, access, contract
-3. existing active queue rows
-4. public claim trail
-5. switch to `Policy Holder`
-6. `Request Access` from the `Private View Access` panel
-7. `Decrypt My View`
-8. switch to `Auditor`
-9. `Decrypt Auditor View`
+2. `Replayable Demo Seed` card
+3. status rail: wallet, network, CoFHE, access, contract
+4. existing active queue rows
+5. public claim trail
+6. switch to `Policy Holder`
+7. `Request Access` from the `Private View Access` panel
+8. `Decrypt My View`
+9. switch to `Auditor`
+10. `Decrypt Auditor View`
 
 That path shows privacy architecture faster than recording the whole lifecycle from zero.
+
+## Replaying the seeded scenario
+
+The seed is idempotent against the canonical exporter scenario, not just any active or settled row. Re-running it should resume pending decisions where possible, create only missing canonical rows, and leave unrelated live policies alone.
+
+```bash
+npm run seed:arb-sepolia
+```
+
+Canonical ready state:
+
+- active shipment-delay cover: threshold `48h`, coverage `1800`, premium `120`
+- settled shipment-delay history row: threshold `60h`, oracle reading `72h`, coverage `2200`, premium `180`
+- pool liquidity target: `50000 vUSD`
+
+## Final recording path
+
+Use this order for the final Wave 5 recording:
+
+1. Start on `Overview`.
+2. Point at the headline: confidential cargo delay cover for exporters.
+3. Point at `Privacy boundary`: threshold, oracle reading, payout selection, LP balance, and auditor disclosure.
+4. Point at `Live deployment`: VeilShield contract, vUSD token, oracle wallet.
+5. Click `Open Live App`.
+6. In `Oracle / Claims`, point at `Replayable Demo Seed`.
+7. Point at `Claims Book`: active / pending / ready-to-finalize rows.
+8. Point at `Public Claim Trail`: public lifecycle history without private thresholds.
+9. Switch to `Policy Holder`.
+10. Pick `Shipment delay`, point at `Private Delay Threshold`, then `Preview Threshold`.
+11. Point out that private view access is not needed to create cover; it is needed later for local decrypt.
+12. Switch to `Auditor`.
+13. Point at `Selective Disclosure Queue`: public facts, encrypted mirrors, and bounded review state.
+14. If owner wallet is connected and permit is ready, decrypt one auditor row.
+
+Avoid during the recording:
+
+- creating a new vertical or policy category
+- claiming private settlement for fields that are still public
+- waiting silently on threshold readiness without explaining `waiting on threshold`
+- presenting local counters as adoption or traction
 
 ### If you need the full live flow
 
@@ -51,7 +94,7 @@ That path shows privacy architecture faster than recording the whole lifecycle f
 - Premium: `120`
 - Oracle reading for trigger: `72`
 
-## Wave 4 template values
+## Wave 5 template values
 
 - `Shipment delay`: threshold `48`, coverage `1800`, premium `120`
 - `Delivery SLA delay`: threshold `72`, coverage `2400`, premium `180`

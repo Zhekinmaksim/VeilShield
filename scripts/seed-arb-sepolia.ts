@@ -14,7 +14,7 @@ const SCENARIO = {
     premium: 120n,
   },
   settledPolicy: {
-    feed: "port_congestion_index",
+    feed: "shipment_delay_hours",
     direction: 0,
     threshold: 60n,
     coverage: 2200n,
@@ -52,6 +52,65 @@ async function createCancelledHistoryPolicy(contract: any, signerAddress: string
   ).wait();
 
   await (await contract.cancelPolicy(policyId)).wait();
+}
+
+function statusLabel(status: number) {
+  return ["active", "pending", "triggered", "settled", "expired", "cancelled"][status] || "unknown";
+}
+
+function isScenarioPolicy(
+  entry: {
+    status: number;
+    feed: string;
+    direction: number;
+    insured: string;
+    beneficiary: string;
+    coverage: bigint;
+    premium: bigint;
+  },
+  scenario: { feed: string; direction: number; coverage: bigint; premium: bigint },
+  statuses: number[],
+  signerAddress: string
+) {
+  const normalizedSigner = signerAddress.toLowerCase();
+  return (
+    statuses.includes(entry.status) &&
+    entry.insured.toLowerCase() === normalizedSigner &&
+    entry.beneficiary.toLowerCase() === normalizedSigner &&
+    entry.feed === makeFeedBytes32(scenario.feed) &&
+    entry.direction === scenario.direction &&
+    entry.coverage === scenario.coverage &&
+    entry.premium === scenario.premium
+  );
+}
+
+function printScenarioSummary(
+  statuses: Array<{
+    id: bigint;
+    status: number;
+    insured: string;
+    beneficiary: string;
+    feed: string;
+    direction: number;
+    coverage: bigint;
+    premium: bigint;
+  }>
+) {
+  console.log("Current policy book:");
+  if (statuses.length === 0) {
+    console.log("  no policies yet");
+    return;
+  }
+
+  for (const entry of statuses) {
+    let feed = entry.feed;
+    try {
+      feed = ethers.decodeBytes32String(entry.feed);
+    } catch {}
+    console.log(
+      `  #${entry.id.toString()} ${statusLabel(entry.status)} insured=${entry.insured} beneficiary=${entry.beneficiary} feed=${feed} direction=${entry.direction} coverage=${entry.coverage.toString()} premium=${entry.premium.toString()}`
+    );
+  }
 }
 
 async function waitForDecisionReady(contract: any, policyId: bigint, options?: { attempts?: number; delayMs?: number }) {
@@ -100,28 +159,45 @@ async function main() {
     throw new Error(`Seed script expects signer to be owner and oracle. signer=${signerAddress} owner=${owner} oracle=${oracle}`);
   }
 
-  const settledFeed = makeFeedBytes32(SCENARIO.settledPolicy.feed);
-
   const readPolicies = async () => {
     const count = Number(await contract.policyCount());
-    const statuses: Array<{ id: bigint; status: number; feed: string }> = [];
+    const statuses: Array<{
+      id: bigint;
+      status: number;
+      insured: string;
+      beneficiary: string;
+      feed: string;
+      direction: number;
+      coverage: bigint;
+      premium: bigint;
+    }> = [];
     for (let id = 0; id < count; id += 1) {
-      const policy = await contract.policies(BigInt(id));
+      const policyId = BigInt(id);
+      const [policy, tokenTerms] = await Promise.all([
+        contract.policies(policyId),
+        contract.getPolicyTokenTerms(policyId),
+      ]);
       statuses.push({
-        id: BigInt(id),
+        id: policyId,
         status: Number(policy.status),
+        insured: policy.insured,
+        beneficiary: policy.beneficiary,
         feed: policy.oracleFeedId,
+        direction: Number(policy.direction),
+        coverage: BigInt(tokenTerms[0]),
+        premium: BigInt(tokenTerms[1]),
       });
     }
     return statuses;
   };
 
   let statuses = await readPolicies();
-  let hasActive = statuses.some((entry) => entry.status === 0);
-  let hasSettled = statuses.some((entry) => entry.status === 3);
+  printScenarioSummary(statuses);
+  let hasActive = statuses.some((entry) => isScenarioPolicy(entry, SCENARIO.activePolicy, [0], signerAddress));
+  let hasSettled = statuses.some((entry) => isScenarioPolicy(entry, SCENARIO.settledPolicy, [3], signerAddress));
   let hasHistory = statuses.some((entry) => [3, 4, 5].includes(entry.status));
 
-  for (const entry of statuses.filter((item) => item.status === 1)) {
+  for (const entry of statuses.filter((item) => isScenarioPolicy(item, SCENARIO.settledPolicy, [1], signerAddress))) {
     console.log(`Resuming pending decision for policy ${entry.id.toString()}...`);
     try {
       await waitForDecisionReady(contract, entry.id, { attempts: 12, delayMs: 5000 });
@@ -133,21 +209,21 @@ async function main() {
   }
 
   statuses = await readPolicies();
-  for (const entry of statuses.filter((item) => item.status === 2)) {
+  for (const entry of statuses.filter((item) => isScenarioPolicy(item, SCENARIO.settledPolicy, [2], signerAddress))) {
     console.log(`Settling already-triggered policy ${entry.id.toString()}...`);
     await (await contract.settleTriggeredPolicy(entry.id)).wait();
   }
 
   statuses = await readPolicies();
-  hasActive = statuses.some((entry) => entry.status === 0);
-  hasSettled = statuses.some((entry) => entry.status === 3);
+  hasActive = statuses.some((entry) => isScenarioPolicy(entry, SCENARIO.activePolicy, [0], signerAddress));
+  hasSettled = statuses.some((entry) => isScenarioPolicy(entry, SCENARIO.settledPolicy, [3], signerAddress));
   hasHistory = statuses.some((entry) => [3, 4, 5].includes(entry.status));
   const hasInFlightSettledCandidate = statuses.some(
-    (entry) => [1, 2].includes(entry.status) && entry.feed === settledFeed
+    (entry) => isScenarioPolicy(entry, SCENARIO.settledPolicy, [1, 2], signerAddress)
   );
 
   if (hasActive && hasSettled) {
-    console.log("Live scenario already seeded with at least one active and one settled policy.");
+    console.log("Canonical exporter demo already has one active policy and one settled history policy.");
     return;
   }
 
@@ -232,6 +308,7 @@ async function main() {
     await createCancelledHistoryPolicy(contract, signerAddress, expiry);
   }
 
+  printScenarioSummary(await readPolicies());
   console.log("Exporter demo scenario seeded successfully.");
 }
 
