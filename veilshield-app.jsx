@@ -1535,6 +1535,18 @@ function App() {
     reading: "",
   });
 
+  useEffect(() => {
+    if (typeof window === "undefined") {
+      return;
+    }
+
+    window.requestAnimationFrame(() => {
+      window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+      document.documentElement.scrollTop = 0;
+      document.body.scrollTop = 0;
+    });
+  }, [workspace]);
+
   function isAutoReconnectBlocked() {
     try {
       return window.localStorage.getItem(MANUAL_DISCONNECT_KEY) === "1";
@@ -2888,9 +2900,8 @@ function LandingPage({ stats, onOpenWorkspace }) {
       <section style={css.landingHero}>
         <div style={css.landingHeroCopy}>
           <div style={css.landingEyebrow}>
-            <span>Fhenix CoFHE</span>
+            <span>Fhenix Privacy-by-Design dApp Buildathon</span>
             <span>Arbitrum Sepolia</span>
-            <span>Wave 5</span>
           </div>
           <h1 style={css.landingTitle}>
             Cargo delay cover where the threshold stays encrypted on-chain.
@@ -3118,7 +3129,7 @@ function LandingSection({ number, title, text, children }) {
     <section style={css.landingSection}>
       <div style={css.landingSectionHeader}>
         <div>
-          <div style={css.landingSectionNumber}>{number} - Wave 5</div>
+          <div style={css.landingSectionNumber}>{number}</div>
           <h2 style={css.landingSectionTitle}>{title}</h2>
         </div>
         <p style={css.landingSectionText}>{text}</p>
